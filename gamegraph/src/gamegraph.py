@@ -135,6 +135,7 @@ class GameGraphState(object):
         self.shadow = None
     
     def move(self, checker):
+        graph_node_from = str(self)
         player = self.player_to_move
         if checker == GameGraphAction.ACTION_FORFEIT_MOVE:
             self.switch_turn()
@@ -202,6 +203,10 @@ class GameGraphState(object):
 #        else:
 #            if PRINT_GAME_DETAIL:
 #                print '#  can\'t move either of checkers.'
+
+        if success:
+            graph_node_to = str(self)
+            self.G.add_edge(graph_node_from, graph_node_to, checker)
             
         return success
     
@@ -230,6 +235,7 @@ class GameGraphState(object):
 
     def switch_turn(self):
         self.player_to_move = self.other_player(self.player_to_move)
+        self.roll = GameGraphDie.roll()
     
     def is_final(self):
         return self.has_player_won(self.PLAYER_WHITE) or \
@@ -340,7 +346,7 @@ class GameGraphState(object):
                 cls.states_sorted_by_ply_visit_count.append(state_visit_count)
                 state_visit_count_over_avg_num_plies = float(state_visit_count) / avg_num_plies_per_game 
                 cls.states_sorted_by_ply_visit_count_over_avg_num_plies.append(state_visit_count_over_avg_num_plies)
-        
+                
 class GameGraphAgent(object):
     
     def __init__(self):
@@ -429,6 +435,9 @@ class GameGraphGame(object):
         self.p = p
         self.reentry_offset = reentry_offset
         self.state = GameGraphState(player_to_start_game, self.p, self.reentry_offset)
+
+        # initial die roll
+        self.state.roll = GameGraphDie.roll()
         
         agent_white.set_state(self.state)
         agent_black.set_state(self.state)
@@ -439,15 +448,13 @@ class GameGraphGame(object):
 #            if self.player_to_play == GameGraphState.PLAYER_WHITE:
 #                self.state.compute_per_ply_stats(self.count_plies)
             self.state.compute_per_ply_stats(self.count_plies)
-            roll = GameGraphDie.roll()
-            self.state.roll = roll
             if PRINT_GAME_DETAIL:
                 self.state.print_state()
             action = self.agents[self.state.player_to_move].select_action()
             if PRINT_GAME_DETAIL:
                 print '#  %s rolls %d, playing %s checker...' % \
                         (GameGraphState.PLAYER_NAME[self.state.player_to_move], 
-                         roll, GameGraphState.CHECKER_NAME[action])
+                         self.state.roll, GameGraphState.CHECKER_NAME[action])
             self.state.move(action)
             if PRINT_GAME_DETAIL:
                 print '# '
@@ -583,6 +590,8 @@ if __name__ == '__main__':
     avg_num_plies_per_game = float(total_plies) / num_games
     print 'Games won by White: %d, Black: %d' % (count_wins[GameGraphState.PLAYER_WHITE], count_wins[GameGraphState.PLAYER_BLACK])
     print 'Average plies per game: %.2f' % avg_num_plies_per_game 
+    
+    GameGraphState.G.print_stats()
     
     if COLLECT_STATS:
         total_states_visited = len(GameGraphState.states_visit_count)

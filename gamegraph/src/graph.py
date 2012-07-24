@@ -27,6 +27,19 @@ class Graph(object):
                 return self.neighbors[node][edge].keys()
         return []
     
+    def print_stats(self):
+        print "G stats:"
+        print "Number of nodes: %d" % len(self.neighbors)
+        total_edges = 0
+        total_transitions = 0
+        for node1 in self.neighbors:
+            node_edges = 0
+            for edge in self.neighbors[node1]:
+                for node2 in self.neighbors[node1][edge]:
+                    total_edges += 1
+                    total_transitions += self.neighbors[node1][edge][node2]
+        print "Number of edges: %d" % total_edges
+        print "Number of transitions: %d" % total_transitions
     
 if __name__ == '__main__':
     g = Graph()
@@ -40,5 +53,6 @@ if __name__ == '__main__':
     print g.get_neighbors("5", "r")
     print g.get_neighbors("0", "r")
     print g.neighbors["3"]
+    g.print_stats()
     
     
