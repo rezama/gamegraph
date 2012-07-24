@@ -11,6 +11,7 @@ from pybrain.structure.modules.sigmoidlayer import SigmoidLayer
 from common import NUM_STATS_GAMES, PRINT_GAME_DETAIL, PRINT_GAME_RESULTS, \
     RECENT_WINNERS_LIST_SIZE, COLLECT_STATS, ALTERNATE_SEATS, Experiment,\
     USE_SEEDS
+from graph import Graph
 
 HIDDEN_UNITS = 10
 
@@ -100,7 +101,10 @@ class NannonState(object):
     states_visit_first_ply_num = {}
     states_sorted_by_ply_visit_count = []
     states_sorted_by_ply_visit_count_over_avg_num_plies = []
-    
+
+    # graph
+    G = Graph()
+        
     def __init__(self, player_to_move, p, reentry_offset):
         self.pos = [[0, 1, 2],
                     [0, 1, 2]]
@@ -116,6 +120,9 @@ class NannonState(object):
         self.shadow = None
     
     def move(self, checker):
+        if COLLECT_STATS:
+            graph_node_from = str(self)
+            
         player = self.player_to_move
         if checker == NannonAction.ACTION_FORFEIT_MOVE:
             self.switch_turn()
@@ -193,6 +200,11 @@ class NannonState(object):
 #            if PRINT_GAME_DETAIL:
 #                print '#  can\'t move either of checkers.'
             
+        if COLLECT_STATS:
+            if success:
+                graph_node_to = str(self)
+                self.G.add_edge(graph_node_from, graph_node_to, checker)
+            
         return success
     
     def get_move_outcome(self, checker):
@@ -222,7 +234,8 @@ class NannonState(object):
 
     def switch_turn(self):
         self.player_to_move = self.other_player(self.player_to_move)
-    
+        self.roll = NannonDie.roll()
+            
     def is_final(self):
         return self.has_player_won(self.PLAYER_WHITE) or \
                self.has_player_won(self.PLAYER_BLACK)
@@ -438,33 +451,33 @@ class NannonGame(object):
         self.reentry_offset = reentry_offset
         self.state = NannonState(player_to_start_game, self.p, self.reentry_offset)
         
+        # first roll
+        roll = 0
+        while roll == 0:
+            roll = abs(NannonDie.roll() - NannonDie.roll())
+        self.state.roll = roll
+        
         agent_white.set_state(self.state)
         agent_black.set_state(self.state)
         self.count_plies = 0
         
     def play(self):
-        # first roll
-        roll = 0
-        while roll == 0:
-            roll = abs(NannonDie.roll() - NannonDie.roll())
             
         while not self.state.is_final():
 #            if self.player_to_play == NannonState.PLAYER_WHITE:
 #                self.state.compute_per_ply_stats(self.count_plies)
             self.state.compute_per_ply_stats(self.count_plies)
-            self.state.roll = roll
             if PRINT_GAME_DETAIL:
                 self.state.print_state()
             action = self.agents[self.state.player_to_move].select_action()
             if PRINT_GAME_DETAIL:
                 print '#  %s rolls %d, playing %s checker...' % \
                         (NannonState.PLAYER_NAME[self.state.player_to_move], 
-                         roll, NannonState.CHECKER_NAME[action])
+                         self.state.roll, NannonState.CHECKER_NAME[action])
             self.state.move(action)
             if PRINT_GAME_DETAIL:
                 print '# '
             self.count_plies += 1
-            roll = NannonDie.roll()
         
         if PRINT_GAME_DETAIL:
             self.state.print_state()
@@ -610,4 +623,4 @@ if __name__ == '__main__':
         print 'Variance of number of visits to states: %.2f' % var_visit_count_to_states
         
         NannonState.compute_overall_stats(avg_num_plies_per_game)
-        Experiment.write_stats(NannonState, 'nannon')
+        Experiment.write_stats(NannonState, Domain.name)

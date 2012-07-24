@@ -4,6 +4,7 @@ Created on Dec 11, 2011
 @author: reza
 '''
 import sys
+import pickle
 
 DEFAULT_P = 1.0
 DEFAULT_REENTRY_OFFSET = 0
@@ -17,9 +18,9 @@ EXP_VARY_REENTRY = 'offset'
 ALTERNATE_SEATS = True
 USE_SEEDS = True
 
-COLLECT_STATS = True
-
 RECENT_WINNERS_LIST_SIZE = 3000
+
+COLLECT_STATS = True
 
 NUM_STATS_GAMES = 10000
 
@@ -36,6 +37,13 @@ class Experiment:
     
     @classmethod
     def get_file_suffix(cls):
+        if cls.exp == EXP_VARY_P:
+            return '%s-%1.2f' % (cls.exp, cls.p)
+        else:
+            return '%s-%d' % (cls.exp, cls.offset)
+
+    @classmethod
+    def get_file_suffix_no_trial(cls):
         if cls.exp == EXP_VARY_P:
             return '%s-%1.2f-%d' % (cls.exp, cls.p, cls.trial)
         else:
@@ -120,5 +128,11 @@ class Experiment:
         for i in range(len(state_class.states_sorted_by_ply_visit_count_over_avg_num_plies)):
             state_sorted_by_ply_visit_count_over_avg_num_plies = state_class.states_sorted_by_ply_visit_count_over_avg_num_plies[i]
             f.write('%d: %f\n' % (i, state_sorted_by_ply_visit_count_over_avg_num_plies))
+        f.close()        
+    
+        # same as above, over average num of plies per game   
+        filename = '../data/state-graph-%s-%s.txt' % (domain_name, cls.get_file_suffix_no_trial())
+        f = open(filename, 'w')
+        pickle.dump(state_class.G, f)
         f.close()        
     

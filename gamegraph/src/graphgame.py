@@ -13,14 +13,14 @@ from graph import Graph
 
 HIDDEN_UNITS = 10
 
-class GameGraphDie(object):
+class GraphGameDie(object):
     SIDES = [1, 2]
     
     @classmethod
     def roll(cls):
         return random.choice(cls.SIDES)
 
-class GameGraphAction(object):
+class GraphGameAction(object):
     ACTION_CHECKER1 = 0
     ACTION_CHECKER2 = 1
     ACTION_FORFEIT_MOVE = 2
@@ -47,7 +47,7 @@ class GameGraphAction(object):
     def next_checker(cls, checker):
         return (checker + 1) % (cls.NUM_CHECKERS)
 
-class GameGraphState(object):
+class GraphGameState(object):
     
     # Old version:
     #
@@ -117,15 +117,11 @@ class GameGraphState(object):
     states_sorted_by_ply_visit_count = []
     states_sorted_by_ply_visit_count_over_avg_num_plies = []
     
-    # graph
-    G = Graph()
-    
     def __init__(self, player_to_move, p, reentry_offset):
         self.pos = [[self.BOARD_START, self.BOARD_START],
                     [self.BOARD_START, self.BOARD_START]]
         self.player_to_move = player_to_move
         self.roll = None
-        
         
         self.p = p
         self.reentry_offset = reentry_offset
@@ -137,12 +133,12 @@ class GameGraphState(object):
     def move(self, checker):
         graph_node_from = str(self)
         player = self.player_to_move
-        if checker == GameGraphAction.ACTION_FORFEIT_MOVE:
+        if checker == GraphGameAction.ACTION_FORFEIT_MOVE:
             self.switch_turn()
             return True
         
         checker_pos = self.pos[player][checker]
-        other_checker = GameGraphAction.next_checker(checker)
+        other_checker = GraphGameAction.next_checker(checker)
         other_checker_pos = self.pos[player][other_checker]
         opponent = self.other_player(player)
         opponent_actual_checker1_pos = self.flip_pos(self.pos[opponent][self.CHECKER1])
@@ -198,7 +194,7 @@ class GameGraphState(object):
                 
 #        elif must_try_other_checker:
 #            if PRINT_GAME_DETAIL:
-#                print '#  illegal move, playing %s checker...' % GameGraphState.CHECKER_NAME[other_checker]
+#                print '#  illegal move, playing %s checker...' % GraphGameState.CHECKER_NAME[other_checker]
 #            success = self.move(player, other_checker, must_try_other_checker = False)
 #        else:
 #            if PRINT_GAME_DETAIL:
@@ -212,7 +208,7 @@ class GameGraphState(object):
     
     def get_move_outcome(self, checker):
         if self.shadow is None:
-            self.shadow = GameGraphState(self.player_to_move, 
+            self.shadow = GraphGameState(self.player_to_move, 
                                           self.p, self.reentry_offset)
         else:
             self.shadow.player_to_move = self.player_to_move
@@ -235,7 +231,7 @@ class GameGraphState(object):
 
     def switch_turn(self):
         self.player_to_move = self.other_player(self.player_to_move)
-        self.roll = GameGraphDie.roll()
+        self.roll = GraphGameDie.roll()
     
     def is_final(self):
         return self.has_player_won(self.PLAYER_WHITE) or \
@@ -364,19 +360,19 @@ class GameGraphAgent(object):
     def select_action(self):
         raise NotImplementedError
 
-class GameGraphAgentRandom(GameGraphAgent):
+class GraphGameAgentRandom(GameGraphAgent):
     
     def __init__(self):
-        super(GameGraphAgentRandom, self).__init__()
+        super(GraphGameAgentRandom, self).__init__()
     
     def select_action(self):
-        return GameGraphAction.random_action(self.state)
+        return GraphGameAction.random_action(self.state)
     
-class GameGraphAgentNeural(GameGraphAgent):
+class GraphGameAgentNeural(GameGraphAgent):
     
     def __init__(self, outputdim, init_weights = None):
-        super(GameGraphAgentNeural, self).__init__()
-        self.inputdim = (GameGraphState.BOARD_SIZE + 2) * 4   + 2
+        super(GraphGameAgentNeural, self).__init__()
+        self.inputdim = (GraphGameState.BOARD_SIZE + 2) * 4   + 2
         #               10 points: |1w |2w |1b |2b             |white's turn |black's turn
         self.outputdim = outputdim
         self.hiddendim = HIDDEN_UNITS
@@ -398,14 +394,14 @@ class GameGraphAgentNeural(GameGraphAgent):
             action_values_sorted = sorted(action_values, reverse=True)
             action = action_values_sorted[0][1]
         else:
-            action = GameGraphAction.ACTION_FORFEIT_MOVE
+            action = GraphGameAction.ACTION_FORFEIT_MOVE
             
         return action
         
     def encode_network_input(self, state):
         network_in = [0] * self.inputdim
-        for player in [GameGraphState.PLAYER_WHITE, GameGraphState.PLAYER_BLACK]:
-            for checker in GameGraphAction.ALL_CHECKERS:
+        for player in [GraphGameState.PLAYER_WHITE, GraphGameState.PLAYER_BLACK]:
+            for checker in GraphGameAction.ALL_CHECKERS:
                 pos = state.pos[player][checker]
                 offset = pos * 4 + player * 2
                 # Seeing a second checker on the same point?
@@ -421,7 +417,7 @@ class GameGraphAgentNeural(GameGraphAgent):
     def __repr__(self):
         return str(self.network.params)
     
-class GameGraphGame(object):
+class GraphGameGame(object):
     
     REWARD_WIN = 1.0
     REWARD_LOSE = 0.0
@@ -430,14 +426,14 @@ class GameGraphGame(object):
                  player_to_start_game, p, reentry_offset):
         self.game_number = game_number
         self.agents = [None, None]
-        self.agents[GameGraphState.PLAYER_WHITE] = agent_white
-        self.agents[GameGraphState.PLAYER_BLACK] = agent_black
+        self.agents[GraphGameState.PLAYER_WHITE] = agent_white
+        self.agents[GraphGameState.PLAYER_BLACK] = agent_black
         self.p = p
         self.reentry_offset = reentry_offset
-        self.state = GameGraphState(player_to_start_game, self.p, self.reentry_offset)
+        self.state = GraphGameState(player_to_start_game, self.p, self.reentry_offset)
 
         # initial die roll
-        self.state.roll = GameGraphDie.roll()
+        self.state.roll = GraphGameDie.roll()
         
         agent_white.set_state(self.state)
         agent_black.set_state(self.state)
@@ -445,7 +441,7 @@ class GameGraphGame(object):
         
     def play(self):
         while not self.state.is_final():
-#            if self.player_to_play == GameGraphState.PLAYER_WHITE:
+#            if self.player_to_play == GraphGameState.PLAYER_WHITE:
 #                self.state.compute_per_ply_stats(self.count_plies)
             self.state.compute_per_ply_stats(self.count_plies)
             if PRINT_GAME_DETAIL:
@@ -453,8 +449,8 @@ class GameGraphGame(object):
             action = self.agents[self.state.player_to_move].select_action()
             if PRINT_GAME_DETAIL:
                 print '#  %s rolls %d, playing %s checker...' % \
-                        (GameGraphState.PLAYER_NAME[self.state.player_to_move], 
-                         self.state.roll, GameGraphState.CHECKER_NAME[action])
+                        (GraphGameState.PLAYER_NAME[self.state.player_to_move], 
+                         self.state.roll, GraphGameState.CHECKER_NAME[action])
             self.state.move(action)
             if PRINT_GAME_DETAIL:
                 print '# '
@@ -467,12 +463,12 @@ class GameGraphGame(object):
         
         winner = None
         loser = None
-        if self.state.has_player_won(GameGraphState.PLAYER_WHITE):
-            winner = GameGraphState.PLAYER_WHITE
-            loser = GameGraphState.PLAYER_BLACK
-        elif self.state.has_player_won(GameGraphState.PLAYER_BLACK):
-            winner = GameGraphState.PLAYER_BLACK
-            loser = GameGraphState.PLAYER_WHITE
+        if self.state.has_player_won(GraphGameState.PLAYER_WHITE):
+            winner = GraphGameState.PLAYER_WHITE
+            loser = GraphGameState.PLAYER_BLACK
+        elif self.state.has_player_won(GraphGameState.PLAYER_BLACK):
+            winner = GraphGameState.PLAYER_BLACK
+            loser = GraphGameState.PLAYER_WHITE
         else:
             print 'Error: Game ended without winning player!'
         
@@ -488,7 +484,7 @@ class GameGraphGame(object):
     def get_max_episode_reward(cls):
         return cls.REWARD_WIN
         
-class GameGraphGameSet(object):
+class GraphGameGameSet(object):
     
     def __init__(self, num_games, agent1, agent2, p, reentry_offset,
                  print_learning_progress = False, progress_filename = None):
@@ -517,7 +513,7 @@ class GameGraphGameSet(object):
         count_wins = [0, 0]
         recent_winners = [] # 0 for agent1, 1 for agent2
         
-        player_to_start_game = GameGraphState.PLAYER_WHITE
+        player_to_start_game = GraphGameState.PLAYER_WHITE
         for game_number in range(self.num_games):
             if ALTERNATE_SEATS:
                 if game_number % 2 == 0:
@@ -529,25 +525,25 @@ class GameGraphGameSet(object):
             # setup game
             players[0].begin_episode()
             players[1].begin_episode()
-            game = GameGraphGame(game_number, players[0], players[1],
+            game = GraphGameGame(game_number, players[0], players[1],
                                   player_to_start_game, self.p, self.reentry_offset)
             winner = game.play()
             if seats_reversed:
-                winner = GameGraphState.other_player(winner)
+                winner = GraphGameState.other_player(winner)
             count_wins[winner] += 1
             if self.print_learning_progress:
                 if len(recent_winners) > RECENT_WINNERS_LIST_SIZE - 1:
                     recent_winners.pop(0)
                 recent_winners.append(winner)
             if PRINT_GAME_RESULTS:
-                print 'Game %2d won by %s in %2d plies' % (game_number, GameGraphState.PLAYER_NAME[winner], game.count_plies)
+                print 'Game %2d won by %s in %2d plies' % (game_number, GraphGameState.PLAYER_NAME[winner], game.count_plies)
             if self.print_learning_progress:
                 win_ratio = float(recent_winners.count(0)) / len(recent_winners)
                 print 'First agent\'s recent win ratio: %.2f' % win_ratio 
                 if self.progress_filename is not None:
                     f.write('%d %f\n' % (game_number, win_ratio))
             self.sum_count_plies += game.get_count_plies()
-            player_to_start_game = GameGraphState.other_player(player_to_start_game)
+            player_to_start_game = GraphGameState.other_player(player_to_start_game)
             
         if self.progress_filename is not None:
             f.close()
@@ -558,15 +554,15 @@ class GameGraphGameSet(object):
         return self.sum_count_plies
 
 class Domain(object):
-    name = 'gamegraph'
-    DieClass = GameGraphDie
-    StateClass = GameGraphState
-    ActionClass = GameGraphAction
-    GameClass = GameGraphGame
-    GameSetClass = GameGraphGameSet
+    name = 'graphgame'
+    DieClass = GraphGameDie
+    StateClass = GraphGameState
+    ActionClass = GraphGameAction
+    GameClass = GraphGameGame
+    GameSetClass = GraphGameGameSet
     AgentClass = GameGraphAgent
-    AgentRandomClass = GameGraphAgentRandom
-    AgentNeuralClass = GameGraphAgentNeural
+    AgentRandomClass = GraphGameAgentRandom
+    AgentNeuralClass = GraphGameAgentNeural
 
     print 'Loading Domain: %s' % name
     print 
@@ -575,9 +571,9 @@ if __name__ == '__main__':
     (p, reentry_offset) = Experiment.get_command_line_args()
     
     num_games = NUM_STATS_GAMES
-    agent_white = GameGraphAgentRandom()
-    agent_black = GameGraphAgentRandom()
-    game_set = GameGraphGameSet(num_games, agent_white, agent_black,
+    agent_white = GraphGameAgentRandom()
+    agent_black = GraphGameAgentRandom()
+    game_set = GraphGameGameSet(num_games, agent_white, agent_black,
                                 p, reentry_offset)
     count_wins = game_set.run()
     total_plies = game_set.get_sum_count_plies()
@@ -588,22 +584,22 @@ if __name__ == '__main__':
     print 'Re-entry offset was: %d' % reentry_offset
     
     avg_num_plies_per_game = float(total_plies) / num_games
-    print 'Games won by White: %d, Black: %d' % (count_wins[GameGraphState.PLAYER_WHITE], count_wins[GameGraphState.PLAYER_BLACK])
+    print 'Games won by White: %d, Black: %d' % (count_wins[GraphGameState.PLAYER_WHITE], count_wins[GraphGameState.PLAYER_BLACK])
     print 'Average plies per game: %.2f' % avg_num_plies_per_game 
     
-    GameGraphState.G.print_stats()
+    GraphGameState.G.print_stats()
     
     if COLLECT_STATS:
-        total_states_visited = len(GameGraphState.states_visit_count)
+        total_states_visited = len(GraphGameState.states_visit_count)
         print 'Total number of states encountered: %d' % total_states_visited
         print 'per 1000 plies: %.2f' % (float(total_states_visited) / avg_num_plies_per_game)
         
-        avg_visit_count_to_states = sum(GameGraphState.states_visit_count.itervalues()) / float(total_states_visited)
+        avg_visit_count_to_states = sum(GraphGameState.states_visit_count.itervalues()) / float(total_states_visited)
         print 'Average number of visits to states: %.2f' % avg_visit_count_to_states
         print 'per 1000 plies: %.2f' % (float(avg_visit_count_to_states) / avg_num_plies_per_game)
         
-        var_visit_count_to_states = sum([(e - avg_visit_count_to_states) ** 2 for e in GameGraphState.states_visit_count.itervalues()]) / float(total_states_visited) 
+        var_visit_count_to_states = sum([(e - avg_visit_count_to_states) ** 2 for e in GraphGameState.states_visit_count.itervalues()]) / float(total_states_visited) 
         print 'Variance of number of visits to states: %.2f' % var_visit_count_to_states
         
-        GameGraphState.compute_overall_stats(avg_num_plies_per_game)
-        Experiment.write_stats(GameGraphState, 'minigammon')
+        GraphGameState.compute_overall_stats(avg_num_plies_per_game)
+        Experiment.write_stats(GraphGameState, Domain.name)
