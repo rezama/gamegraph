@@ -9,6 +9,7 @@ from pybrain.structure.modules.sigmoidlayer import SigmoidLayer
 from common import NUM_STATS_GAMES, PRINT_GAME_DETAIL, PRINT_GAME_RESULTS, \
     RECENT_WINNERS_LIST_SIZE, COLLECT_STATS, ALTERNATE_SEATS, Experiment,\
     USE_SEEDS
+from graph import Graph
 
 HIDDEN_UNITS = 10
 
@@ -115,6 +116,9 @@ class GameGraphState(object):
     states_visit_first_ply_num = {}
     states_sorted_by_ply_visit_count = []
     states_sorted_by_ply_visit_count_over_avg_num_plies = []
+    
+    # graph
+    G = Graph()
     
     def __init__(self, player_to_move, p, reentry_offset):
         self.pos = [[self.BOARD_START, self.BOARD_START],
@@ -567,7 +571,7 @@ if __name__ == '__main__':
     agent_white = GameGraphAgentRandom()
     agent_black = GameGraphAgentRandom()
     game_set = GameGraphGameSet(num_games, agent_white, agent_black,
-                                 p, reentry_offset)
+                                p, reentry_offset)
     count_wins = game_set.run()
     total_plies = game_set.get_sum_count_plies()
     

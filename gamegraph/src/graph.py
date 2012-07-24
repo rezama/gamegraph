@@ -39,5 +39,6 @@ if __name__ == '__main__':
     print g.get_neighbors("2", "r")
     print g.get_neighbors("5", "r")
     print g.get_neighbors("0", "r")
+    print g.neighbors["3"]
     
     
