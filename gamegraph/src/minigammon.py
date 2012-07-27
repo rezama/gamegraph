@@ -441,6 +441,7 @@ class MiniGammonGame(object):
 
         # initial die roll
         self.state.roll = MiniGammonDie.roll()
+        MiniGammonState.G.add_source(str(self.state), player_to_start_game)
         
         agent_white.set_state(self.state)
         agent_black.set_state(self.state)
@@ -481,6 +482,8 @@ class MiniGammonGame(object):
         
         self.agents[winner].end_episode(self.REWARD_WIN)
         self.agents[loser].end_episode(self.REWARD_LOSE)
+        
+        MiniGammonState.G.add_sink(str(self.state), winner)
         
         return winner
         

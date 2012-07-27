@@ -456,6 +456,7 @@ class NannonGame(object):
         while roll == 0:
             roll = abs(NannonDie.roll() - NannonDie.roll())
         self.state.roll = roll
+        NannonState.G.add_source(str(self.state), player_to_start_game)
         
         agent_white.set_state(self.state)
         agent_black.set_state(self.state)
@@ -497,6 +498,8 @@ class NannonGame(object):
         
         self.agents[winner].end_episode(self.REWARD_WIN)
         self.agents[loser].end_episode(self.REWARD_LOSE)
+        
+        NannonState.G.add_sink(str(self.state), winner)
         
         return winner
         

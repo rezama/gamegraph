@@ -6,6 +6,9 @@ Created on Dec 11, 2011
 import sys
 import pickle
 
+PLAYER_WHITE = 0
+PLAYER_BLACK = 0
+
 DEFAULT_P = 1.0
 DEFAULT_REENTRY_OFFSET = 0
 DEFAULT_TRIAL = 0
