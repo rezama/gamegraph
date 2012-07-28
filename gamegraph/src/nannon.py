@@ -10,7 +10,7 @@ from pybrain.structure.modules.sigmoidlayer import SigmoidLayer
 #from pybrain.supervised.trainers.backprop import BackpropTrainer
 from common import NUM_STATS_GAMES, PRINT_GAME_DETAIL, PRINT_GAME_RESULTS, \
     RECENT_WINNERS_LIST_SIZE, COLLECT_STATS, ALTERNATE_SEATS, Experiment,\
-    USE_SEEDS
+    USE_SEEDS, GENERATE_GRAPH
 from graph import Graph
 
 HIDDEN_UNITS = 10
@@ -120,7 +120,7 @@ class NannonState(object):
         self.shadow = None
     
     def move(self, checker):
-        if COLLECT_STATS:
+        if GENERATE_GRAPH:
             graph_node_from = str(self)
             
         player = self.player_to_move
@@ -200,7 +200,7 @@ class NannonState(object):
 #            if PRINT_GAME_DETAIL:
 #                print '#  can\'t move either of checkers.'
             
-        if COLLECT_STATS:
+        if GENERATE_GRAPH:
             if success:
                 graph_node_to = str(self)
                 self.G.add_edge(graph_node_from, graph_node_to, checker)
@@ -604,6 +604,12 @@ if __name__ == '__main__':
     count_wins = game_set.run()
     total_plies = game_set.get_sum_count_plies()
     
+    if GENERATE_GRAPH:
+        NannonState.G.print_stats()
+        NannonState.G.convert_freq_to_prob()
+        filename = '../graph/%s-%s' % (Domain.name, Experiment.get_file_suffix_no_trial())
+        NannonState.G.save_to_file(filename)
+        
     # printing overall stats
     print '----'
     print 'P was: %.2f' % p
