@@ -133,9 +133,6 @@ class Experiment:
             f.write('%d: %f\n' % (i, state_sorted_by_ply_visit_count_over_avg_num_plies))
         f.close()        
     
-        # same as above, over average num of plies per game   
-        filename = '../data/state-graph-%s-%s.txt' % (domain_name, cls.get_file_suffix_no_trial())
-        f = open(filename, 'w')
-        pickle.dump(state_class.G, f)
-        f.close()        
+        filename = '../graph/state-graph-%s-%s.txt' % (domain_name, cls.get_file_suffix_no_trial())
+        state_class.G.save_to_file(filename)
     

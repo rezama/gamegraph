@@ -5,6 +5,7 @@ Created on Jun 25, 2012
 '''
 from common import PLAYER_WHITE, PLAYER_BLACK
 import random
+import pickle
 
 class Graph(object):
 
@@ -12,6 +13,35 @@ class Graph(object):
         self.neighbors = {}
         self.sources = {PLAYER_WHITE: [], PLAYER_BLACK: []}
         self.sinks = {PLAYER_WHITE: [], PLAYER_BLACK: []}
+        
+        self.current_node = None
+    
+    def reset(self, player_to_start):
+        self.current_node = self.get_random_source(player_to_start)
+    
+    def move(self, edge):
+        destinations_map = self.neighbors[self.current_node][edge]
+        target = None
+        p = random.random()
+        sum_prob = 0.0
+        for (node, prob) in destinations_map:
+            sum_prob += prob
+            if prob > p:
+                target = node
+                break
+        return target
+
+    def is_sink(self):
+        return (self.current_node in self.sinks[PLAYER_WHITE]) or \
+               (self.current_node in self.sinks[PLAYER_BLACK])
+    
+    def get_sink_color(self):
+        if self.current_node in self.sinks[PLAYER_WHITE]:
+            return PLAYER_WHITE
+        elif self.current_node in self.sinks[PLAYER_BLACK]:
+            return PLAYER_BLACK
+        else:
+            return None
     
     def add_source(self, node, player):
         if node not in self.sources[player]:
@@ -39,33 +69,9 @@ class Graph(object):
                 return self.neighbors[node][edge].keys()
         return []
     
-    def get_source(self, player_to_start):
+    def get_random_source(self, player_to_start):
         return random.choice(self.sources[player_to_start])
         
-    def move(self, node, edge):
-        destinations_map = self.neighbors[node][edge]
-        target = None
-        p = random.random()
-        sum_prob = 0.0
-        for (node, prob) in destinations_map:
-            sum_prob += prob
-            if prob > p:
-                target = node
-                break
-        return target
-
-    def is_sink(self, node):
-        return (node in self.sinks[PLAYER_WHITE]) or \
-               (node in self.sinks[PLAYER_BLACK])
-    
-    def get_sink_color(self, node):
-        if node in self.sinks[PLAYER_WHITE]:
-            return PLAYER_WHITE
-        elif node in self.sinks[PLAYER_BLACK]:
-            return PLAYER_BLACK
-        else:
-            return None
-    
     def convert_freq_to_prob(self):
         for node1 in self.neighbors:
             for edge in self.neighbors[node1]:
@@ -75,6 +81,17 @@ class Graph(object):
                 for node2 in self.neighbors[node1][edge]:
                     self.neighbors[node1][edge][node2] = \
                         float(self.neighbors[node1][edge][node2]) / sum_freq
+    
+    def save_to_file(self, path_to_file):
+        f = open(path_to_file, 'w')
+        pickle.dump(self, f)
+        f.close()
+       
+    @classmethod 
+    def load_from_file(cls, path_to_file):
+        f = open(path_to_file, 'r')
+        g = pickle.load(f)
+        return g
     
     def print_stats(self):
         print "G stats:"
