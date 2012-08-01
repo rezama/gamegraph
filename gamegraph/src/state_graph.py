@@ -7,7 +7,7 @@ from common import PLAYER_WHITE, PLAYER_BLACK
 import random
 import pickle
 
-class Graph(object):
+class StateGraph(object):
 
     def __init__(self):
         self.neighbors = {}
@@ -107,7 +107,7 @@ class Graph(object):
         print "Number of transitions: %d" % total_transitions
     
 if __name__ == '__main__':
-    g = Graph()
+    g = StateGraph()
     g.add_edge("1", "2", "r")
     g.add_edge("2", "3", "r")
     g.add_edge("3", "4", "r")

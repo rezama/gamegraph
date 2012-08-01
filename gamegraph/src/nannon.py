@@ -11,7 +11,7 @@ from pybrain.structure.modules.sigmoidlayer import SigmoidLayer
 from common import NUM_STATS_GAMES, PRINT_GAME_DETAIL, PRINT_GAME_RESULTS, \
     RECENT_WINNERS_LIST_SIZE, COLLECT_STATS, ALTERNATE_SEATS, Experiment,\
     USE_SEEDS, GENERATE_GRAPH
-from graph import Graph
+from state_graph import StateGraph
 
 HIDDEN_UNITS = 10
 
@@ -103,7 +103,7 @@ class NannonState(object):
     states_sorted_by_ply_visit_count_over_avg_num_plies = []
 
     # graph
-    G = Graph()
+    G = StateGraph()
         
     def __init__(self, player_to_move, p, reentry_offset):
         self.pos = [[0, 1, 2],
