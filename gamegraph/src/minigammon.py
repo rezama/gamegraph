@@ -120,7 +120,7 @@ class MiniGammonState(object):
     # graph
     G = StateGraph()
     
-    def __init__(self, player_to_move, p, reentry_offset):
+    def __init__(self, player_to_move, p, reentry_offset, graph_name):
         self.pos = [[self.BOARD_START, self.BOARD_START],
                     [self.BOARD_START, self.BOARD_START]]
         self.player_to_move = player_to_move
@@ -129,6 +129,7 @@ class MiniGammonState(object):
         
         self.p = p
         self.reentry_offset = reentry_offset
+        self.graph_name = graph_name
         self.BOARD_REENTRY_POS1 = self.BOARD_BAR + self.reentry_offset # 0
         self.BOARD_REENTRY_POS2 = self.BOARD_MID                       # 4
         
@@ -430,14 +431,16 @@ class MiniGammonGame(object):
     REWARD_LOSE = 0.0
     
     def __init__(self, game_number, agent_white, agent_black,
-                 player_to_start_game, p, reentry_offset):
+                 player_to_start_game, p, reentry_offset, graph_name):
         self.game_number = game_number
         self.agents = [None, None]
         self.agents[MiniGammonState.PLAYER_WHITE] = agent_white
         self.agents[MiniGammonState.PLAYER_BLACK] = agent_black
         self.p = p
         self.reentry_offset = reentry_offset
-        self.state = MiniGammonState(player_to_start_game, self.p, self.reentry_offset)
+        self.graph_name = graph_name
+        self.state = MiniGammonState(player_to_start_game, self.p,
+                                     self.reentry_offset, self.graph_name)
 
         # initial die roll
         self.state.roll = MiniGammonDie.roll()
@@ -497,12 +500,14 @@ class MiniGammonGame(object):
 class MiniGammonGameSet(object):
     
     def __init__(self, num_games, agent1, agent2, p, reentry_offset,
-                 print_learning_progress = False, progress_filename = None):
+                 graph_name, print_learning_progress = False, 
+                 progress_filename = None):
         self.num_games = num_games
         self.agent1 = agent1
         self.agent2 = agent2
         self.p = p
         self.reentry_offset = reentry_offset
+        self.graph_name = graph_name
         self.print_learning_progress = print_learning_progress
         self.progress_filename = progress_filename
 
@@ -536,7 +541,8 @@ class MiniGammonGameSet(object):
             players[0].begin_episode()
             players[1].begin_episode()
             game = MiniGammonGame(game_number, players[0], players[1],
-                                  player_to_start_game, self.p, self.reentry_offset)
+                                  player_to_start_game, self.p,
+                                  self.reentry_offset, self.graph_name)
             winner = game.play()
             if seats_reversed:
                 winner = MiniGammonState.other_player(winner)
@@ -578,13 +584,13 @@ class Domain(object):
     print 
 
 if __name__ == '__main__':
-    (p, reentry_offset) = Experiment.get_command_line_args()
+    (p, reentry_offset, graph_name) = Experiment.get_command_line_args()
     
     num_games = NUM_STATS_GAMES
     agent_white = MiniGammonAgentRandom()
     agent_black = MiniGammonAgentRandom()
     game_set = MiniGammonGameSet(num_games, agent_white, agent_black,
-                                 p, reentry_offset)
+                                 p, reentry_offset, graph_name)
 
     count_wins = game_set.run()
     total_plies = game_set.get_sum_count_plies()
@@ -599,7 +605,8 @@ if __name__ == '__main__':
     print '----'
     print 'P was: %.2f' % p
     print 'Re-entry offset was: %d' % reentry_offset
-    
+    print 'Graph name was: %s' % graph_name
+        
     avg_num_plies_per_game = float(total_plies) / num_games
     print 'Games won by White: %d, Black: %d' % (count_wins[MiniGammonState.PLAYER_WHITE], count_wins[MiniGammonState.PLAYER_BLACK])
     print 'Average plies per game: %.2f' % avg_num_plies_per_game 

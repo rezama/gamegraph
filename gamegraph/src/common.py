@@ -10,12 +10,14 @@ PLAYER_BLACK = 1
 
 DEFAULT_P = 1.0
 DEFAULT_REENTRY_OFFSET = 0
+DEFAULT_GRAPH_NAME = ""
 DEFAULT_TRIAL = 0
 
 NUM_TRIALS = 10
 
 EXP_VARY_P = 'p'
 EXP_VARY_REENTRY = 'offset'
+EXP_VARY_GRAPH = 'graph'
 
 ALTERNATE_SEATS = True
 USE_SEEDS = True
@@ -40,47 +42,53 @@ class Experiment:
     
     @classmethod
     def get_file_suffix(cls):
-        if cls.exp == EXP_VARY_P:
-            return '%s-%1.2f-%d' % (cls.exp, cls.p, cls.trial)
-        else:
-            return '%s-%d-%d' % (cls.exp, cls.offset, cls.trial)
+        return cls.get_file_suffix_no_trial() + ('-%d' % cls.trial)
 
     @classmethod
     def get_file_suffix_no_trial(cls):
         if cls.exp == EXP_VARY_P:
             return '%s-%1.2f' % (cls.exp, cls.p)
-        else:
+        elif cls.exp == EXP_VARY_REENTRY:
             return '%s-%d' % (cls.exp, cls.offset)
-
+        else:
+            return '%s-%s' % (cls.exp, cls.graph_name)
+        
     @classmethod
     def get_command_line_args(cls):
         if len(sys.argv) < 4:
             print 'You can specify an experiment mode with:'
             print 'python %s p <p> <trial>' % sys.argv[0]
             print 'python %s offset <offset> <trial>' % sys.argv[0]
+            print 'python %s graph <name> <trial>' % sys.argv[0]
             exp = EXP_VARY_REENTRY
             p = DEFAULT_P
             offset = DEFAULT_REENTRY_OFFSET
             trial = DEFAULT_TRIAL
+            graph_name = DEFAULT_GRAPH_NAME
         else:
             p = DEFAULT_P
             offset = DEFAULT_REENTRY_OFFSET
+            graph_name = DEFAULT_GRAPH_NAME
         
             exp = sys.argv[1]
             if exp == EXP_VARY_P:
                 p = float(sys.argv[2])
-            else:
+            elif exp == EXP_VARY_REENTRY:
                 offset = int(sys.argv[2])
+            else:
+                graph_name = sys.argv[2]
             
             trial = int(sys.argv[3])
     
         cls.exp = exp
         cls.p = p
         cls.offset = offset
+        cls.graph_name = graph_name
         cls.trial = trial
-        print 'Using: p = %.2f, offset = %d, trial = %d' % (p, offset, trial)
+        print 'Using: p = %.2f, offset = %d, graph = %s, trial = %d' % (
+                                            p, offset, graph_name, trial)
         print 
-        return (p, offset) 
+        return (p, offset, graph_name) 
     
     @classmethod
     def write_stats(cls, state_class, domain_name):

@@ -230,7 +230,7 @@ class SarsaLambda(object):
         self.print_Q()
         
 if __name__ == '__main__':
-    (p, reentry_offset) = Experiment.get_command_line_args()
+    (p, reentry_offset, graph_name) = Experiment.get_command_line_args()
    
 #    random.seed(0)
     agent_rl = AgentVanillaRL()
@@ -251,7 +251,7 @@ if __name__ == '__main__':
         progress_filename = None
     print 'Opponent is: %s' % agent_opponent
     game_set = Domain.GameSetClass(NUM_ITERATIONS, agent_rl, agent_opponent, 
-                                   p, reentry_offset,
+                                   p, reentry_offset, graph_name,
                                    print_learning_progress = True,
                                    progress_filename = progress_filename)
     count_wins = game_set.run()

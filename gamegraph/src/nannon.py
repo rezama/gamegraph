@@ -105,7 +105,7 @@ class NannonState(object):
     # graph
     G = StateGraph()
         
-    def __init__(self, player_to_move, p, reentry_offset):
+    def __init__(self, player_to_move, p, reentry_offset, graph_name):
         self.pos = [[0, 1, 2],
                     [0, 1, 2]]
         self.player_to_move = player_to_move
@@ -114,6 +114,7 @@ class NannonState(object):
         
         self.p = p
         self.reentry_offset = reentry_offset
+        self.graph_name = graph_name
         self.BOARD_REENTRY_POS1 = self.BOARD_BAR + self.reentry_offset # 0
         self.BOARD_REENTRY_POS2 = self.BOARD_MID                       # 4
         
@@ -442,14 +443,16 @@ class NannonGame(object):
     REWARD_LOSE = 0.0
     
     def __init__(self, game_number, agent_white, agent_black,
-                 player_to_start_game, p, reentry_offset):
+                 player_to_start_game, p, reentry_offset, graph_name):
         self.game_number = game_number
         self.agents = [None, None]
         self.agents[NannonState.PLAYER_WHITE] = agent_white
         self.agents[NannonState.PLAYER_BLACK] = agent_black
         self.p = p
         self.reentry_offset = reentry_offset
-        self.state = NannonState(player_to_start_game, self.p, self.reentry_offset)
+        self.graph_name = graph_name
+        self.state = NannonState(player_to_start_game, self.p, 
+                                 self.reentry_offset, self.graph_name)
         
         # first roll
         roll = 0
@@ -512,13 +515,14 @@ class NannonGame(object):
         
 class NannonGameSet(object):
     
-    def __init__(self, num_games, agent1, agent2, p, reentry_offset,
+    def __init__(self, num_games, agent1, agent2, p, reentry_offset, graph_name,
                  print_learning_progress = False, progress_filename = None):
         self.num_games = num_games
         self.agent1 = agent1
         self.agent2 = agent2
         self.p = p
         self.reentry_offset = reentry_offset
+        self.graph_name = graph_name
         self.print_learning_progress = print_learning_progress
         self.progress_filename = progress_filename
 
@@ -552,7 +556,8 @@ class NannonGameSet(object):
             players[0].begin_episode()
             players[1].begin_episode()
             game = NannonGame(game_number, players[0], players[1],
-                              player_to_start_game, self.p, self.reentry_offset)
+                              player_to_start_game, self.p, self.reentry_offset,
+                              self.graph_name)
             winner = game.play()
             if seats_reversed:
                 winner = NannonState.other_player(winner)
@@ -594,13 +599,13 @@ class Domain(object):
     print 
 
 if __name__ == '__main__':
-    (p, reentry_offset) = Experiment.get_command_line_args()
+    (p, reentry_offset, graph_name) = Experiment.get_command_line_args()
     
     num_games = NUM_STATS_GAMES
     agent_white = NannonAgentRandom()
     agent_black = NannonAgentRandom()
     game_set = NannonGameSet(num_games, agent_white, agent_black,
-                             p, reentry_offset)
+                             p, reentry_offset, graph_name)
     count_wins = game_set.run()
     total_plies = game_set.get_sum_count_plies()
     
@@ -614,6 +619,7 @@ if __name__ == '__main__':
     print '----'
     print 'P was: %.2f' % p
     print 'Re-entry offset was: %d' % reentry_offset
+    print 'Graph name was: %s' % graph_name
     
     avg_num_plies_per_game = float(total_plies) / num_games
     print 'Games won by White: %d, Black: %d' % (count_wins[NannonState.PLAYER_WHITE], count_wins[NannonState.PLAYER_BLACK])

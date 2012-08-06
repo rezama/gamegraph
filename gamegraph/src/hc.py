@@ -52,7 +52,7 @@ class AgentHC(Domain.AgentNeuralClass):
                                      for w in self.network.params]
     
 if __name__ == '__main__':
-    (p, reentry_offset) = Experiment.get_command_line_args()
+    (p, reentry_offset, graph_name) = Experiment.get_command_line_args()
    
     eval_filename = '../data/hc-%s-%s.txt' % (Domain.name, Experiment.get_file_suffix())
     eval_f = open(eval_filename, 'w')
@@ -87,7 +87,7 @@ if __name__ == '__main__':
 #            print 'Mutating challenger...'
             agent_champion.mutate_challenger(agent_challenger)
             game_set = Domain.GameSetClass(NUM_CHALLENGE_GAMES, agent_champion,
-                                         agent_challenger, p, reentry_offset)
+                    agent_challenger, p, reentry_offset, graph_name)
             count_wins = game_set.run()
 #            print 'Challenger won %d out of %d games.' % (count_wins[1], NUM_CHALLENGE_GAMES)
             # if the champion loses more games than the challenger
