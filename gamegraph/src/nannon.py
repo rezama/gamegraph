@@ -211,7 +211,8 @@ class NannonState(object):
     def get_move_outcome(self, checker):
         if self.shadow is None:
             self.shadow = NannonState(self.player_to_move,
-                                      self.p, self.reentry_offset)
+                                      self.p, self.reentry_offset,
+                                      self.graph_name)
         else:
             self.shadow.player_to_move = self.player_to_move
         self.shadow.roll = self.roll
