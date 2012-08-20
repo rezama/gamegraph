@@ -151,9 +151,11 @@ class MiniGammonState(object):
             current_roll = self.roll
                 
         if self.is_graph_based:
-            self.graph_node = self.GAME_GRAPH.move(self.graph_node, self.roll,
-                                                   checker)
-            success = True
+            next_node = self.GAME_GRAPH.move(self.graph_node, self.roll,
+                                             checker)
+            if next_node is not None:
+                self.graph_node = next_node
+                success = True
         else:
             if checker == MiniGammonAction.ACTION_FORFEIT_MOVE:
                 success = True
@@ -259,13 +261,20 @@ class MiniGammonState(object):
         self.roll = MiniGammonDie.roll()
     
     def is_final(self):
-        return self.has_player_won(self.PLAYER_WHITE) or \
-               self.has_player_won(self.PLAYER_BLACK)
+        if self.is_graph_based:
+            return self.GAME_GRAPH.is_sink(self.graph_node)
+        else:
+            return self.has_player_won(self.PLAYER_WHITE) or \
+                   self.has_player_won(self.PLAYER_BLACK)
     
     def has_player_won(self, player):
-        checker1_pos = self.pos[player][self.CHECKER1]
-        checker2_pos = self.pos[player][self.CHECKER2]
-        return (checker1_pos == self.BOARD_OFF) and (checker2_pos == self.BOARD_OFF)
+        if self.is_graph_based:
+            return (self.GAME_GRAPH.get_sink_color(self.graph_node) == player)
+        else:
+            checker1_pos = self.pos[player][self.CHECKER1]
+            checker2_pos = self.pos[player][self.CHECKER2]
+            return (checker1_pos == self.BOARD_OFF) and \
+                   (checker2_pos == self.BOARD_OFF)
     
     @classmethod
     def other_player(cls, player):
@@ -519,7 +528,7 @@ class MiniGammonGame(object):
         
         if GENERATE_GRAPH:
             MiniGammonState.RECORD_GAME_GRAPH.add_sink(self.state.board_config(),
-                                                   winner)
+                                                       winner)
         
         return winner
         

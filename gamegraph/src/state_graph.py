@@ -19,15 +19,18 @@ class StateGraph(object):
         return random.choice(self.sources[player_to_start])
         
     def move(self, node, roll, edge):
-        destinations_map = self.neighbors[node][roll][edge]
         target = None
-        p = random.random()
-        sum_prob = 0.0
-        for (node, prob) in destinations_map.iteritems():
-            sum_prob += prob
-            if prob > p:
-                target = node
-                break
+        try:
+            destinations_map = self.neighbors[node][roll][edge]
+            p = random.random()
+            sum_prob = 0.0
+            for (node, prob) in destinations_map.iteritems():
+                sum_prob += prob
+                if prob > p:
+                    target = node
+                    break
+        except KeyError:
+            pass
         return target
 
     def is_sink(self, node):
