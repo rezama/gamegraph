@@ -103,14 +103,15 @@ class NannonState(object):
     states_sorted_by_ply_visit_count_over_avg_num_plies = []
 
     # graph
-    GAME_GRAPH = StateGraph(NannonDie.SIDES)
+    RECORD_GAME_GRAPH = StateGraph(NannonDie.SIDES)
+    GAME_GRAPH = None
         
     def __init__(self, player_to_move, p, reentry_offset, graph_name):
         self.pos = [[0, 1, 2],
                     [0, 1, 2]]
+        self.graph_node = None
         self.player_to_move = player_to_move
         self.roll = None
-        
         
         self.p = p
         self.reentry_offset = reentry_offset
@@ -118,96 +119,109 @@ class NannonState(object):
         self.BOARD_REENTRY_POS1 = self.BOARD_BAR + self.reentry_offset # 0
         self.BOARD_REENTRY_POS2 = self.BOARD_MID                       # 4
         
+        self.is_graph_based = (self.graph_name is not None)
+        
+        if self.is_graph_based:
+            if self.GAME_GRAPH is None:
+                filename = '../graph/%s-%s' % (Domain.name, Experiment.get_file_suffix_no_trial())
+                self.GAME_GRAPH.load_from_file(filename)
+            self.graph_node = self.GAME_GRAPH.get_random_source(self.player_to_move)
+
         self.shadow = None
     
     def move(self, checker):
-        if GENERATE_GRAPH:
-            graph_node_from = self.board_config()
-            
-        player = self.player_to_move
-        if checker == NannonAction.ACTION_FORFEIT_MOVE:
+        if self.is_graph_based:
+            self.graph_node = self.GAME_GRAPH.move(self.graph_node, self.roll, self.checker)
             self.switch_turn()
             return True
-        
-        checker_pos = self.pos[player][checker]
-        other_checker1 = NannonAction.next_checker(checker)
-        other_checker1_pos = self.pos[player][other_checker1]
-        other_checker2 = NannonAction.next_checker(other_checker1)
-        other_checker2_pos = self.pos[player][other_checker2]
-        opponent = self.other_player(player)
-        opponent_actual_checker1_pos = self.flip_pos(self.pos[opponent][self.CHECKER1])
-        opponent_actual_checker2_pos = self.flip_pos(self.pos[opponent][self.CHECKER2])
-        opponent_actual_checker3_pos = self.flip_pos(self.pos[opponent][self.CHECKER3])
-        
-        checker_target = checker_pos + self.roll
-
-        # if playing checker from bar, select entry position based on p 
-        if checker_pos == self.BOARD_BAR:
-            offset = self.BOARD_REENTRY_POS1
-            r = random.random()
-            if r >= self.p:
-                offset = self.BOARD_REENTRY_POS2
-            checker_target += offset
-        
-        # truncate bear off moves
-        if checker_target > self.BOARD_OFF:
-            checker_target = self.BOARD_OFF
-        
-        hitting_opponent = (checker_target < self.BOARD_OFF) and \
-                           ((checker_target == opponent_actual_checker1_pos) or
-                            (checker_target == opponent_actual_checker2_pos) or
-                            (checker_target == opponent_actual_checker3_pos))
-
-        # illegal move conditions
-        moving_bourne_off_checker = (checker_pos == self.BOARD_OFF)
-        has_self_checker_in_target = (checker_target < self.BOARD_OFF) and \
-                ((checker_target == other_checker1_pos) or 
-                 (checker_target == other_checker2_pos))
-        hitting_opponent_in_block = False
-        if hitting_opponent:
-            hitting_opponent_in_block = \
-                ((self.BOARD_BAR < opponent_actual_checker1_pos < self.BOARD_OFF) and
-                 (abs(checker_target - opponent_actual_checker1_pos) == 1)) or \
-                ((self.BOARD_BAR < opponent_actual_checker2_pos < self.BOARD_OFF) and
-                 (abs(checker_target - opponent_actual_checker2_pos) == 1)) or \
-                ((self.BOARD_BAR < opponent_actual_checker3_pos < self.BOARD_OFF) and
-                 (abs(checker_target - opponent_actual_checker3_pos) == 1))
-        
-        is_illegal_move = (moving_bourne_off_checker or
-                           has_self_checker_in_target or
-                           hitting_opponent_in_block)
-        
-        success = False
-        if not is_illegal_move:
-            success = True
-            # move checker
-            self.pos[player][checker] = checker_target
-            # hit if checker from opponent is there
+        else:        
+            if GENERATE_GRAPH:
+                graph_node_from = self.board_config()
+                
+            player = self.player_to_move
+            if checker == NannonAction.ACTION_FORFEIT_MOVE:
+                self.switch_turn()
+                return True
+            
+            checker_pos = self.pos[player][checker]
+            other_checker1 = NannonAction.next_checker(checker)
+            other_checker1_pos = self.pos[player][other_checker1]
+            other_checker2 = NannonAction.next_checker(other_checker1)
+            other_checker2_pos = self.pos[player][other_checker2]
+            opponent = self.other_player(player)
+            opponent_actual_checker1_pos = self.flip_pos(self.pos[opponent][self.CHECKER1])
+            opponent_actual_checker2_pos = self.flip_pos(self.pos[opponent][self.CHECKER2])
+            opponent_actual_checker3_pos = self.flip_pos(self.pos[opponent][self.CHECKER3])
+            
+            checker_target = checker_pos + self.roll
+    
+            # if playing checker from bar, select entry position based on p 
+            if checker_pos == self.BOARD_BAR:
+                offset = self.BOARD_REENTRY_POS1
+                r = random.random()
+                if r >= self.p:
+                    offset = self.BOARD_REENTRY_POS2
+                checker_target += offset
+            
+            # truncate bear off moves
+            if checker_target > self.BOARD_OFF:
+                checker_target = self.BOARD_OFF
+            
+            hitting_opponent = (checker_target < self.BOARD_OFF) and \
+                               ((checker_target == opponent_actual_checker1_pos) or
+                                (checker_target == opponent_actual_checker2_pos) or
+                                (checker_target == opponent_actual_checker3_pos))
+    
+            # illegal move conditions
+            moving_bourne_off_checker = (checker_pos == self.BOARD_OFF)
+            has_self_checker_in_target = (checker_target < self.BOARD_OFF) and \
+                    ((checker_target == other_checker1_pos) or 
+                     (checker_target == other_checker2_pos))
+            hitting_opponent_in_block = False
             if hitting_opponent:
-                if checker_target == opponent_actual_checker1_pos:
-                    self.pos[opponent][self.CHECKER1] = self.BOARD_BAR
-                elif checker_target == opponent_actual_checker2_pos:
-                    self.pos[opponent][self.CHECKER2] = self.BOARD_BAR
-                elif checker_target == opponent_actual_checker3_pos:
-                    self.pos[opponent][self.CHECKER3] = self.BOARD_BAR
-            self.switch_turn()
-            self.__fix_checker_orders()
-
-#        elif try_more_checkers > 0:
-#            if PRINT_GAME_DETAIL:
-#                print '#  illegal move, playing %s checker...' % NannonState.CHECKER_NAME[other_checker1]
-#            success = self.move(player, other_checker1, try_more_checkers - 1)
-#        else:
-#            if PRINT_GAME_DETAIL:
-#                print '#  can\'t move either of checkers.'
+                hitting_opponent_in_block = \
+                    ((self.BOARD_BAR < opponent_actual_checker1_pos < self.BOARD_OFF) and
+                     (abs(checker_target - opponent_actual_checker1_pos) == 1)) or \
+                    ((self.BOARD_BAR < opponent_actual_checker2_pos < self.BOARD_OFF) and
+                     (abs(checker_target - opponent_actual_checker2_pos) == 1)) or \
+                    ((self.BOARD_BAR < opponent_actual_checker3_pos < self.BOARD_OFF) and
+                     (abs(checker_target - opponent_actual_checker3_pos) == 1))
             
-        if GENERATE_GRAPH:
-            if success:
-                graph_node_to = self.board_config()
-                self.GAME_GRAPH.add_edge(graph_node_from, self.roll, checker,
-                                         graph_node_to)
+            is_illegal_move = (moving_bourne_off_checker or
+                               has_self_checker_in_target or
+                               hitting_opponent_in_block)
             
-        return success
+            success = False
+            if not is_illegal_move:
+                success = True
+                # move checker
+                self.pos[player][checker] = checker_target
+                # hit if checker from opponent is there
+                if hitting_opponent:
+                    if checker_target == opponent_actual_checker1_pos:
+                        self.pos[opponent][self.CHECKER1] = self.BOARD_BAR
+                    elif checker_target == opponent_actual_checker2_pos:
+                        self.pos[opponent][self.CHECKER2] = self.BOARD_BAR
+                    elif checker_target == opponent_actual_checker3_pos:
+                        self.pos[opponent][self.CHECKER3] = self.BOARD_BAR
+                self.switch_turn()
+                self.__fix_checker_orders()
+    
+    #        elif try_more_checkers > 0:
+    #            if PRINT_GAME_DETAIL:
+    #                print '#  illegal move, playing %s checker...' % NannonState.CHECKER_NAME[other_checker1]
+    #            success = self.move(player, other_checker1, try_more_checkers - 1)
+    #        else:
+    #            if PRINT_GAME_DETAIL:
+    #                print '#  can\'t move either of checkers.'
+                
+            if GENERATE_GRAPH:
+                if success:
+                    graph_node_to = self.board_config()
+                    self.RECORD_GAME_GRAPH.add_edge(graph_node_from, self.roll, checker,
+                                                    graph_node_to)
+                
+            return success
     
     def get_move_outcome(self, checker):
         if self.shadow is None:
@@ -223,6 +237,7 @@ class NannonState(object):
         self.shadow.pos[1][0] = self.pos[1][0]
         self.shadow.pos[1][1] = self.pos[1][1]
         self.shadow.pos[1][2] = self.pos[1][2]
+        self.shadow.graph_node = self.graph_node
         # move shadow
 #        print 'Self before move: %s' % self.pos
 #        print 'Shadow before move: %s' % self.shadow.pos
@@ -276,37 +291,46 @@ class NannonState(object):
         print '#                                                '
 
     def encode(self):
-        cell_content = [''] * (self.BOARD_OFF + 1)
-        for player in [self.PLAYER_WHITE, self.PLAYER_BLACK]:
-            for checker in range(self.NUM_CHECKERS):
-                pos = self.pos[player][checker]
-                if (player == self.PLAYER_BLACK):
-                    pos = self.flip_pos(pos)
-                letter = self.PLAYER_NAME[player].lower()[0]
-                cell_content[pos] += letter
-                
-        for pos in range(self.BOARD_OFF + 1):
-            if cell_content[pos] == 'ww':
-                cell_content[pos] = cell_content[pos].ljust(3)
-            elif cell_content[pos] == 'bb':
-                cell_content[pos] = cell_content[pos].rjust(3)
-            else:
-                cell_content[pos] = cell_content[pos].center(3)
-
-        encoding = '|%s|  |%s|%s|%s|%s|%s|%s|  |%s|' % (cell_content[0], cell_content[1], cell_content[2], cell_content[3], cell_content[4], cell_content[5], cell_content[6], cell_content[7])
-        return encoding
+        if self.is_graph_based:
+            return self.graph_node[2:]
+        else:
+            cell_content = [''] * (self.BOARD_OFF + 1)
+            for player in [self.PLAYER_WHITE, self.PLAYER_BLACK]:
+                for checker in range(self.NUM_CHECKERS):
+                    pos = self.pos[player][checker]
+                    if (player == self.PLAYER_BLACK):
+                        pos = self.flip_pos(pos)
+                    letter = self.PLAYER_NAME[player].lower()[0]
+                    cell_content[pos] += letter
+                    
+            for pos in range(self.BOARD_OFF + 1):
+                if cell_content[pos] == 'ww':
+                    cell_content[pos] = cell_content[pos].ljust(3)
+                elif cell_content[pos] == 'bb':
+                    cell_content[pos] = cell_content[pos].rjust(3)
+                else:
+                    cell_content[pos] = cell_content[pos].center(3)
+    
+            encoding = '|%s|  |%s|%s|%s|%s|%s|%s|  |%s|' % (cell_content[0], cell_content[1], cell_content[2], cell_content[3], cell_content[4], cell_content[5], cell_content[6], cell_content[7])
+            return encoding
 
     def __repr__(self):        
         return self.encode()
     
     def __str__(self):
-        return '%d-%d%d%d-%d%d%d-%d' % (self.player_to_move,
+        if self.is_graph_based:
+            return self.graph_node + ('-%d' % self.roll)
+        else:
+            return '%d-%d%d%d-%d%d%d-%d' % (self.player_to_move,
                                 self.pos[0][0], self.pos[0][1], self.pos[0][2], 
                                 self.pos[1][0], self.pos[1][1], self.pos[1][2],
                                 self.roll)
 
     def board_config(self):
-        return '%d-%d%d%d-%d%d%d' % (self.player_to_move,
+        if self.is_graph_based:
+            return self.graph_node
+        else:
+            return '%d-%d%d%d-%d%d%d' % (self.player_to_move,
                                 self.pos[0][0], self.pos[0][1], self.pos[0][2], 
                                 self.pos[1][0], self.pos[1][1], self.pos[1][2])
 
@@ -466,8 +490,9 @@ class NannonGame(object):
         while roll == 0:
             roll = abs(NannonDie.roll() - NannonDie.roll())
         self.state.roll = roll
-        NannonState.GAME_GRAPH.add_source(self.state.board_config(),
-                                          player_to_start_game)
+        if GENERATE_GRAPH:
+            NannonState.RECORD_GAME_GRAPH.add_source(self.state.board_config(),
+                                                     player_to_start_game)
         
         agent_white.set_state(self.state)
         agent_black.set_state(self.state)
@@ -510,7 +535,9 @@ class NannonGame(object):
         self.agents[winner].end_episode(self.REWARD_WIN)
         self.agents[loser].end_episode(self.REWARD_LOSE)
         
-        NannonState.GAME_GRAPH.add_sink(self.state.board_config(), winner)
+        if GENERATE_GRAPH:
+            NannonState.RECORD_GAME_GRAPH.add_sink(self.state.board_config(),
+                                                   winner)
         
         return winner
         
@@ -618,10 +645,10 @@ if __name__ == '__main__':
     total_plies = game_set.get_sum_count_plies()
     
     if GENERATE_GRAPH:
-        NannonState.GAME_GRAPH.print_stats()
-        NannonState.GAME_GRAPH.convert_freq_to_prob()
+        NannonState.RECORD_GAME_GRAPH.print_stats()
+        NannonState.RECORD_GAME_GRAPH.convert_freq_to_prob()
         filename = '../graph/%s-%s' % (Domain.name, Experiment.get_file_suffix_no_trial())
-        NannonState.GAME_GRAPH.save_to_file(filename)
+        NannonState.RECORD_GAME_GRAPH.save_to_file(filename)
         
     # printing overall stats
     print '----'
