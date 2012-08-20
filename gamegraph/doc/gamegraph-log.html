@@ -24,6 +24,45 @@
 <h4>Aug 6, 2012, 8am</h4>
 <p>Added graph_name parameter to the Experiment class and added support to other modules.</p>
 
+<h4>Aug 20, 2012, 12:30am</h4>
+<p> Added support for partially explored graph nodes: if the current graph
+    node has no edges specified for the current roll, we declare the game a
+    win for the other player.</p>
+    
+<p> Added support for storing the pos[] array in the graph nodes.</p>
+
+<p> Added graph aware code to is_final() and has_player_won() methods.</p>
+
+<p> Fixed a bug that caused incorrect recording of state transitions in the
+    state graph (the current roll was lost after a call to
+    self.switch_turn()).
+    Fixed the organization of the move() methods in both domains.
+</p>
+
+<p> Added separate class variables RECORD_GAME_GRAPH and GAME_GRAPH.
+    Changed NannonState and MiniGammonState to honor the is_state_based flag
+    in more methods, namely the __str__(), __repr__(), and encode() methods
+</p>
+
+<p> Fixed a bug that caused incorrect recording of state transitions in the
+    state graph (the current roll was lost after a call to
+    self.switch_turn()).
+    Fixed the organization of the move() methods in both domains.
+</p>
+
+<p> Added separate class variables RECORD_GAME_GRAPH and GAME_GRAPH.
+    Changed NannonState and MiniGammonState to honor the is_state_based flag
+    in more methods, namely the __str__(), __repr__(), and encode() methods
+</p>
+
+<p> Fixed bugs in state_graph.py with regard to the new roll parameter in
+    methods.
+</p>
+
+<p> Changed StateGraph so that the nodes don't include the current dice
+    roll.
+</p>
+
 </div>
 </body>
 </html>
