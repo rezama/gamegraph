@@ -118,7 +118,7 @@ class MiniGammonState(object):
     states_sorted_by_ply_visit_count_over_avg_num_plies = []
 
     # graph
-    G = StateGraph()
+    GAME_GRAPH = StateGraph(MiniGammonDie.SIDES)
     
     def __init__(self, player_to_move, p, reentry_offset, graph_name):
         self.pos = [[self.BOARD_START, self.BOARD_START],
@@ -137,7 +137,7 @@ class MiniGammonState(object):
     
     def move(self, checker):
         if GENERATE_GRAPH:
-            graph_node_from = str(self)
+            graph_node_from = self.board_config()
             
         player = self.player_to_move
         if checker == MiniGammonAction.ACTION_FORFEIT_MOVE:
@@ -209,8 +209,9 @@ class MiniGammonState(object):
     
         if GENERATE_GRAPH:
             if success:
-                graph_node_to = str(self)
-                self.G.add_edge(graph_node_from, graph_node_to, checker)
+                graph_node_to = self.board_config()
+                self.GAME_GRAPH.add_edge(graph_node_from, self.roll, checker,
+                                         graph_node_to)
             
         return success
     
@@ -303,7 +304,11 @@ class MiniGammonState(object):
         return '%d-%d%d%d%d-%d' % (self.player_to_move,
                                 self.pos[0][0], self.pos[0][1], 
                                 self.pos[1][0], self.pos[1][1],
-                                self.roll) 
+                                self.roll)
+    def board_config(self):
+        return '%d-%d%d%d%d' % (self.player_to_move,
+                                self.pos[0][0], self.pos[0][1], 
+                                self.pos[1][0], self.pos[1][1])
 
     def compute_per_ply_stats(self, current_ply_number):
         if COLLECT_STATS:
@@ -445,7 +450,8 @@ class MiniGammonGame(object):
 
         # initial die roll
         self.state.roll = MiniGammonDie.roll()
-        MiniGammonState.G.add_source(str(self.state), player_to_start_game)
+        MiniGammonState.GAME_GRAPH.add_source(self.state.board_config(),
+                                              player_to_start_game)
         
         agent_white.set_state(self.state)
         agent_black.set_state(self.state)
@@ -487,7 +493,7 @@ class MiniGammonGame(object):
         self.agents[winner].end_episode(self.REWARD_WIN)
         self.agents[loser].end_episode(self.REWARD_LOSE)
         
-        MiniGammonState.G.add_sink(str(self.state), winner)
+        MiniGammonState.GAME_GRAPH.add_sink(self.state.board_config(), winner)
         
         return winner
         
@@ -597,10 +603,10 @@ if __name__ == '__main__':
     total_plies = game_set.get_sum_count_plies()
     
     if GENERATE_GRAPH:
-        MiniGammonState.G.print_stats()
-        MiniGammonState.G.convert_freq_to_prob()
+        MiniGammonState.GAME_GRAPH.print_stats()
+        MiniGammonState.GAME_GRAPH.convert_freq_to_prob()
         filename = '../graph/%s-%s' % (Domain.name, Experiment.get_file_suffix_no_trial())
-        MiniGammonState.G.save_to_file(filename)
+        MiniGammonState.GAME_GRAPH.save_to_file(filename)
     
     # printing overall stats
     print '----'

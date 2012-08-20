@@ -103,7 +103,7 @@ class NannonState(object):
     states_sorted_by_ply_visit_count_over_avg_num_plies = []
 
     # graph
-    G = StateGraph()
+    GAME_GRAPH = StateGraph(NannonDie.SIDES)
         
     def __init__(self, player_to_move, p, reentry_offset, graph_name):
         self.pos = [[0, 1, 2],
@@ -122,7 +122,7 @@ class NannonState(object):
     
     def move(self, checker):
         if GENERATE_GRAPH:
-            graph_node_from = str(self)
+            graph_node_from = self.board_config()
             
         player = self.player_to_move
         if checker == NannonAction.ACTION_FORFEIT_MOVE:
@@ -203,8 +203,9 @@ class NannonState(object):
             
         if GENERATE_GRAPH:
             if success:
-                graph_node_to = str(self)
-                self.G.add_edge(graph_node_from, graph_node_to, checker)
+                graph_node_to = self.board_config()
+                self.GAME_GRAPH.add_edge(graph_node_from, self.roll, checker,
+                                         graph_node_to)
             
         return success
     
@@ -303,6 +304,11 @@ class NannonState(object):
                                 self.pos[0][0], self.pos[0][1], self.pos[0][2], 
                                 self.pos[1][0], self.pos[1][1], self.pos[1][2],
                                 self.roll)
+
+    def board_config(self):
+        return '%d-%d%d%d-%d%d%d' % (self.player_to_move,
+                                self.pos[0][0], self.pos[0][1], self.pos[0][2], 
+                                self.pos[1][0], self.pos[1][1], self.pos[1][2])
 
 #    def __str__(self):
 #        return '%d-%d%d%d-%d%d%d-%d  %s' % (self.player_to_move,
@@ -460,7 +466,8 @@ class NannonGame(object):
         while roll == 0:
             roll = abs(NannonDie.roll() - NannonDie.roll())
         self.state.roll = roll
-        NannonState.G.add_source(str(self.state), player_to_start_game)
+        NannonState.GAME_GRAPH.add_source(self.state.board_config(),
+                                          player_to_start_game)
         
         agent_white.set_state(self.state)
         agent_black.set_state(self.state)
@@ -503,7 +510,7 @@ class NannonGame(object):
         self.agents[winner].end_episode(self.REWARD_WIN)
         self.agents[loser].end_episode(self.REWARD_LOSE)
         
-        NannonState.G.add_sink(str(self.state), winner)
+        NannonState.GAME_GRAPH.add_sink(self.state.board_config(), winner)
         
         return winner
         
@@ -611,10 +618,10 @@ if __name__ == '__main__':
     total_plies = game_set.get_sum_count_plies()
     
     if GENERATE_GRAPH:
-        NannonState.G.print_stats()
-        NannonState.G.convert_freq_to_prob()
+        NannonState.GAME_GRAPH.print_stats()
+        NannonState.GAME_GRAPH.convert_freq_to_prob()
         filename = '../graph/%s-%s' % (Domain.name, Experiment.get_file_suffix_no_trial())
-        NannonState.G.save_to_file(filename)
+        NannonState.GAME_GRAPH.save_to_file(filename)
         
     # printing overall stats
     print '----'
