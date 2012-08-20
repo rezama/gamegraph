@@ -23,7 +23,7 @@ class StateGraph(object):
         target = None
         p = random.random()
         sum_prob = 0.0
-        for (node, prob) in destinations_map:
+        for (node, prob) in destinations_map.iteritems():
             sum_prob += prob
             if prob > p:
                 target = node

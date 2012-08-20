@@ -139,95 +139,95 @@ class MiniGammonState(object):
         if self.is_graph_based:
             if self.GAME_GRAPH is None:
                 filename = '../graph/%s-%s' % (Domain.name, Experiment.get_file_suffix_no_trial())
-                self.GAME_GRAPH.load_from_file(filename)
+                self.GAME_GRAPH = StateGraph.load_from_file(filename)
             self.graph_node = self.GAME_GRAPH.get_random_source(self.player_to_move)
 
         self.shadow = None
     
     def move(self, checker):
+        success = False
+        if GENERATE_GRAPH and not self.is_graph_based:
+            graph_node_from = self.board_config()
+            current_roll = self.roll
+                
         if self.is_graph_based:
-            self.graph_node = self.GAME_GRAPH.move(self.graph_node, self.roll, self.checker)
-            self.switch_turn()
-            return True
-        else:        
-            if GENERATE_GRAPH:
-                graph_node_from = self.board_config()
-                
-            player = self.player_to_move
+            self.graph_node = self.GAME_GRAPH.move(self.graph_node, self.roll,
+                                                   checker)
+            success = True
+        else:
             if checker == MiniGammonAction.ACTION_FORFEIT_MOVE:
-                self.switch_turn()
-                return True
-            
-            checker_pos = self.pos[player][checker]
-            other_checker = MiniGammonAction.next_checker(checker)
-            other_checker_pos = self.pos[player][other_checker]
-            opponent = self.other_player(player)
-            opponent_actual_checker1_pos = self.flip_pos(self.pos[opponent][self.CHECKER1])
-            opponent_actual_checker2_pos = self.flip_pos(self.pos[opponent][self.CHECKER2])
-            
-            checker_target = checker_pos + self.roll
-    
-            # if playing checker from bar, select entry position based on p 
-            if checker_pos == self.BOARD_BAR:
-                offset = self.BOARD_REENTRY_POS1
-                r = random.random()
-                if r >= self.p:
-                    offset = self.BOARD_REENTRY_POS2
-                checker_target += offset
-            
-            # if playing a 2 from the last point
-            if checker_target > self.BOARD_OFF:
-                checker_target = self.BOARD_OFF
-                
-            # if both checkers from opponent sit together
-            opponent_has_block = (opponent_actual_checker1_pos == opponent_actual_checker2_pos) and\
-                                 (opponent_actual_checker1_pos != self.BOARD_OFF)
-            
-            hitting_opponent = (opponent_actual_checker1_pos == checker_target) or \
-                               (opponent_actual_checker2_pos == checker_target)
-            
-            # illegal move conditions
-            moving_checker_while_other_is_on_bar = (checker_pos != self.BOARD_BAR) and \
-                    (other_checker_pos == self.BOARD_BAR)
-            moving_bourne_off_checker = (checker_pos == self.BOARD_OFF)
-            premature_bear_off = (checker_target > self.BOARD_END) and \
-                    (other_checker_pos <= self.BOARD_MID)
-            hitting_opponent_in_block = hitting_opponent and opponent_has_block
-            
-            is_illegal_move = (moving_checker_while_other_is_on_bar or
-                               moving_bourne_off_checker or
-                               premature_bear_off or
-                               hitting_opponent_in_block)
-            
-            success = False
-            if not is_illegal_move:
                 success = True
-                # move checker
-                self.pos[player][checker] = checker_target
-                # hit if checker from opponent is there
-                if hitting_opponent:
-                    if checker_target == opponent_actual_checker1_pos:
-                        self.pos[opponent][self.CHECKER1] = self.BOARD_BAR
-                    elif checker_target == opponent_actual_checker2_pos:
-                        self.pos[opponent][self.CHECKER2] = self.BOARD_BAR
-                self.switch_turn()
-                self.__fix_checker_orders()
-                    
-    #        elif must_try_other_checker:
-    #            if PRINT_GAME_DETAIL:
-    #                print '#  illegal move, playing %s checker...' % MiniGammonState.CHECKER_NAME[other_checker]
-    #            success = self.move(player, other_checker, must_try_other_checker = False)
-    #        else:
-    #            if PRINT_GAME_DETAIL:
-    #                print '#  can\'t move either of checkers.'
+            else:
+                player = self.player_to_move
+                checker_pos = self.pos[player][checker]
+                other_checker = MiniGammonAction.next_checker(checker)
+                other_checker_pos = self.pos[player][other_checker]
+                opponent = self.other_player(player)
+                opponent_actual_checker1_pos = self.flip_pos(self.pos[opponent][self.CHECKER1])
+                opponent_actual_checker2_pos = self.flip_pos(self.pos[opponent][self.CHECKER2])
+                
+                checker_target = checker_pos + self.roll
         
-            if GENERATE_GRAPH:
-                if success:
-                    graph_node_to = self.board_config()
-                    self.RECORD_GAME_GRAPH.add_edge(graph_node_from, self.roll,
-                                                    checker, graph_node_to)
+                # if playing checker from bar, select entry position based on p 
+                if checker_pos == self.BOARD_BAR:
+                    offset = self.BOARD_REENTRY_POS1
+                    r = random.random()
+                    if r >= self.p:
+                        offset = self.BOARD_REENTRY_POS2
+                    checker_target += offset
+                
+                # if playing a 2 from the last point
+                if checker_target > self.BOARD_OFF:
+                    checker_target = self.BOARD_OFF
+                    
+                # if both checkers from opponent sit together
+                opponent_has_block = (opponent_actual_checker1_pos == opponent_actual_checker2_pos) and\
+                                     (opponent_actual_checker1_pos != self.BOARD_OFF)
+                
+                hitting_opponent = (opponent_actual_checker1_pos == checker_target) or \
+                                   (opponent_actual_checker2_pos == checker_target)
+                
+                # illegal move conditions
+                moving_checker_while_other_is_on_bar = (checker_pos != self.BOARD_BAR) and \
+                        (other_checker_pos == self.BOARD_BAR)
+                moving_bourne_off_checker = (checker_pos == self.BOARD_OFF)
+                premature_bear_off = (checker_target > self.BOARD_END) and \
+                        (other_checker_pos <= self.BOARD_MID)
+                hitting_opponent_in_block = hitting_opponent and opponent_has_block
+                
+                is_illegal_move = (moving_checker_while_other_is_on_bar or
+                                   moving_bourne_off_checker or
+                                   premature_bear_off or
+                                   hitting_opponent_in_block)
+                
+                if not is_illegal_move:
+                    success = True
+                    # move checker
+                    self.pos[player][checker] = checker_target
+                    # hit if checker from opponent is there
+                    if hitting_opponent:
+                        if checker_target == opponent_actual_checker1_pos:
+                            self.pos[opponent][self.CHECKER1] = self.BOARD_BAR
+                        elif checker_target == opponent_actual_checker2_pos:
+                            self.pos[opponent][self.CHECKER2] = self.BOARD_BAR
+                    self.__fix_checker_orders()
+                        
+        #        elif must_try_other_checker:
+        #            if PRINT_GAME_DETAIL:
+        #                print '#  illegal move, playing %s checker...' % MiniGammonState.CHECKER_NAME[other_checker]
+        #            success = self.move(player, other_checker, must_try_other_checker = False)
+        #        else:
+        #            if PRINT_GAME_DETAIL:
+        #                print '#  can\'t move either of checkers.'
+        
             
-            return success
+        if success:
+            self.switch_turn()
+            if GENERATE_GRAPH and not self.is_graph_based:
+                graph_node_to = self.board_config()
+                self.RECORD_GAME_GRAPH.add_edge(graph_node_from, current_roll,
+                                                checker, graph_node_to)
+        return success
     
     def get_move_outcome(self, checker):
         if self.shadow is None:

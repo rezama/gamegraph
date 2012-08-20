@@ -124,104 +124,103 @@ class NannonState(object):
         if self.is_graph_based:
             if self.GAME_GRAPH is None:
                 filename = '../graph/%s-%s' % (Domain.name, Experiment.get_file_suffix_no_trial())
-                self.GAME_GRAPH.load_from_file(filename)
+                self.GAME_GRAPH = StateGraph.load_from_file(filename)
             self.graph_node = self.GAME_GRAPH.get_random_source(self.player_to_move)
 
         self.shadow = None
     
     def move(self, checker):
+        success = False
+        if GENERATE_GRAPH and not self.is_graph_based:
+            graph_node_from = self.board_config()
+            current_roll = self.roll
+            
         if self.is_graph_based:
-            self.graph_node = self.GAME_GRAPH.move(self.graph_node, self.roll, self.checker)
-            self.switch_turn()
-            return True
+            self.graph_node = self.GAME_GRAPH.move(self.graph_node, self.roll,
+                                                   checker)
+            success = True
         else:        
-            if GENERATE_GRAPH:
-                graph_node_from = self.board_config()
-                
-            player = self.player_to_move
             if checker == NannonAction.ACTION_FORFEIT_MOVE:
-                self.switch_turn()
-                return True
-            
-            checker_pos = self.pos[player][checker]
-            other_checker1 = NannonAction.next_checker(checker)
-            other_checker1_pos = self.pos[player][other_checker1]
-            other_checker2 = NannonAction.next_checker(other_checker1)
-            other_checker2_pos = self.pos[player][other_checker2]
-            opponent = self.other_player(player)
-            opponent_actual_checker1_pos = self.flip_pos(self.pos[opponent][self.CHECKER1])
-            opponent_actual_checker2_pos = self.flip_pos(self.pos[opponent][self.CHECKER2])
-            opponent_actual_checker3_pos = self.flip_pos(self.pos[opponent][self.CHECKER3])
-            
-            checker_target = checker_pos + self.roll
-    
-            # if playing checker from bar, select entry position based on p 
-            if checker_pos == self.BOARD_BAR:
-                offset = self.BOARD_REENTRY_POS1
-                r = random.random()
-                if r >= self.p:
-                    offset = self.BOARD_REENTRY_POS2
-                checker_target += offset
-            
-            # truncate bear off moves
-            if checker_target > self.BOARD_OFF:
-                checker_target = self.BOARD_OFF
-            
-            hitting_opponent = (checker_target < self.BOARD_OFF) and \
-                               ((checker_target == opponent_actual_checker1_pos) or
-                                (checker_target == opponent_actual_checker2_pos) or
-                                (checker_target == opponent_actual_checker3_pos))
-    
-            # illegal move conditions
-            moving_bourne_off_checker = (checker_pos == self.BOARD_OFF)
-            has_self_checker_in_target = (checker_target < self.BOARD_OFF) and \
-                    ((checker_target == other_checker1_pos) or 
-                     (checker_target == other_checker2_pos))
-            hitting_opponent_in_block = False
-            if hitting_opponent:
-                hitting_opponent_in_block = \
-                    ((self.BOARD_BAR < opponent_actual_checker1_pos < self.BOARD_OFF) and
-                     (abs(checker_target - opponent_actual_checker1_pos) == 1)) or \
-                    ((self.BOARD_BAR < opponent_actual_checker2_pos < self.BOARD_OFF) and
-                     (abs(checker_target - opponent_actual_checker2_pos) == 1)) or \
-                    ((self.BOARD_BAR < opponent_actual_checker3_pos < self.BOARD_OFF) and
-                     (abs(checker_target - opponent_actual_checker3_pos) == 1))
-            
-            is_illegal_move = (moving_bourne_off_checker or
-                               has_self_checker_in_target or
-                               hitting_opponent_in_block)
-            
-            success = False
-            if not is_illegal_move:
                 success = True
-                # move checker
-                self.pos[player][checker] = checker_target
-                # hit if checker from opponent is there
+            else:
+                player = self.player_to_move
+                checker_pos = self.pos[player][checker]
+                other_checker1 = NannonAction.next_checker(checker)
+                other_checker1_pos = self.pos[player][other_checker1]
+                other_checker2 = NannonAction.next_checker(other_checker1)
+                other_checker2_pos = self.pos[player][other_checker2]
+                opponent = self.other_player(player)
+                opponent_actual_checker1_pos = self.flip_pos(self.pos[opponent][self.CHECKER1])
+                opponent_actual_checker2_pos = self.flip_pos(self.pos[opponent][self.CHECKER2])
+                opponent_actual_checker3_pos = self.flip_pos(self.pos[opponent][self.CHECKER3])
+                
+                checker_target = checker_pos + self.roll
+        
+                # if playing checker from bar, select entry position based on p 
+                if checker_pos == self.BOARD_BAR:
+                    offset = self.BOARD_REENTRY_POS1
+                    r = random.random()
+                    if r >= self.p:
+                        offset = self.BOARD_REENTRY_POS2
+                    checker_target += offset
+                
+                # truncate bear off moves
+                if checker_target > self.BOARD_OFF:
+                    checker_target = self.BOARD_OFF
+                
+                hitting_opponent = (checker_target < self.BOARD_OFF) and \
+                                   ((checker_target == opponent_actual_checker1_pos) or
+                                    (checker_target == opponent_actual_checker2_pos) or
+                                    (checker_target == opponent_actual_checker3_pos))
+        
+                # illegal move conditions
+                moving_bourne_off_checker = (checker_pos == self.BOARD_OFF)
+                has_self_checker_in_target = (checker_target < self.BOARD_OFF) and \
+                        ((checker_target == other_checker1_pos) or 
+                         (checker_target == other_checker2_pos))
+                hitting_opponent_in_block = False
                 if hitting_opponent:
-                    if checker_target == opponent_actual_checker1_pos:
-                        self.pos[opponent][self.CHECKER1] = self.BOARD_BAR
-                    elif checker_target == opponent_actual_checker2_pos:
-                        self.pos[opponent][self.CHECKER2] = self.BOARD_BAR
-                    elif checker_target == opponent_actual_checker3_pos:
-                        self.pos[opponent][self.CHECKER3] = self.BOARD_BAR
-                self.switch_turn()
-                self.__fix_checker_orders()
-    
-    #        elif try_more_checkers > 0:
-    #            if PRINT_GAME_DETAIL:
-    #                print '#  illegal move, playing %s checker...' % NannonState.CHECKER_NAME[other_checker1]
-    #            success = self.move(player, other_checker1, try_more_checkers - 1)
-    #        else:
-    #            if PRINT_GAME_DETAIL:
-    #                print '#  can\'t move either of checkers.'
+                    hitting_opponent_in_block = \
+                        ((self.BOARD_BAR < opponent_actual_checker1_pos < self.BOARD_OFF) and
+                         (abs(checker_target - opponent_actual_checker1_pos) == 1)) or \
+                        ((self.BOARD_BAR < opponent_actual_checker2_pos < self.BOARD_OFF) and
+                         (abs(checker_target - opponent_actual_checker2_pos) == 1)) or \
+                        ((self.BOARD_BAR < opponent_actual_checker3_pos < self.BOARD_OFF) and
+                         (abs(checker_target - opponent_actual_checker3_pos) == 1))
                 
-            if GENERATE_GRAPH:
-                if success:
-                    graph_node_to = self.board_config()
-                    self.RECORD_GAME_GRAPH.add_edge(graph_node_from, self.roll, checker,
-                                                    graph_node_to)
+                is_illegal_move = (moving_bourne_off_checker or
+                                   has_self_checker_in_target or
+                                   hitting_opponent_in_block)
                 
-            return success
+                if not is_illegal_move:
+                    success = True
+                    # move checker
+                    self.pos[player][checker] = checker_target
+                    # hit if checker from opponent is there
+                    if hitting_opponent:
+                        if checker_target == opponent_actual_checker1_pos:
+                            self.pos[opponent][self.CHECKER1] = self.BOARD_BAR
+                        elif checker_target == opponent_actual_checker2_pos:
+                            self.pos[opponent][self.CHECKER2] = self.BOARD_BAR
+                        elif checker_target == opponent_actual_checker3_pos:
+                            self.pos[opponent][self.CHECKER3] = self.BOARD_BAR
+                    self.__fix_checker_orders()
+        
+        #        elif try_more_checkers > 0:
+        #            if PRINT_GAME_DETAIL:
+        #                print '#  illegal move, playing %s checker...' % NannonState.CHECKER_NAME[other_checker1]
+        #            success = self.move(player, other_checker1, try_more_checkers - 1)
+        #        else:
+        #            if PRINT_GAME_DETAIL:
+        #                print '#  can\'t move either of checkers.'
+                
+        if success:
+            self.switch_turn()
+            if GENERATE_GRAPH and not self.is_graph_based:
+                graph_node_to = self.board_config()
+                self.RECORD_GAME_GRAPH.add_edge(graph_node_from, current_roll,
+                                                checker, graph_node_to)
+        return success
     
     def get_move_outcome(self, checker):
         if self.shadow is None:
