@@ -18,8 +18,8 @@ class StateGraph(object):
     def get_random_source(self, player_to_start):
         return random.choice(self.sources[player_to_start])
         
-    def move(self, node, edge):
-        destinations_map = self.neighbors[node][edge]
+    def move(self, node, roll, edge):
+        destinations_map = self.neighbors[node][roll][edge]
         target = None
         p = random.random()
         sum_prob = 0.0
@@ -74,13 +74,14 @@ class StateGraph(object):
     
     def convert_freq_to_prob(self):
         for node1 in self.neighbors:
-            for edge in self.neighbors[node1]:
-                sum_freq = 0
-                for node2 in self.neighbors[node1][edge]:
-                    sum_freq += self.neighbors[node1][edge][node2]
-                for node2 in self.neighbors[node1][edge]:
-                    self.neighbors[node1][edge][node2] = \
-                        float(self.neighbors[node1][edge][node2]) / sum_freq
+            for roll in self.neighbors[node1]:
+                for edge in self.neighbors[node1][roll]:
+                    sum_freq = 0
+                    for node2 in self.neighbors[node1][roll][edge]:
+                        sum_freq += self.neighbors[node1][roll][edge][node2]
+                    for node2 in self.neighbors[node1][roll][edge]:
+                        self.neighbors[node1][roll][edge][node2] = \
+                            float(self.neighbors[node1][roll][edge][node2]) / sum_freq
     
     def save_to_file(self, path_to_file):
         f = open(path_to_file, 'w')
@@ -94,7 +95,7 @@ class StateGraph(object):
         return g
     
     def print_stats(self):
-        print 'G stats:'
+        print 'Graph Stats:'
         print 'Number of nodes: %d' % len(self.neighbors)
         total_edges = 0
         total_transitions = 0
@@ -115,6 +116,7 @@ if __name__ == '__main__':
     g.add_edge('3', 1, 'r', '4')
     g.add_edge('4', 1, 'r', '5')
     g.add_edge('3', 1, 'r', '6')
+    g.add_edge('3', 1, 'r', '6')
     g.add_edge('6', 1, 'r', '7')
     g.add_sink('5', PLAYER_WHITE)
     g.add_sink('7', PLAYER_BLACK)
@@ -124,4 +126,7 @@ if __name__ == '__main__':
     print g.get_neighbors('0', 1, 'r')
     print g.neighbors['3']
     g.print_stats()
+    
+    g.convert_freq_to_prob()
+    print g.neighbors['3']
     
