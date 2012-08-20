@@ -140,7 +140,13 @@ class NannonState(object):
                                              checker)
             if next_node is not None:
                 self.graph_node = next_node
+                self.pos = self.GAME_GRAPH.get_pos(next_node)
                 success = True
+            if (checker == NannonAction.ACTION_FORFEIT_MOVE) and not success:
+                self.GAME_GRAPH.add_sink(self.graph_node, 
+                                         self.other_player(self.player_to_move))
+                print "Encountered unexplored graph node:"
+                print "State: %s" % self.graph_node
         else:        
             if checker == NannonAction.ACTION_FORFEIT_MOVE:
                 success = True
@@ -220,6 +226,7 @@ class NannonState(object):
             self.switch_turn()
             if GENERATE_GRAPH and not self.is_graph_based:
                 graph_node_to = self.board_config()
+                self.RECORD_GAME_GRAPH.add_node(graph_node_to, self.pos)
                 self.RECORD_GAME_GRAPH.add_edge(graph_node_from, current_roll,
                                                 checker, graph_node_to)
         return success
@@ -500,6 +507,8 @@ class NannonGame(object):
             roll = abs(NannonDie.roll() - NannonDie.roll())
         self.state.roll = roll
         if GENERATE_GRAPH:
+            NannonState.RECORD_GAME_GRAPH.add_node(self.state.board_config(),
+                                                   self.state.pos)
             NannonState.RECORD_GAME_GRAPH.add_source(self.state.board_config(),
                                                      player_to_start_game)
         

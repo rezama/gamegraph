@@ -155,7 +155,13 @@ class MiniGammonState(object):
                                              checker)
             if next_node is not None:
                 self.graph_node = next_node
+                self.pos = self.GAME_GRAPH.get_pos(next_node)
                 success = True
+            if (checker == MiniGammonAction.ACTION_FORFEIT_MOVE) and not success:
+                self.GAME_GRAPH.add_sink(self.graph_node, 
+                                         self.other_player(self.player_to_move))
+                print "Encountered unexplored graph node:"
+                print "State: %s" % self.graph_node
         else:
             if checker == MiniGammonAction.ACTION_FORFEIT_MOVE:
                 success = True
@@ -227,6 +233,7 @@ class MiniGammonState(object):
             self.switch_turn()
             if GENERATE_GRAPH and not self.is_graph_based:
                 graph_node_to = self.board_config()
+                self.RECORD_GAME_GRAPH.add_node(graph_node_to, self.pos)
                 self.RECORD_GAME_GRAPH.add_edge(graph_node_from, current_roll,
                                                 checker, graph_node_to)
         return success
@@ -483,6 +490,8 @@ class MiniGammonGame(object):
         # initial die roll
         self.state.roll = MiniGammonDie.roll()
         if GENERATE_GRAPH:
+            MiniGammonState.RECORD_GAME_GRAPH.add_node(self.state.board_config(),
+                                                       self.state.pos)
             MiniGammonState.RECORD_GAME_GRAPH.add_source(self.state.board_config(),
                                                          player_to_start_game)
         

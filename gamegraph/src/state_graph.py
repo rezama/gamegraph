@@ -11,6 +11,7 @@ class StateGraph(object):
 
     def __init__(self, dice_sides):
         self.neighbors = {}
+        self.nodes = {}
         self.sources = {PLAYER_WHITE: [], PLAYER_BLACK: []}
         self.sinks = {PLAYER_WHITE: [], PLAYER_BLACK: []}
         self.dice_sides = dice_sides
@@ -52,6 +53,13 @@ class StateGraph(object):
     def add_sink(self, node, player):
         if node not in self.sinks[player]:
             self.sinks[player].append(node)
+    
+    def add_node(self, node, pos):
+        if node not in self.nodes:
+            self.nodes[node] = pos
+            
+    def get_pos(self, node):
+        return self.nodes[node]
     
     def add_edge(self, node1, roll, edge, node2):
         if node1 not in self.neighbors:
