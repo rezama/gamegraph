@@ -334,13 +334,7 @@ class NannonState(object):
         return self.encode()
     
     def __str__(self):
-        if self.is_graph_based:
-            return self.graph_node + ('-%d' % self.roll)
-        else:
-            return '%d-%d%d%d-%d%d%d-%d' % (self.player_to_move,
-                                self.pos[0][0], self.pos[0][1], self.pos[0][2], 
-                                self.pos[1][0], self.pos[1][1], self.pos[1][2],
-                                self.roll)
+        return self.board_config_and_roll()
 
     def board_config(self):
         if self.is_graph_based:
@@ -349,6 +343,15 @@ class NannonState(object):
             return '%d-%d%d%d-%d%d%d' % (self.player_to_move,
                                 self.pos[0][0], self.pos[0][1], self.pos[0][2], 
                                 self.pos[1][0], self.pos[1][1], self.pos[1][2])
+
+    def board_config_and_roll(self):
+        if self.is_graph_based:
+            return self.graph_node + ('-%d' % self.roll)
+        else:
+            return '%d-%d%d%d-%d%d%d-%d' % (self.player_to_move,
+                                self.pos[0][0], self.pos[0][1], self.pos[0][2], 
+                                self.pos[1][0], self.pos[1][1], self.pos[1][2],
+                                self.roll)
 
 #    def __str__(self):
 #        return '%d-%d%d%d-%d%d%d-%d  %s' % (self.player_to_move,

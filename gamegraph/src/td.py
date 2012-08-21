@@ -12,7 +12,10 @@ from pybrain.supervised.trainers.backprop import BackpropTrainer
 from common import Experiment
 #from vanilla_rl import AgentVanillaRL
 
-NUM_ITERATIONS = 200
+#NUM_ITERATIONS = 200
+#NUM_TRAINING_GAMES = 16 # 64
+#NUM_EVAL_GAMES = 1024
+NUM_ITERATIONS = 10
 NUM_TRAINING_GAMES = 16 # 64
 NUM_EVAL_GAMES = 1024
 
@@ -288,7 +291,7 @@ if __name__ == '__main__':
 #        game_set = Domain.GameSetClass(NUM_TRAINING_GAMES, agent_td1, agent_td1,
 #                                       p, reentry_offset)
         game_set = Domain.GameSetClass(NUM_TRAINING_GAMES, agent_td1, agent_td1,
-                                       p, reentry_offset)
+                                       p, reentry_offset, graph_name)
         count_wins = game_set.run()
 
-    file.close()
+    f.close()

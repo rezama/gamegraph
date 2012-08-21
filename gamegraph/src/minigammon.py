@@ -334,13 +334,8 @@ class MiniGammonState(object):
         return self.encode()
     
     def __str__(self):
-        if self.is_graph_based:
-            return self.graph_node + ('-%d' % self.roll)
-        else:
-            return '%d-%d%d%d%d-%d' % (self.player_to_move,
-                                self.pos[0][0], self.pos[0][1], 
-                                self.pos[1][0], self.pos[1][1],
-                                self.roll)
+        return self.board_config_and_roll()
+
     def board_config(self):
         if self.is_graph_based:
             return self.graph_node
@@ -349,9 +344,20 @@ class MiniGammonState(object):
                                 self.pos[0][0], self.pos[0][1], 
                                 self.pos[1][0], self.pos[1][1])
 
+    def board_config_and_roll(self):
+        if self.is_graph_based:
+            return  self.GAME_GRAPH.vs[self.current_g_index]['name'] + \
+                ('-%d' % self.roll)
+        else:
+            return '%d-%d%d%d%d-%d' % (self.player_to_move,
+                                self.pos[0][0], self.pos[0][1], 
+                                self.pos[1][0], self.pos[1][1],
+                                self.roll)
+
     def compute_per_ply_stats(self, current_ply_number):
         if COLLECT_STATS:
             state = self.encode()
+            # FIXME: change this to self.board_config()
             if state in self.states_visit_count:
                 self.states_visit_count[state] += 1
             else:

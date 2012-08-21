@@ -27,7 +27,7 @@ class StateGraph(object):
             sum_prob = 0.0
             for (node, prob) in destinations_map.iteritems():
                 sum_prob += prob
-                if prob > p:
+                if sum_prob > p:
                     target = node
                     break
         except KeyError:
@@ -76,12 +76,12 @@ class StateGraph(object):
             
         self.neighbors[node1][roll][edge][node2] += 1
     
-    def get_neighbors(self, node, roll, edge):
-        if node in self.neighbors:
-            if roll in self.neighbors[node]:
-                if edge in self.neighbors[node][roll]:
-                    return self.neighbors[node][roll][edge].keys()
-        return []
+#    def get_neighbors(self, node, roll, edge):
+#        if node in self.neighbors:
+#            if roll in self.neighbors[node]:
+#                if edge in self.neighbors[node][roll]:
+#                    return self.neighbors[node][roll][edge].keys()
+#        return []
     
     def convert_freq_to_prob(self):
         for node1 in self.neighbors:
@@ -140,4 +140,5 @@ if __name__ == '__main__':
     
     g.convert_freq_to_prob()
     print g.neighbors['3']
+    
     
