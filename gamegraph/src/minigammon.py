@@ -10,6 +10,7 @@ from common import NUM_STATS_GAMES, PRINT_GAME_DETAIL, PRINT_GAME_RESULTS, \
     RECENT_WINNERS_LIST_SIZE, COLLECT_STATS, ALTERNATE_SEATS, Experiment,\
     USE_SEEDS, GENERATE_GRAPH
 from state_graph import StateGraph
+import copy
 
 HIDDEN_UNITS = 10
 
@@ -118,13 +119,13 @@ class MiniGammonState(object):
     states_sorted_by_ply_visit_count_over_avg_num_plies = []
 
     # graph
-    RECORD_GAME_GRAPH = StateGraph(MiniGammonDie.SIDES)
+    RECORD_GAME_GRAPH = StateGraph(MiniGammonAction.ALL_ACTIONS, MiniGammonDie.SIDES)
     GAME_GRAPH = None
     
     def __init__(self, player_to_move, p, reentry_offset, graph_name):
         self.pos = [[self.BOARD_START, self.BOARD_START],
                     [self.BOARD_START, self.BOARD_START]]
-        self.graph_node = None
+        self.current_g_id = None
         self.player_to_move = player_to_move
         self.roll = None
         
@@ -137,31 +138,33 @@ class MiniGammonState(object):
         self.is_graph_based = (self.graph_name is not None)
         
         if self.is_graph_based:
-            if self.GAME_GRAPH is None:
+            if MiniGammonState.GAME_GRAPH is None:
+                print 'Loading the graph...'
                 filename = '../graph/%s-%s' % (Domain.name, Experiment.get_file_suffix_no_trial())
-                self.GAME_GRAPH = StateGraph.load_from_file(filename)
-            self.graph_node = self.GAME_GRAPH.get_random_source(self.player_to_move)
+                MiniGammonState.GAME_GRAPH = StateGraph.load_from_file(filename)
+                print 'Done.'
+            self.current_g_id = self.GAME_GRAPH.get_random_source(self.player_to_move)
 
         self.shadow = None
     
     def move(self, checker):
         success = False
         if GENERATE_GRAPH and not self.is_graph_based:
-            graph_node_from = self.board_config()
+            node_from_name = self.board_config()
             current_roll = self.roll
                 
         if self.is_graph_based:
-            next_node = self.GAME_GRAPH.move(self.graph_node, self.roll,
-                                             checker)
-            if next_node is not None:
-                self.graph_node = next_node
-                self.pos = self.GAME_GRAPH.get_pos(next_node)
+            next_id = self.GAME_GRAPH.get_transition_outcome(self.current_g_id,
+                                                             self.roll, checker)
+            if next_id is not None:
+                self.current_g_id = next_id
+                self.pos = self.GAME_GRAPH.get_attr(next_id, 'pos')
                 success = True
             if (checker == MiniGammonAction.ACTION_FORFEIT_MOVE) and not success:
-                self.GAME_GRAPH.add_sink(self.graph_node, 
-                                         self.other_player(self.player_to_move))
+                self.GAME_GRAPH.set_as_sink(self.current_g_id, 
+                                            self.other_player(self.player_to_move))
                 print "Encountered unexplored graph node:"
-                print "State: %s" % self.graph_node
+                print "State: %s" % self.GAME_GRAPH.get_node_name(self.current_g_id)
         else:
             if checker == MiniGammonAction.ACTION_FORFEIT_MOVE:
                 success = True
@@ -232,10 +235,13 @@ class MiniGammonState(object):
         if success:
             self.switch_turn()
             if GENERATE_GRAPH and not self.is_graph_based:
-                graph_node_to = self.board_config()
-                self.RECORD_GAME_GRAPH.add_node(graph_node_to, self.pos)
-                self.RECORD_GAME_GRAPH.add_edge(graph_node_from, current_roll,
-                                                checker, graph_node_to)
+                node_from_id = self.RECORD_GAME_GRAPH.get_node_id(node_from_name)
+                node_to_name = self.board_config()
+                node_to_id = self.RECORD_GAME_GRAPH.add_node(node_to_name)
+                if not self.RECORD_GAME_GRAPH.has_attr(node_to_id, 'pos'):
+                    self.RECORD_GAME_GRAPH.set_attr(node_to_id, 'pos', copy.deepcopy(self.pos))
+                self.RECORD_GAME_GRAPH.add_edge(node_from_id, current_roll,
+                                                checker, node_to_id)
         return success
     
     def get_move_outcome(self, checker):
@@ -250,7 +256,7 @@ class MiniGammonState(object):
         self.shadow.pos[0][1] = self.pos[0][1]
         self.shadow.pos[1][0] = self.pos[1][0]
         self.shadow.pos[1][1] = self.pos[1][1]
-        self.shadow.graph_node = self.graph_node
+        self.shadow.current_g_id = self.current_g_id
         # move shadow
 #        print 'Self before move: %s' % self.pos
 #        print 'Shadow before move: %s' % self.shadow.pos
@@ -269,14 +275,14 @@ class MiniGammonState(object):
     
     def is_final(self):
         if self.is_graph_based:
-            return self.GAME_GRAPH.is_sink(self.graph_node)
+            return self.GAME_GRAPH.is_sink(self.current_g_id)
         else:
             return self.has_player_won(self.PLAYER_WHITE) or \
                    self.has_player_won(self.PLAYER_BLACK)
     
     def has_player_won(self, player):
         if self.is_graph_based:
-            return (self.GAME_GRAPH.get_sink_color(self.graph_node) == player)
+            return (self.GAME_GRAPH.get_sink_color(self.current_g_id) == player)
         else:
             checker1_pos = self.pos[player][self.CHECKER1]
             checker2_pos = self.pos[player][self.CHECKER2]
@@ -309,7 +315,7 @@ class MiniGammonState(object):
 
     def encode(self):
         if self.is_graph_based:
-            return self.graph_node[2:]
+            return self.GAME_GRAPH.get_node_name(self.current_g_id)[2:]
         cell_content = [''] * (self.BOARD_OFF + 1)
         for player in [self.PLAYER_WHITE, self.PLAYER_BLACK]:
             for checker in [self.CHECKER1, self.CHECKER2]:
@@ -338,7 +344,7 @@ class MiniGammonState(object):
 
     def board_config(self):
         if self.is_graph_based:
-            return self.graph_node
+            return self.GAME_GRAPH.get_node_name(self.current_g_id)
         else:
             return '%d-%d%d%d%d' % (self.player_to_move,
                                 self.pos[0][0], self.pos[0][1], 
@@ -346,7 +352,7 @@ class MiniGammonState(object):
 
     def board_config_and_roll(self):
         if self.is_graph_based:
-            return  self.GAME_GRAPH.vs[self.current_g_index]['name'] + \
+            return self.GAME_GRAPH.get_node_name(self.current_g_id) + \
                 ('-%d' % self.roll)
         else:
             return '%d-%d%d%d%d-%d' % (self.player_to_move,
@@ -495,11 +501,12 @@ class MiniGammonGame(object):
 
         # initial die roll
         self.state.roll = MiniGammonDie.roll()
-        if GENERATE_GRAPH:
-            MiniGammonState.RECORD_GAME_GRAPH.add_node(self.state.board_config(),
-                                                       self.state.pos)
-            MiniGammonState.RECORD_GAME_GRAPH.add_source(self.state.board_config(),
-                                                         player_to_start_game)
+        if GENERATE_GRAPH and not self.state.is_graph_based:
+            record_graph = self.state.RECORD_GAME_GRAPH
+            s = record_graph.add_node(self.state.board_config())
+            if not record_graph.has_attr(s, 'pos'):
+                record_graph.set_attr(s, 'pos', copy.deepcopy(self.state.pos))
+                record_graph.set_as_source(s, player_to_start_game)
         
         agent_white.set_state(self.state)
         agent_black.set_state(self.state)
@@ -541,9 +548,10 @@ class MiniGammonGame(object):
         self.agents[winner].end_episode(self.REWARD_WIN)
         self.agents[loser].end_episode(self.REWARD_LOSE)
         
-        if GENERATE_GRAPH:
-            MiniGammonState.RECORD_GAME_GRAPH.add_sink(self.state.board_config(),
-                                                       winner)
+        if GENERATE_GRAPH and not self.state.is_graph_based:
+            sink_name = self.state.board_config()
+            sink_id = self.state.RECORD_GAME_GRAPH.get_node_id(sink_name)
+            self.state.RECORD_GAME_GRAPH.set_as_sink(sink_id, winner)
         
         return winner
         
@@ -653,10 +661,13 @@ if __name__ == '__main__':
     total_plies = game_set.get_sum_count_plies()
     
     if GENERATE_GRAPH:
-        MiniGammonState.RECORD_GAME_GRAPH.print_stats()
-        MiniGammonState.RECORD_GAME_GRAPH.convert_freq_to_prob()
+        record_graph = MiniGammonState.RECORD_GAME_GRAPH
+        record_graph.print_stats()
+        print record_graph.successors[record_graph.get_node_id('0-1111')]
+        record_graph.convert_freq_to_prob()
+        print record_graph.successors[record_graph.get_node_id('0-1111')]
         filename = '../graph/%s-%s' % (Domain.name, Experiment.get_file_suffix_no_trial())
-        MiniGammonState.RECORD_GAME_GRAPH.save_to_file(filename)
+        record_graph.save_to_file(filename)
     
     # printing overall stats
     print '----'

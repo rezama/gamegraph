@@ -109,7 +109,7 @@ class NannonState(object):
     def __init__(self, player_to_move, p, reentry_offset, graph_name):
         self.pos = [[0, 1, 2],
                     [0, 1, 2]]
-        self.graph_node = None
+        self.current_g_id = None
         self.player_to_move = player_to_move
         self.roll = None
         
@@ -125,7 +125,7 @@ class NannonState(object):
             if self.GAME_GRAPH is None:
                 filename = '../graph/%s-%s' % (Domain.name, Experiment.get_file_suffix_no_trial())
                 self.GAME_GRAPH = StateGraph.load_from_file(filename)
-            self.graph_node = self.GAME_GRAPH.get_random_source(self.player_to_move)
+            self.current_g_id = self.GAME_GRAPH.get_random_source(self.player_to_move)
 
         self.shadow = None
     
@@ -136,17 +136,17 @@ class NannonState(object):
             current_roll = self.roll
             
         if self.is_graph_based:
-            next_node = self.GAME_GRAPH.move(self.graph_node, self.roll,
+            next_node = self.GAME_GRAPH.move(self.current_g_id, self.roll,
                                              checker)
             if next_node is not None:
-                self.graph_node = next_node
+                self.current_g_id = next_node
                 self.pos = self.GAME_GRAPH.get_pos(next_node)
                 success = True
             if (checker == NannonAction.ACTION_FORFEIT_MOVE) and not success:
-                self.GAME_GRAPH.add_sink(self.graph_node, 
+                self.GAME_GRAPH.add_sink(self.current_g_id, 
                                          self.other_player(self.player_to_move))
                 print "Encountered unexplored graph node:"
-                print "State: %s" % self.graph_node
+                print "State: %s" % self.current_g_id
         else:        
             if checker == NannonAction.ACTION_FORFEIT_MOVE:
                 success = True
@@ -245,7 +245,7 @@ class NannonState(object):
         self.shadow.pos[1][0] = self.pos[1][0]
         self.shadow.pos[1][1] = self.pos[1][1]
         self.shadow.pos[1][2] = self.pos[1][2]
-        self.shadow.graph_node = self.graph_node
+        self.shadow.current_g_id = self.current_g_id
         # move shadow
 #        print 'Self before move: %s' % self.pos
 #        print 'Shadow before move: %s' % self.shadow.pos
@@ -264,14 +264,14 @@ class NannonState(object):
             
     def is_final(self):
         if self.is_graph_based:
-            return self.GAME_GRAPH.is_sink(self.graph_node)
+            return self.GAME_GRAPH.is_sink(self.current_g_id)
         else:
             return self.has_player_won(self.PLAYER_WHITE) or \
                    self.has_player_won(self.PLAYER_BLACK)
     
     def has_player_won(self, player):
         if self.is_graph_based:
-            return (self.GAME_GRAPH.get_sink_color(self.graph_node) == player)
+            return (self.GAME_GRAPH.get_sink_color(self.current_g_id) == player)
         else:
             checker1_pos = self.pos[player][self.CHECKER1]
             checker2_pos = self.pos[player][self.CHECKER2]
@@ -308,7 +308,7 @@ class NannonState(object):
 
     def encode(self):
         if self.is_graph_based:
-            return self.graph_node[2:]
+            return self.current_g_id[2:]
         else:
             cell_content = [''] * (self.BOARD_OFF + 1)
             for player in [self.PLAYER_WHITE, self.PLAYER_BLACK]:
@@ -338,7 +338,7 @@ class NannonState(object):
 
     def board_config(self):
         if self.is_graph_based:
-            return self.graph_node
+            return self.current_g_id
         else:
             return '%d-%d%d%d-%d%d%d' % (self.player_to_move,
                                 self.pos[0][0], self.pos[0][1], self.pos[0][2], 
@@ -346,7 +346,7 @@ class NannonState(object):
 
     def board_config_and_roll(self):
         if self.is_graph_based:
-            return self.graph_node + ('-%d' % self.roll)
+            return self.current_g_id + ('-%d' % self.roll)
         else:
             return '%d-%d%d%d-%d%d%d-%d' % (self.player_to_move,
                                 self.pos[0][0], self.pos[0][1], self.pos[0][2], 
