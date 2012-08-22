@@ -4,13 +4,14 @@ Created on Dec 11, 2011
 @author: reza
 '''
 import random
+import copy
 from pybrain.tools.shortcuts import buildNetwork
 from pybrain.structure.modules.sigmoidlayer import SigmoidLayer
 #from pybrain.datasets.supervised import SupervisedDataSet
 #from pybrain.supervised.trainers.backprop import BackpropTrainer
 from common import NUM_STATS_GAMES, PRINT_GAME_DETAIL, PRINT_GAME_RESULTS, \
     RECENT_WINNERS_LIST_SIZE, COLLECT_STATS, ALTERNATE_SEATS, Experiment,\
-    USE_SEEDS, GENERATE_GRAPH
+    USE_SEEDS, GENERATE_GRAPH, POS_ATTR
 from state_graph import StateGraph
 
 HIDDEN_UNITS = 10
@@ -103,7 +104,7 @@ class NannonState(object):
     states_sorted_by_ply_visit_count_over_avg_num_plies = []
 
     # graph
-    RECORD_GAME_GRAPH = StateGraph(NannonDie.SIDES)
+    RECORD_GAME_GRAPH = StateGraph(NannonAction.ALL_ACTIONS, NannonDie.SIDES)
     GAME_GRAPH = None
         
     def __init__(self, player_to_move, p, reentry_offset, graph_name):
@@ -122,9 +123,9 @@ class NannonState(object):
         self.is_graph_based = (self.graph_name is not None)
         
         if self.is_graph_based:
-            if self.GAME_GRAPH is None:
+            if NannonState.GAME_GRAPH is None:
                 filename = '../graph/%s-%s' % (Domain.name, Experiment.get_file_suffix_no_trial())
-                self.GAME_GRAPH = StateGraph.load_from_file(filename)
+                NannonState.GAME_GRAPH = StateGraph.load_from_file(filename)
             self.current_g_id = self.GAME_GRAPH.get_random_source(self.player_to_move)
 
         self.shadow = None
@@ -132,21 +133,21 @@ class NannonState(object):
     def move(self, checker):
         success = False
         if GENERATE_GRAPH and not self.is_graph_based:
-            graph_node_from = self.board_config()
+            node_from_name = self.board_config()
             current_roll = self.roll
             
         if self.is_graph_based:
-            next_node = self.GAME_GRAPH.move(self.current_g_id, self.roll,
-                                             checker)
-            if next_node is not None:
-                self.current_g_id = next_node
-                self.pos = self.GAME_GRAPH.get_pos(next_node)
+            next_id = self.GAME_GRAPH.get_transition_outcome(self.current_g_id,
+                                                             self.roll, checker)
+            if next_id is not None:
+                self.current_g_id = next_id
+                self.pos = self.GAME_GRAPH.get_attr(next_id, POS_ATTR)
                 success = True
             if (checker == NannonAction.ACTION_FORFEIT_MOVE) and not success:
-                self.GAME_GRAPH.add_sink(self.current_g_id, 
-                                         self.other_player(self.player_to_move))
-                print "Encountered unexplored graph node:"
-                print "State: %s" % self.current_g_id
+                self.GAME_GRAPH.set_as_sink(self.current_g_id, 
+                                            self.other_player(self.player_to_move))
+                print "Encountered unexplored graph node: %s" % self.GAME_GRAPH.get_node_name(self.current_g_id)
+                print "Marking as final."
         else:        
             if checker == NannonAction.ACTION_FORFEIT_MOVE:
                 success = True
@@ -225,10 +226,13 @@ class NannonState(object):
         if success:
             self.switch_turn()
             if GENERATE_GRAPH and not self.is_graph_based:
-                graph_node_to = self.board_config()
-                self.RECORD_GAME_GRAPH.add_node(graph_node_to, self.pos)
-                self.RECORD_GAME_GRAPH.add_edge(graph_node_from, current_roll,
-                                                checker, graph_node_to)
+                node_from_id = self.RECORD_GAME_GRAPH.get_node_id(node_from_name)
+                node_to_name = self.board_config()
+                node_to_id = self.RECORD_GAME_GRAPH.add_node(node_to_name)
+                if not self.RECORD_GAME_GRAPH.has_attr(node_to_id, POS_ATTR):
+                    self.RECORD_GAME_GRAPH.set_attr(node_to_id, POS_ATTR, copy.deepcopy(self.pos))
+                self.RECORD_GAME_GRAPH.add_edge(node_from_id, current_roll,
+                                                checker, node_to_id)
         return success
     
     def get_move_outcome(self, checker):
@@ -308,7 +312,7 @@ class NannonState(object):
 
     def encode(self):
         if self.is_graph_based:
-            return self.current_g_id[2:]
+            return self.GAME_GRAPH.get_node_name(self.current_g_id)[2:]
         else:
             cell_content = [''] * (self.BOARD_OFF + 1)
             for player in [self.PLAYER_WHITE, self.PLAYER_BLACK]:
@@ -338,7 +342,7 @@ class NannonState(object):
 
     def board_config(self):
         if self.is_graph_based:
-            return self.current_g_id
+            return self.GAME_GRAPH.get_node_name(self.current_g_id)
         else:
             return '%d-%d%d%d-%d%d%d' % (self.player_to_move,
                                 self.pos[0][0], self.pos[0][1], self.pos[0][2], 
@@ -346,7 +350,8 @@ class NannonState(object):
 
     def board_config_and_roll(self):
         if self.is_graph_based:
-            return self.current_g_id + ('-%d' % self.roll)
+            return self.GAME_GRAPH.get_node_name(self.current_g_id) + \
+                ('-%d' % self.roll)
         else:
             return '%d-%d%d%d-%d%d%d-%d' % (self.player_to_move,
                                 self.pos[0][0], self.pos[0][1], self.pos[0][2], 
@@ -509,11 +514,12 @@ class NannonGame(object):
         while roll == 0:
             roll = abs(NannonDie.roll() - NannonDie.roll())
         self.state.roll = roll
-        if GENERATE_GRAPH:
-            NannonState.RECORD_GAME_GRAPH.add_node(self.state.board_config(),
-                                                   self.state.pos)
-            NannonState.RECORD_GAME_GRAPH.add_source(self.state.board_config(),
-                                                     player_to_start_game)
+        if GENERATE_GRAPH and not self.state.is_graph_based:
+            record_graph = self.state.RECORD_GAME_GRAPH
+            s = record_graph.add_node(self.state.board_config())
+            if not record_graph.has_attr(s, POS_ATTR):
+                record_graph.set_attr(s, POS_ATTR, copy.deepcopy(self.state.pos))
+                record_graph.set_as_source(s, player_to_start_game)
         
         agent_white.set_state(self.state)
         agent_black.set_state(self.state)
@@ -556,9 +562,10 @@ class NannonGame(object):
         self.agents[winner].end_episode(self.REWARD_WIN)
         self.agents[loser].end_episode(self.REWARD_LOSE)
         
-        if GENERATE_GRAPH:
-            NannonState.RECORD_GAME_GRAPH.add_sink(self.state.board_config(),
-                                                   winner)
+        if GENERATE_GRAPH and not self.state.is_graph_based:
+            sink_name = self.state.board_config()
+            sink_id = self.state.RECORD_GAME_GRAPH.get_node_id(sink_name)
+            self.state.RECORD_GAME_GRAPH.set_as_sink(sink_id, winner)
         
         return winner
         
@@ -666,10 +673,11 @@ if __name__ == '__main__':
     total_plies = game_set.get_sum_count_plies()
     
     if GENERATE_GRAPH:
-        NannonState.RECORD_GAME_GRAPH.print_stats()
-        NannonState.RECORD_GAME_GRAPH.convert_freq_to_prob()
+        record_graph = NannonState.RECORD_GAME_GRAPH
+        record_graph.print_stats()
+        record_graph.convert_freq_to_prob()
         filename = '../graph/%s-%s' % (Domain.name, Experiment.get_file_suffix_no_trial())
-        NannonState.RECORD_GAME_GRAPH.save_to_file(filename)
+        record_graph.save_to_file(filename)
         
     # printing overall stats
     print '----'

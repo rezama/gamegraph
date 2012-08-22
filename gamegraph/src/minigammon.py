@@ -4,13 +4,13 @@ Created on Dec 5, 2011
 @author: reza
 '''
 import random
+import copy
 from pybrain.tools.shortcuts import buildNetwork
 from pybrain.structure.modules.sigmoidlayer import SigmoidLayer
 from common import NUM_STATS_GAMES, PRINT_GAME_DETAIL, PRINT_GAME_RESULTS, \
     RECENT_WINNERS_LIST_SIZE, COLLECT_STATS, ALTERNATE_SEATS, Experiment,\
-    USE_SEEDS, GENERATE_GRAPH
+    USE_SEEDS, GENERATE_GRAPH, POS_ATTR
 from state_graph import StateGraph
-import copy
 
 HIDDEN_UNITS = 10
 
@@ -139,10 +139,8 @@ class MiniGammonState(object):
         
         if self.is_graph_based:
             if MiniGammonState.GAME_GRAPH is None:
-                print 'Loading the graph...'
                 filename = '../graph/%s-%s' % (Domain.name, Experiment.get_file_suffix_no_trial())
                 MiniGammonState.GAME_GRAPH = StateGraph.load_from_file(filename)
-                print 'Done.'
             self.current_g_id = self.GAME_GRAPH.get_random_source(self.player_to_move)
 
         self.shadow = None
@@ -158,13 +156,13 @@ class MiniGammonState(object):
                                                              self.roll, checker)
             if next_id is not None:
                 self.current_g_id = next_id
-                self.pos = self.GAME_GRAPH.get_attr(next_id, 'pos')
+                self.pos = self.GAME_GRAPH.get_attr(next_id, POS_ATTR)
                 success = True
             if (checker == MiniGammonAction.ACTION_FORFEIT_MOVE) and not success:
                 self.GAME_GRAPH.set_as_sink(self.current_g_id, 
                                             self.other_player(self.player_to_move))
-                print "Encountered unexplored graph node:"
-                print "State: %s" % self.GAME_GRAPH.get_node_name(self.current_g_id)
+                print "Encountered unexplored graph node: %s" % self.GAME_GRAPH.get_node_name(self.current_g_id)
+                print "Marking as final."
         else:
             if checker == MiniGammonAction.ACTION_FORFEIT_MOVE:
                 success = True
@@ -238,8 +236,8 @@ class MiniGammonState(object):
                 node_from_id = self.RECORD_GAME_GRAPH.get_node_id(node_from_name)
                 node_to_name = self.board_config()
                 node_to_id = self.RECORD_GAME_GRAPH.add_node(node_to_name)
-                if not self.RECORD_GAME_GRAPH.has_attr(node_to_id, 'pos'):
-                    self.RECORD_GAME_GRAPH.set_attr(node_to_id, 'pos', copy.deepcopy(self.pos))
+                if not self.RECORD_GAME_GRAPH.has_attr(node_to_id, POS_ATTR):
+                    self.RECORD_GAME_GRAPH.set_attr(node_to_id, POS_ATTR, copy.deepcopy(self.pos))
                 self.RECORD_GAME_GRAPH.add_edge(node_from_id, current_roll,
                                                 checker, node_to_id)
         return success
@@ -504,8 +502,8 @@ class MiniGammonGame(object):
         if GENERATE_GRAPH and not self.state.is_graph_based:
             record_graph = self.state.RECORD_GAME_GRAPH
             s = record_graph.add_node(self.state.board_config())
-            if not record_graph.has_attr(s, 'pos'):
-                record_graph.set_attr(s, 'pos', copy.deepcopy(self.state.pos))
+            if not record_graph.has_attr(s, POS_ATTR):
+                record_graph.set_attr(s, POS_ATTR, copy.deepcopy(self.state.pos))
                 record_graph.set_as_source(s, player_to_start_game)
         
         agent_white.set_state(self.state)

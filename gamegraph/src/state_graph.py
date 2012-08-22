@@ -115,14 +115,19 @@ class StateGraph(object):
                         float(freq) / sum_freq
     
     def save_to_file(self, path_to_file):
+        print 'Saving the graph...'
         f = open(path_to_file, 'w')
         pickle.dump(self, f)
         f.close()
+        print 'Done.'
        
     @classmethod 
     def load_from_file(cls, path_to_file):
+        print 'Loading the graph...'
         f = open(path_to_file, 'r')
         g = pickle.load(f)
+        f.close()
+        print 'Done.'
         return g
     
     def print_stats(self):
