@@ -690,4 +690,4 @@ if __name__ == '__main__':
         print 'Variance of number of visits to states: %.2f' % var_visit_count_to_states
         
         MiniGammonState.compute_overall_stats(avg_num_plies_per_game)
-        Experiment.write_stats(MiniGammonState, Domain.name)
+        Experiment.save_stats(MiniGammonState, Domain.name)

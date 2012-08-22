@@ -29,6 +29,8 @@ USE_SEEDS = True
 RECENT_WINNERS_LIST_SIZE = 3000
 
 COLLECT_STATS = True
+SAVE_STATS = False
+
 GENERATE_GRAPH = True
 
 NUM_STATS_GAMES = 1000
@@ -95,8 +97,8 @@ class Experiment:
         return (p, offset, graph_name) 
     
     @classmethod
-    def write_stats(cls, state_class, domain_name):
-        if not COLLECT_STATS:
+    def save_stats(cls, state_class, domain_name):
+        if not SAVE_STATS:
             return
     #    # visit counts to individual states        
     #    filename = '../data/states-visit-count-%1.2f.txt' % state_class.p
