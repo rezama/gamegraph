@@ -228,7 +228,7 @@ class NannonState(object):
             if GENERATE_GRAPH and not self.is_graph_based:
                 node_from_id = self.RECORD_GAME_GRAPH.get_node_id(node_from_name)
                 node_to_name = self.board_config()
-                node_to_id = self.RECORD_GAME_GRAPH.add_node(node_to_name)
+                node_to_id = self.RECORD_GAME_GRAPH.add_node(node_to_name, self.player_to_move)
                 if not self.RECORD_GAME_GRAPH.has_attr(node_to_id, POS_ATTR):
                     self.RECORD_GAME_GRAPH.set_attr(node_to_id, POS_ATTR, copy.deepcopy(self.pos))
                 self.RECORD_GAME_GRAPH.add_edge(node_from_id, current_roll,
@@ -516,7 +516,7 @@ class NannonGame(object):
         self.state.roll = roll
         if GENERATE_GRAPH and not self.state.is_graph_based:
             record_graph = self.state.RECORD_GAME_GRAPH
-            s = record_graph.add_node(self.state.board_config())
+            s = record_graph.add_node(self.state.board_config(), self.state.player_to_move)
             if not record_graph.has_attr(s, POS_ATTR):
                 record_graph.set_attr(s, POS_ATTR, copy.deepcopy(self.state.pos))
                 record_graph.set_as_source(s, player_to_start_game)
@@ -672,7 +672,7 @@ if __name__ == '__main__':
     count_wins = game_set.run()
     total_plies = game_set.get_sum_count_plies()
     
-    if GENERATE_GRAPH:
+    if GENERATE_GRAPH and (graph_name is None):
         record_graph = NannonState.RECORD_GAME_GRAPH
         record_graph.print_stats()
         record_graph.convert_freq_to_prob()

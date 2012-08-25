@@ -6,12 +6,14 @@ Created on Jun 25, 2012
 from common import PLAYER_WHITE, PLAYER_BLACK
 import random
 import pickle
+from Queue import Queue
 
 class StateGraph(object):
 
     def __init__(self, all_actions, all_rolls, roll_offset = 1):
         self.successors = []
         self.node_names = []
+        self.node_colors = []
         self.node_attrs = []
         self.node_ids = {}
 #        self.sources = {PLAYER_WHITE: [], PLAYER_BLACK: []}
@@ -21,6 +23,7 @@ class StateGraph(object):
         self.all_actions = all_actions
         self.all_rolls = all_rolls
         self.roll_offset = roll_offset
+        self.depth_buckets = []
                 
     def get_random_source(self, player_to_start):
         return random.choice(self.sources[player_to_start])
@@ -60,12 +63,13 @@ class StateGraph(object):
         else:
             return None
     
-    def add_node(self, node_name):
+    def add_node(self, node_name, node_color):
         if node_name not in self.node_names:
             node_id = len(self.node_names)
             self.node_names.append(node_name)
             self.node_attrs.append({})
-            self.node_ids[node_name] = node_id            
+            self.node_ids[node_name] = node_id      
+            self.node_colors.append(node_color)      
             self.successors.append([])
             for roll in self.all_rolls:
                 self.successors[node_id].append([])
@@ -91,6 +95,9 @@ class StateGraph(object):
     def get_node_name(self, node_id):
         return self.node_names[node_id]
     
+    def get_node_color(self, node_id):
+        return self.node_colors[node_id]
+    
     def get_node_id(self, node_name):
         return self.node_ids[node_name]
 
@@ -99,10 +106,20 @@ class StateGraph(object):
         if node_to_id not in target_map:
             target_map[node_to_id] = 1.0
         else:
-            target_map[node_to_id] += 1.0
+            target_map[node_to_id] += 1
                 
     def get_successors(self, node_id, roll, action):
         return self.successors[node_id][roll - self.roll_offset][action]
+    
+    def get_all_successors(self, node_id):
+        succ = []
+        for roll in self.all_rolls:
+            roll_index = roll - self.roll_offset
+            for action in self.all_actions:
+                for succ_id in self.successors[node_id][roll_index][action].iterkeys():
+                    if succ_id not in succ:
+                        succ.append(succ_id)
+        return succ
     
     def convert_freq_to_prob(self):
         for node_id in range(len(self.node_names)):
@@ -112,7 +129,7 @@ class StateGraph(object):
                     sum_freq = sum(self.successors[node_id][roll_index][action].itervalues())
                     for (target_id, freq) in self.successors[node_id][roll_index][action].iteritems():
                         self.successors[node_id][roll_index][action][target_id] = \
-                        float(freq) / sum_freq
+                                                        float(freq) / sum_freq
     
     def save_to_file(self, path_to_file):
         print 'Saving the graph...'
@@ -147,7 +164,39 @@ class StateGraph(object):
                             total_edges += 1
         print 'Number of edges: %d' % total_edges
         print 'Number of transitions: %d' % total_transitions
+
+    def compute_bfs(self):
+        for node_id in range(len(self.node_names)):
+            self.set_attr(node_id, 'color', 'white')
+            self.set_attr(node_id, 'd', -1)
+        Q = Queue()
+        for s in (self.sources[PLAYER_WHITE] + self.sources[PLAYER_BLACK]):
+            self.set_attr(s, 'color', 'gray')
+            self.set_attr(s, 'd',  0)
+            Q.put(s)
+        while not Q.empty():
+            u = Q.get()
+            u_d = self.get_attr(u, 'd')
+            for v in self.get_all_successors(u):
+                if self.get_attr(v, 'color') == 'white':
+                    self.set_attr(v, 'color', 'gray')
+                    self.set_attr(v, 'd', u_d + 1)
+                    Q.put(v)
+            self.set_attr(u, 'color', 'black')
     
+    def remove_back_edges(self):
+        for node_id in range(len(self.node_names)):
+            node_dist = self.get_attr(node_id, 'd')
+            for roll in self.all_rolls:
+                roll_index = roll - self.roll_offset
+                for action in self.all_actions:
+                    successors = self.successors[node_id][roll_index][action]
+                    for successor in successors.keys():
+                        successor_dist = self.get_attr(successor, 'd')
+                        if successor_dist < node_dist:
+                            del successors[successor]
+        self.convert_freq_to_prob()
+
 if __name__ == '__main__':
     g = StateGraph([0, 1], [1, 2], 1)
     n0 = g.add_node('0')
