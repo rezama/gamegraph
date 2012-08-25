@@ -16,14 +16,13 @@ class StateGraph(object):
         self.node_colors = []
         self.node_attrs = []
         self.node_ids = {}
-#        self.sources = {PLAYER_WHITE: [], PLAYER_BLACK: []}
-#        self.sinks = {PLAYER_WHITE: [], PLAYER_BLACK: []}
         self.sources = [[], []]
         self.sinks = [[], []]
         self.all_actions = all_actions
         self.all_rolls = all_rolls
         self.roll_offset = roll_offset
-        self.depth_buckets = []
+        
+        self.distance_buckets = [[], []]
                 
     def get_random_source(self, player_to_start):
         return random.choice(self.sources[player_to_start])
@@ -79,10 +78,6 @@ class StateGraph(object):
             node_id = self.node_ids[node_name]
         return node_id
 
-#    def add_node(self, node, pos):
-#        if node not in self.nodes:
-#            self.nodes[node] = pos
-            
     def has_attr(self, node_id, attr):
         return attr in self.node_attrs[node_id]
         
@@ -100,6 +95,22 @@ class StateGraph(object):
     
     def get_node_id(self, node_name):
         return self.node_ids[node_name]
+    
+    def add_to_distance_bucket(self, node_id, dist):
+        bucket = self.distance_buckets[self.node_colors[node_id]]
+        if dist >= len(bucket):
+            bucket.append([])
+        bucket[dist].append(node_id)
+        
+    def get_random_node_at_distance(self, color, distance):
+        result = None
+        buckets_for_color = self.distance_buckets[color]
+        for d in range(distance, len(buckets_for_color)):
+            bucket = buckets_for_color[d]
+            if len(bucket) > 0:
+                result = random.choice(bucket)
+                break
+        return result
 
     def add_edge(self, node_from_id, roll, action, node_to_id):
         target_map = self.successors[node_from_id][roll - self.roll_offset][action]
@@ -121,7 +132,7 @@ class StateGraph(object):
                         succ.append(succ_id)
         return succ
     
-    def convert_freq_to_prob(self):
+    def adjust_probs(self):
         for node_id in range(len(self.node_names)):
             for roll in self.all_rolls:
                 roll_index = roll - self.roll_offset
@@ -167,22 +178,25 @@ class StateGraph(object):
 
     def compute_bfs(self):
         for node_id in range(len(self.node_names)):
-            self.set_attr(node_id, 'color', 'white')
+            self.set_attr(node_id, 'bfscolor', 'white')
             self.set_attr(node_id, 'd', -1)
         Q = Queue()
         for s in (self.sources[PLAYER_WHITE] + self.sources[PLAYER_BLACK]):
-            self.set_attr(s, 'color', 'gray')
+            self.set_attr(s, 'bfscolor', 'gray')
             self.set_attr(s, 'd',  0)
+            self.add_to_distance_bucket(s, 0)
             Q.put(s)
         while not Q.empty():
             u = Q.get()
             u_d = self.get_attr(u, 'd')
             for v in self.get_all_successors(u):
-                if self.get_attr(v, 'color') == 'white':
-                    self.set_attr(v, 'color', 'gray')
-                    self.set_attr(v, 'd', u_d + 1)
+                if self.get_attr(v, 'bfscolor') == 'white':
+                    self.set_attr(v, 'bfscolor', 'gray')
+                    v_d = u_d + 1
+                    self.set_attr(v, 'd', v_d)
+                    self.add_to_distance_bucket(v, v_d)
                     Q.put(v)
-            self.set_attr(u, 'color', 'black')
+            self.set_attr(u, 'bfscolor', 'black')
     
     def remove_back_edges(self):
         for node_id in range(len(self.node_names)):
@@ -194,18 +208,27 @@ class StateGraph(object):
                     for successor in successors.keys():
                         successor_dist = self.get_attr(successor, 'd')
                         if successor_dist < node_dist:
+                            current_prob = successors[successor]
+#                            print 'removing edge %s -> %s' % (self.node_names[node_id], self.node_names[successor]) 
                             del successors[successor]
-        self.convert_freq_to_prob()
+                            new_successor = self.get_random_node_at_distance(
+                                    self.node_colors[successor], node_dist + 1)
+                            if new_successor is not None:
+                                successors[new_successor] = current_prob
+#                                print 'adding edge %s -> %s' % (self.node_names[node_id], self.node_names[new_successor])
+                            else:
+                                print 'Couldn\'t add a new edge.' 
+        self.adjust_probs()
 
 if __name__ == '__main__':
     g = StateGraph([0, 1], [1, 2], 1)
-    n0 = g.add_node('0')
-    n1 = g.add_node('1')
-    n2 = g.add_node('2')
-    n3 = g.add_node('3')
-    n4 = g.add_node('4')
-    n5 = g.add_node('5')
-    n6 = g.add_node('6')
+    n0 = g.add_node('0', PLAYER_WHITE)
+    n1 = g.add_node('1', PLAYER_BLACK)
+    n2 = g.add_node('2', PLAYER_WHITE)
+    n3 = g.add_node('3', PLAYER_BLACK)
+    n4 = g.add_node('4', PLAYER_WHITE)
+    n5 = g.add_node('5', PLAYER_BLACK)
+    n6 = g.add_node('6', PLAYER_WHITE)
     g.set_as_source(n0, PLAYER_WHITE)
     g.set_as_sink(n4, PLAYER_WHITE)
     g.set_as_sink(n6, PLAYER_BLACK)
@@ -222,7 +245,7 @@ if __name__ == '__main__':
     print g.successors[n2]
     g.print_stats()
     
-    g.convert_freq_to_prob()
+    g.adjust_probs()
     print g.successors[n2]
     
     

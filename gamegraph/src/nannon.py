@@ -675,7 +675,7 @@ if __name__ == '__main__':
     if GENERATE_GRAPH and (graph_name is None):
         record_graph = NannonState.RECORD_GAME_GRAPH
         record_graph.print_stats()
-        record_graph.convert_freq_to_prob()
+        record_graph.adjust_probs()
         filename = '../graph/%s-%s' % (Domain.name, Experiment.get_file_suffix_no_trial())
         record_graph.save_to_file(filename)
         
