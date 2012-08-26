@@ -20,7 +20,7 @@ NUM_ITERATIONS = 1024 * 40
 NUM_FINAL_EVAL = 1024
 
 TRAIN_AGAINST_SELF = False
-SAVE_TRAINING = False
+SAVE_TRAINING = True
 
 class AgentVanillaRL(Domain.AgentClass):
 

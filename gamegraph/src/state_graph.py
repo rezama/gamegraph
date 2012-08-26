@@ -102,16 +102,6 @@ class StateGraph(object):
             bucket.append([])
         bucket[dist].append(node_id)
         
-    def get_random_node_at_distance(self, color, distance):
-        result = None
-        buckets_for_color = self.distance_buckets[color]
-        for d in range(distance, len(buckets_for_color)):
-            bucket = buckets_for_color[d]
-            if len(bucket) > 0:
-                result = random.choice(bucket)
-                break
-        return result
-
     def add_edge(self, node_from_id, roll, action, node_to_id):
         target_map = self.successors[node_from_id][roll - self.roll_offset][action]
         if node_to_id not in target_map:
@@ -132,6 +122,45 @@ class StateGraph(object):
                         succ.append(succ_id)
         return succ
     
+    def get_random_successor_at_distance(self, node_id, color, distance):
+        result = None
+        tries_left = 1000
+        current_node = node_id
+        while tries_left > 0:
+            successors = self.get_all_successors(current_node)
+            if len(successors) > 0:
+                successor = random.choice(successors)
+            else:
+                break
+            if self.node_colors[successor] == color and \
+                    self.node_attrs[successor]['d'] >= distance:
+                result = successor
+                break
+            else:
+                current_node = successor
+        return result
+
+    def get_random_node_at_distance(self, color, distance):
+        result = None
+        buckets_for_color = self.distance_buckets[color]
+        for d in range(distance, len(buckets_for_color)):
+            bucket = buckets_for_color[d]
+            if len(bucket) > 0:
+                result = random.choice(bucket)
+                break
+        return result
+
+    def get_another_successor(self, node_id, current_successor):
+        result = None
+        node_distance = self.node_attrs[node_id]['d']
+        successors = self.get_all_successors(node_id)
+        other_successors = [n_id for n_id in successors
+                            if n_id != current_successor and
+                            self.node_attrs[n_id]['d'] >= node_distance] 
+        if len(other_successors) > 1:
+            result = random.choice(successors)
+        return result
+    
     def adjust_probs(self):
         for node_id in range(len(self.node_names)):
             for roll in self.all_rolls:
@@ -142,40 +171,6 @@ class StateGraph(object):
                         self.successors[node_id][roll_index][action][target_id] = \
                                                         float(freq) / sum_freq
     
-    def save_to_file(self, path_to_file):
-        print 'Saving the graph...'
-        f = open(path_to_file, 'w')
-        pickle.dump(self, f)
-        f.close()
-        print 'Done.'
-       
-    @classmethod 
-    def load_from_file(cls, path_to_file):
-        print 'Loading the graph...'
-        f = open(path_to_file, 'r')
-        g = pickle.load(f)
-        f.close()
-        print 'Done.'
-        return g
-    
-    def print_stats(self):
-        print 'Graph Stats:'
-        print 'Number of nodes: %d' % len(self.node_names)
-        print 'Number of sources: %d' % (len(self.sources[PLAYER_WHITE]) + len(self.sources[PLAYER_BLACK]))
-        print 'Number of sinks: %d' % (len(self.sinks[PLAYER_WHITE]) + len(self.sinks[PLAYER_BLACK]))
-        total_edges = 0
-        total_transitions = 0
-        for node_id in range(len(self.node_names)):
-            for roll in self.all_rolls:
-                roll_index = roll - self.roll_offset
-                for action in self.all_actions:
-                    total_transitions += sum(self.successors[node_id][roll_index][action].itervalues())
-                    for freq in self.successors[node_id][roll_index][action].itervalues():
-                        if freq > 0:
-                            total_edges += 1
-        print 'Number of edges: %d' % total_edges
-        print 'Number of transitions: %d' % total_transitions
-
     def compute_bfs(self):
         for node_id in range(len(self.node_names)):
             self.set_attr(node_id, 'bfscolor', 'white')
@@ -209,16 +204,57 @@ class StateGraph(object):
                         successor_dist = self.get_attr(successor, 'd')
                         if successor_dist < node_dist:
                             current_prob = successors[successor]
-#                            print 'removing edge %s -> %s' % (self.node_names[node_id], self.node_names[successor]) 
+#                            print 'removing edge %s -> %s' % (self.node_names[node_id],
+#                                                              self.node_names[successor]) 
                             del successors[successor]
-                            new_successor = self.get_random_node_at_distance(
-                                    self.node_colors[successor], node_dist + 1)
+#                            new_successor = self.get_random_node_at_distance(
+#                                    self.node_colors[successor], node_dist + 1)
+#                            new_successor = self.get_random_successor_at_distance(
+#                                    successor, self.node_colors[successor],
+#                                    node_dist + 1)
+                            new_successor = self.get_another_successor(node_id, 
+                                                                       successor)
                             if new_successor is not None:
                                 successors[new_successor] = current_prob
 #                                print 'adding edge %s -> %s' % (self.node_names[node_id], self.node_names[new_successor])
                             else:
-                                print 'Couldn\'t add a new edge.' 
+                                successors[successor] = current_prob
+#                                print 'Couldn\'t add a new edge. Restoring the back edge'
         self.adjust_probs()
+
+    def save_to_file(self, path_to_file):
+        print 'Saving graph...'
+        f = open(path_to_file, 'w')
+        pickle.dump(self, f)
+        f.close()
+        print 'Done.'
+       
+    @classmethod 
+    def load_from_file(cls, path_to_file):
+        print 'Loading graph...'
+        f = open(path_to_file, 'r')
+        g = pickle.load(f)
+        f.close()
+        print 'Done.'
+        return g
+    
+    def print_stats(self):
+        print 'Graph Stats:'
+        print 'Number of nodes: %d' % len(self.node_names)
+        print 'Number of sources: %d' % (len(self.sources[PLAYER_WHITE]) + len(self.sources[PLAYER_BLACK]))
+        print 'Number of sinks: %d' % (len(self.sinks[PLAYER_WHITE]) + len(self.sinks[PLAYER_BLACK]))
+        total_edges = 0
+        total_transitions = 0
+        for node_id in range(len(self.node_names)):
+            for roll in self.all_rolls:
+                roll_index = roll - self.roll_offset
+                for action in self.all_actions:
+                    total_transitions += sum(self.successors[node_id][roll_index][action].itervalues())
+                    for freq in self.successors[node_id][roll_index][action].itervalues():
+                        if freq > 0:
+                            total_edges += 1
+        print 'Number of edges: %d' % total_edges
+        print 'Number of transitions: %d' % total_transitions
 
 if __name__ == '__main__':
     g = StateGraph([0, 1], [1, 2], 1)
