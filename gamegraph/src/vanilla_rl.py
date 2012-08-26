@@ -20,7 +20,8 @@ NUM_ITERATIONS = 1024 * 40
 NUM_FINAL_EVAL = 1024
 
 TRAIN_AGAINST_SELF = False
-SAVE_TRAINING = True
+SAVE_TABLES = False
+SAVE_TRAINING_STATS = True
 
 class AgentVanillaRL(Domain.AgentClass):
 
@@ -245,7 +246,7 @@ if __name__ == '__main__':
 #    game_set = Domain.GameSetClass(NUM_ITERATIONS, agent_opponent, agent_rl, 
 #                                   p, reentry_offset,
 #                                   print_learning_progress = True)
-    if SAVE_TRAINING:
+    if SAVE_TRAINING_STATS:
         progress_filename = '../data/rl/rl-%s-%s.txt' % (Domain.name, Experiment.get_file_suffix())
     else:
         progress_filename = None
@@ -270,6 +271,6 @@ if __name__ == '__main__':
 ##                    count_wins[1], NUM_ITERATIONS)
 #    print 'Won ratio: %.2f against the opponent.' % (float(count_wins[0]) / NUM_FINAL_EVAL)
 
-    if SAVE_TRAINING:
+    if SAVE_TABLES:
         agent_rl.algorithm.save_knowledge()
 #    agent_rl.algorithm.print_values()
