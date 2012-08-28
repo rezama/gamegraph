@@ -661,9 +661,7 @@ if __name__ == '__main__':
     if GENERATE_GRAPH and (graph_name is None):
         record_graph = MiniGammonState.RECORD_GAME_GRAPH
         record_graph.print_stats()
-        print record_graph.successors[record_graph.get_node_id('0-1111')]
         record_graph.adjust_probs()
-        print record_graph.successors[record_graph.get_node_id('0-1111')]
         filename = '../graph/%s-%s' % (Domain.name, Experiment.get_file_suffix_no_trial())
         record_graph.save_to_file(filename)
     

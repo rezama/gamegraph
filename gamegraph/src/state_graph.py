@@ -204,8 +204,7 @@ class StateGraph(object):
                         successor_dist = self.get_attr(successor, 'd')
                         if successor_dist < node_dist:
                             current_prob = successors[successor]
-#                            print 'removing edge %s -> %s' % (self.node_names[node_id],
-#                                                              self.node_names[successor]) 
+#                            print 'removing edge %s -> %s' % (self.node_names[node_id], self.node_names[successor]) 
                             del successors[successor]
 #                            new_successor = self.get_random_node_at_distance(
 #                                    self.node_colors[successor], node_dist + 1)
@@ -217,8 +216,8 @@ class StateGraph(object):
                             if new_successor is not None:
                                 successors[new_successor] = current_prob
 #                                print 'adding edge %s -> %s' % (self.node_names[node_id], self.node_names[new_successor])
-                            else:
-                                successors[successor] = current_prob
+#                            else:
+#                                successors[successor] = current_prob
 #                                print 'Couldn\'t add a new edge. Restoring the back edge'
         self.adjust_probs()
 
