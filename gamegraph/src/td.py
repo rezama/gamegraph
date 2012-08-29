@@ -10,13 +10,13 @@ import random
 
 from pybrain.datasets.supervised import SupervisedDataSet
 from pybrain.supervised.trainers.backprop import BackpropTrainer
-from common import Experiment
+from common import Experiment, PLAYER_WHITE
 #from vanilla_rl import AgentVanillaRL
 
 #NUM_ITERATIONS = 200
 #NUM_TRAINING_GAMES = 16 # 64
 #NUM_EVAL_GAMES = 1024
-NUM_ITERATIONS = 120
+NUM_ITERATIONS = 60
 NUM_TRAINING_GAMES = 16 # 64
 NUM_EVAL_GAMES = 1024
 
@@ -127,12 +127,12 @@ class AgentTD(Domain.AgentNeuralClass):
         network_out = self.get_network_value(state_str)
         # if player to move is white, it means black is considering
         # a move outcome, so black is evaluating the position
-        if state.player_to_move == Domain.StateClass.PLAYER_WHITE:
+        if state.player_to_move == PLAYER_WHITE:
             multiplier = -1.0
         else:
             multiplier = 1.0
         return multiplier * (network_out[0] - network_out[1])
-#        if state.player_to_move == Domain.StateClass.PLAYER_WHITE:
+#        if state.player_to_move == PLAYER_WHITE:
 #            return network_out[1]
 #        else:
 #            return network_out[0]

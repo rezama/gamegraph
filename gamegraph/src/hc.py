@@ -6,7 +6,7 @@ Created on Dec 9, 2011
 from minigammon import Domain
 
 import random
-from common import Experiment
+from common import Experiment, PLAYER_WHITE, PLAYER_BLACK
 #from vanilla_rl import AgentVanillaRL
 
 NUM_GENERATIONS = 500
@@ -32,7 +32,7 @@ class AgentHC(Domain.AgentNeuralClass):
         network_out = self.network.activate(network_in)
         # if player to move is white, it means black is considering
         # a move outcome, so black is evaluating the position
-        if state.player_to_move == Domain.StateClass.PLAYER_WHITE:
+        if state.player_to_move == PLAYER_WHITE:
             multiplier = -1.0
         else:
             multiplier = 1.0
@@ -91,7 +91,7 @@ if __name__ == '__main__':
             count_wins = game_set.run()
 #            print 'Challenger won %d out of %d games.' % (count_wins[1], NUM_CHALLENGE_GAMES)
             # if the champion loses more games than the challenger
-            if count_wins[Domain.StateClass.PLAYER_BLACK] >= CHALLENGER_NEEDS_TO_WIN:
+            if count_wins[PLAYER_BLACK] >= CHALLENGER_NEEDS_TO_WIN:
                 found_good_challenger = True
                 print 'Found with %d tries' % tries
                 chal_f.write('%d %d\n' % (generation_number, tries))
