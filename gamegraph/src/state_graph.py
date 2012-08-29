@@ -68,8 +68,8 @@ class StateGraph(object):
             node_id = len(self.node_names)
             self.node_names.append(node_name)
             self.node_attrs.append({})
-            self.node_ids[node_name] = node_id      
-            self.node_colors.append(node_color)      
+            self.node_ids[node_name] = node_id
+            self.node_colors.append(node_color)
             self.successors.append([])
             for roll in self.all_rolls:
                 self.successors[node_id].append([])

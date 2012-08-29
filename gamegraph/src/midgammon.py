@@ -614,8 +614,6 @@ class MidGammonGameSet(object):
                     f.write('%d %f\n' % (game_number, win_ratio))
             self.sum_count_plies += game.get_count_plies()
             player_to_start_game = MidGammonState.other_player(player_to_start_game)
-            if game_number % 100 == 0:
-                MidGammonState.RECORD_GAME_GRAPH.print_stats()
             
         if self.progress_filename is not None:
             f.close()
