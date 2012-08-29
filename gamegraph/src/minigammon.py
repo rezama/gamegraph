@@ -9,7 +9,7 @@ from pybrain.tools.shortcuts import buildNetwork
 from pybrain.structure.modules.sigmoidlayer import SigmoidLayer
 from common import NUM_STATS_GAMES, PRINT_GAME_DETAIL, PRINT_GAME_RESULTS, \
     RECENT_WINNERS_LIST_SIZE, COLLECT_STATS, ALTERNATE_SEATS, Experiment,\
-    USE_SEEDS, GENERATE_GRAPH, POS_ATTR
+    USE_SEEDS, RECORD_GRAPH, POS_ATTR
 from state_graph import StateGraph
 
 HIDDEN_UNITS = 10
@@ -147,7 +147,7 @@ class MiniGammonState(object):
     
     def move(self, checker):
         success = False
-        if GENERATE_GRAPH and not self.is_graph_based:
+        if RECORD_GRAPH and not self.is_graph_based:
             node_from_name = self.board_config()
             current_roll = self.roll
                 
@@ -232,7 +232,7 @@ class MiniGammonState(object):
             
         if success:
             self.switch_turn()
-            if GENERATE_GRAPH and not self.is_graph_based:
+            if RECORD_GRAPH and not self.is_graph_based:
                 node_from_id = self.RECORD_GAME_GRAPH.get_node_id(node_from_name)
                 node_to_name = self.board_config()
                 node_to_id = self.RECORD_GAME_GRAPH.add_node(node_to_name, self.player_to_move)
@@ -499,7 +499,7 @@ class MiniGammonGame(object):
 
         # initial die roll
         self.state.roll = MiniGammonDie.roll()
-        if GENERATE_GRAPH and not self.state.is_graph_based:
+        if RECORD_GRAPH and not self.state.is_graph_based:
             record_graph = self.state.RECORD_GAME_GRAPH
             s = record_graph.add_node(self.state.board_config(), self.state.player_to_move)
             if not record_graph.has_attr(s, POS_ATTR):
@@ -546,7 +546,7 @@ class MiniGammonGame(object):
         self.agents[winner].end_episode(self.REWARD_WIN)
         self.agents[loser].end_episode(self.REWARD_LOSE)
         
-        if GENERATE_GRAPH and not self.state.is_graph_based:
+        if RECORD_GRAPH and not self.state.is_graph_based:
             sink_name = self.state.board_config()
             sink_id = self.state.RECORD_GAME_GRAPH.get_node_id(sink_name)
             self.state.RECORD_GAME_GRAPH.set_as_sink(sink_id, winner)
@@ -618,7 +618,7 @@ class MiniGammonGameSet(object):
                 print 'Game %2d won by %s in %2d plies' % (game_number, MiniGammonState.PLAYER_NAME[winner], game.count_plies)
             if self.print_learning_progress:
                 win_ratio = float(recent_winners.count(0)) / len(recent_winners)
-                print 'First agent\'s recent win ratio: %.2f' % win_ratio 
+                print 'Played game %2d, recent win ratio: %.2f' % (game_number, win_ratio) 
                 if self.progress_filename is not None:
                     f.write('%d %f\n' % (game_number, win_ratio))
             self.sum_count_plies += game.get_count_plies()
@@ -658,7 +658,7 @@ if __name__ == '__main__':
     count_wins = game_set.run()
     total_plies = game_set.get_sum_count_plies()
     
-    if GENERATE_GRAPH and (graph_name is None):
+    if RECORD_GRAPH and (graph_name is None):
         record_graph = MiniGammonState.RECORD_GAME_GRAPH
         record_graph.print_stats()
         record_graph.adjust_probs()
