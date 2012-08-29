@@ -11,7 +11,7 @@ from pybrain.structure.modules.sigmoidlayer import SigmoidLayer
 #from pybrain.supervised.trainers.backprop import BackpropTrainer
 from common import NUM_STATS_GAMES, PRINT_GAME_DETAIL, PRINT_GAME_RESULTS, \
     RECENT_WINNERS_LIST_SIZE, COLLECT_STATS, ALTERNATE_SEATS, Experiment,\
-    USE_SEEDS, RECORD_GRAPH, POS_ATTR
+    USE_SEEDS, RECORD_GRAPH, POS_ATTR, PLAYER_WHITE, PLAYER_BLACK, PLAYER_NAME
 from state_graph import StateGraph
 
 HIDDEN_UNITS = 10
@@ -60,13 +60,6 @@ class NannonState(object):
     # +---+  +---+---+---+---+---+---+  +---+
     #  Bar                               Off
     #      
-    
-    PLAYER_WHITE = 0
-    PLAYER_BLACK = 1
-    
-    PLAYER_NAME = {}
-    PLAYER_NAME[PLAYER_WHITE] = 'White'
-    PLAYER_NAME[PLAYER_BLACK] = 'Black'
     
     CHECKER1 = 0
     CHECKER2 = 1
@@ -270,8 +263,8 @@ class NannonState(object):
         if self.is_graph_based:
             return self.GAME_GRAPH.is_sink(self.current_g_id)
         else:
-            return self.has_player_won(self.PLAYER_WHITE) or \
-                   self.has_player_won(self.PLAYER_BLACK)
+            return self.has_player_won(PLAYER_WHITE) or \
+                   self.has_player_won(PLAYER_BLACK)
     
     def has_player_won(self, player):
         if self.is_graph_based:
@@ -293,7 +286,7 @@ class NannonState(object):
         return cls.BOARD_OFF - pos
 
     def __fix_checker_orders(self):
-        for player in [self.PLAYER_WHITE, self.PLAYER_BLACK]:
+        for player in [PLAYER_WHITE, PLAYER_BLACK]:
             for checker1 in [self.CHECKER1, self.CHECKER2]:
                 for checker2 in range(checker1 + 1, self.NUM_CHECKERS):
                     if self.pos[player][checker1] > self.pos[player][checker2]:
@@ -315,12 +308,12 @@ class NannonState(object):
             return self.GAME_GRAPH.get_node_name(self.current_g_id)[2:]
         else:
             cell_content = [''] * (self.BOARD_OFF + 1)
-            for player in [self.PLAYER_WHITE, self.PLAYER_BLACK]:
+            for player in [PLAYER_WHITE, PLAYER_BLACK]:
                 for checker in range(self.NUM_CHECKERS):
                     pos = self.pos[player][checker]
-                    if (player == self.PLAYER_BLACK):
+                    if (player == PLAYER_BLACK):
                         pos = self.flip_pos(pos)
-                    letter = self.PLAYER_NAME[player].lower()[0]
+                    letter = PLAYER_NAME[player].lower()[0]
                     cell_content[pos] += letter
                     
             for pos in range(self.BOARD_OFF + 1):
@@ -468,7 +461,7 @@ class NannonAgentNeural(NannonAgent):
         
     def encode_network_input(self, state):
         network_in = [0] * self.inputdim
-        for player in [NannonState.PLAYER_WHITE, NannonState.PLAYER_BLACK]:
+        for player in [PLAYER_WHITE, PLAYER_BLACK]:
             for checker in NannonAction.ALL_CHECKERS:
                 pos = state.pos[player][checker]
                 if pos == NannonState.BOARD_BAR:
@@ -501,8 +494,8 @@ class NannonGame(object):
                  player_to_start_game, p, reentry_offset, graph_name):
         self.game_number = game_number
         self.agents = [None, None]
-        self.agents[NannonState.PLAYER_WHITE] = agent_white
-        self.agents[NannonState.PLAYER_BLACK] = agent_black
+        self.agents[PLAYER_WHITE] = agent_white
+        self.agents[PLAYER_BLACK] = agent_black
         self.p = p
         self.reentry_offset = reentry_offset
         self.graph_name = graph_name
@@ -528,7 +521,7 @@ class NannonGame(object):
     def play(self):
             
         while not self.state.is_final():
-#            if self.player_to_play == NannonState.PLAYER_WHITE:
+#            if self.player_to_play == PLAYER_WHITE:
 #                self.state.compute_per_ply_stats(self.count_plies)
             self.state.compute_per_ply_stats(self.count_plies)
             if PRINT_GAME_DETAIL:
@@ -536,7 +529,7 @@ class NannonGame(object):
             action = self.agents[self.state.player_to_move].select_action()
             if PRINT_GAME_DETAIL:
                 print '#  %s rolls %d, playing %s checker...' % \
-                        (NannonState.PLAYER_NAME[self.state.player_to_move], 
+                        (PLAYER_NAME[self.state.player_to_move], 
                          self.state.roll, NannonState.CHECKER_NAME[action])
             self.state.move(action)
             if PRINT_GAME_DETAIL:
@@ -550,12 +543,12 @@ class NannonGame(object):
         
         winner = None
         loser = None
-        if self.state.has_player_won(NannonState.PLAYER_WHITE):
-            winner = NannonState.PLAYER_WHITE
-            loser = NannonState.PLAYER_BLACK
-        elif self.state.has_player_won(NannonState.PLAYER_BLACK):
-            winner = NannonState.PLAYER_BLACK
-            loser = NannonState.PLAYER_WHITE
+        if self.state.has_player_won(PLAYER_WHITE):
+            winner = PLAYER_WHITE
+            loser = PLAYER_BLACK
+        elif self.state.has_player_won(PLAYER_BLACK):
+            winner = PLAYER_BLACK
+            loser = PLAYER_WHITE
         else:
             print 'Error: Game ended without winning player!'
         
@@ -606,7 +599,7 @@ class NannonGameSet(object):
         count_wins = [0, 0]
         recent_winners = [] # 0 for agent1, 1 for agent2
         
-        player_to_start_game = NannonState.PLAYER_WHITE
+        player_to_start_game = PLAYER_WHITE
         for game_number in range(self.num_games):
             if ALTERNATE_SEATS:
                 if game_number % 2 == 0:
@@ -630,7 +623,7 @@ class NannonGameSet(object):
                     recent_winners.pop(0)
                 recent_winners.append(winner)
             if PRINT_GAME_RESULTS:
-                print 'Game %2d won by %s in %2d plies' % (game_number, NannonState.PLAYER_NAME[winner], game.count_plies)
+                print 'Game %2d won by %s in %2d plies' % (game_number, PLAYER_NAME[winner], game.count_plies)
             if self.print_learning_progress:
                 win_ratio = float(recent_winners.count(0)) / len(recent_winners)
                 print 'Played game %2d, recent win ratio: %.2f' % (game_number, win_ratio) 
@@ -686,7 +679,7 @@ if __name__ == '__main__':
     print 'Graph name was: %s' % graph_name
     
     avg_num_plies_per_game = float(total_plies) / num_games
-    print 'Games won by White: %d, Black: %d' % (count_wins[NannonState.PLAYER_WHITE], count_wins[NannonState.PLAYER_BLACK])
+    print 'Games won by White: %d, Black: %d' % (count_wins[PLAYER_WHITE], count_wins[PLAYER_BLACK])
     print 'Average plies per game: %.2f' % avg_num_plies_per_game 
     
     if COLLECT_STATS:

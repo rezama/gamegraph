@@ -9,7 +9,7 @@ from pybrain.tools.shortcuts import buildNetwork
 from pybrain.structure.modules.sigmoidlayer import SigmoidLayer
 from common import NUM_STATS_GAMES, PRINT_GAME_DETAIL, PRINT_GAME_RESULTS, \
     RECENT_WINNERS_LIST_SIZE, COLLECT_STATS, ALTERNATE_SEATS, Experiment,\
-    USE_SEEDS, RECORD_GRAPH, POS_ATTR
+    USE_SEEDS, RECORD_GRAPH, POS_ATTR, PLAYER_WHITE, PLAYER_BLACK, PLAYER_NAME
 from state_graph import StateGraph
 
 HIDDEN_UNITS = 10
@@ -59,13 +59,6 @@ class MidGammonState(object):
     # +---+  +---+---+---+---+---+---+---+---+---+---+---+---+  +---+
     #  Bar                                                       Off
     #      
-    
-    PLAYER_WHITE = 0
-    PLAYER_BLACK = 1
-    
-    PLAYER_NAME = {}
-    PLAYER_NAME[PLAYER_WHITE] = 'White'
-    PLAYER_NAME[PLAYER_BLACK] = 'Black'
     
     CHECKER1 = 0
     CHECKER2 = 1
@@ -261,8 +254,8 @@ class MidGammonState(object):
         if self.is_graph_based:
             return self.GAME_GRAPH.is_sink(self.current_g_id)
         else:
-            return self.has_player_won(self.PLAYER_WHITE) or \
-                   self.has_player_won(self.PLAYER_BLACK)
+            return self.has_player_won(PLAYER_WHITE) or \
+                   self.has_player_won(PLAYER_BLACK)
     
     def has_player_won(self, player):
         if self.is_graph_based:
@@ -282,10 +275,15 @@ class MidGammonState(object):
     @classmethod
     def flip_pos(cls, pos):
         return cls.BOARD_OFF - pos
+    
+    @classmethod
+    def generate_graph(cls):
+        g = StateGraph()
+        return g
 
     def __fix_checker_orders(self):
 #        pairs = [(0, 1), (0, 2), (0, 3), (1, 2), (1, 3), (2, 3)]
-        for player in [self.PLAYER_WHITE, self.PLAYER_BLACK]:
+        for player in [PLAYER_WHITE, PLAYER_BLACK]:
 #            for (ch1, ch2) in pairs:
 #                if self.pos[player][ch1] > self.pos[player][ch2]:
 #                    (self.pos[player][ch1], self.pos[player][ch2]) = \
@@ -306,12 +304,12 @@ class MidGammonState(object):
         if self.is_graph_based:
             return self.GAME_GRAPH.get_node_name(self.current_g_id)[2:]
         cell_content = [''] * (self.BOARD_OFF + 1)
-        for player in [self.PLAYER_WHITE, self.PLAYER_BLACK]:
+        for player in [PLAYER_WHITE, PLAYER_BLACK]:
             for checker in self.CHECKERS:
                 pos = self.pos[player][checker]
-                if (player == self.PLAYER_BLACK):
+                if (player == PLAYER_BLACK):
                     pos = self.flip_pos(pos)
-                letter = self.PLAYER_NAME[player].lower()[0]
+                letter = PLAYER_NAME[player].lower()[0]
                 cell_content[pos] += letter
                 
         for pos in range(self.BOARD_OFF + 1):
@@ -456,7 +454,7 @@ class MidGammonAgentNeural(MidGammonAgent):
         
     def encode_network_input(self, state):
         network_in = [0] * self.inputdim
-        for player in [MidGammonState.PLAYER_WHITE, MidGammonState.PLAYER_BLACK]:
+        for player in [PLAYER_WHITE, PLAYER_BLACK]:
             for checker in MidGammonAction.ALL_CHECKERS:
                 pos = state.pos[player][checker]
                 offset = pos * 8 + player * 4
@@ -480,8 +478,8 @@ class MidGammonGame(object):
                  player_to_start_game, p, reentry_offset, graph_name):
         self.game_number = game_number
         self.agents = [None, None]
-        self.agents[MidGammonState.PLAYER_WHITE] = agent_white
-        self.agents[MidGammonState.PLAYER_BLACK] = agent_black
+        self.agents[PLAYER_WHITE] = agent_white
+        self.agents[PLAYER_BLACK] = agent_black
         self.p = p
         self.reentry_offset = reentry_offset
         self.graph_name = graph_name
@@ -503,7 +501,7 @@ class MidGammonGame(object):
         
     def play(self):
         while not self.state.is_final():
-#            if self.player_to_play == MidGammonState.PLAYER_WHITE:
+#            if self.player_to_play == PLAYER_WHITE:
 #                self.state.compute_per_ply_stats(self.count_plies)
             self.state.compute_per_ply_stats(self.count_plies)
             if PRINT_GAME_DETAIL:
@@ -511,7 +509,7 @@ class MidGammonGame(object):
             action = self.agents[self.state.player_to_move].select_action()
             if PRINT_GAME_DETAIL:
                 print '#  %s rolls %d, playing checker %d...' % \
-                        (MidGammonState.PLAYER_NAME[self.state.player_to_move], 
+                        (PLAYER_NAME[self.state.player_to_move], 
                          self.state.roll, action + 1)
             self.state.move(action)
             if PRINT_GAME_DETAIL:
@@ -525,12 +523,12 @@ class MidGammonGame(object):
         
         winner = None
         loser = None
-        if self.state.has_player_won(MidGammonState.PLAYER_WHITE):
-            winner = MidGammonState.PLAYER_WHITE
-            loser = MidGammonState.PLAYER_BLACK
-        elif self.state.has_player_won(MidGammonState.PLAYER_BLACK):
-            winner = MidGammonState.PLAYER_BLACK
-            loser = MidGammonState.PLAYER_WHITE
+        if self.state.has_player_won(PLAYER_WHITE):
+            winner = PLAYER_WHITE
+            loser = PLAYER_BLACK
+        elif self.state.has_player_won(PLAYER_BLACK):
+            winner = PLAYER_BLACK
+            loser = PLAYER_WHITE
         else:
             print 'Error: Game ended without winning player!'
         
@@ -582,7 +580,7 @@ class MidGammonGameSet(object):
         count_wins = [0, 0]
         recent_winners = [] # 0 for agent1, 1 for agent2
         
-        player_to_start_game = MidGammonState.PLAYER_WHITE
+        player_to_start_game = PLAYER_WHITE
         for game_number in range(self.num_games):
             if ALTERNATE_SEATS:
                 if game_number % 2 == 0:
@@ -606,7 +604,7 @@ class MidGammonGameSet(object):
                     recent_winners.pop(0)
                 recent_winners.append(winner)
             if PRINT_GAME_RESULTS:
-                print 'Game %2d won by %s in %2d plies' % (game_number, MidGammonState.PLAYER_NAME[winner], game.count_plies)
+                print 'Game %2d won by %s in %2d plies' % (game_number, PLAYER_NAME[winner], game.count_plies)
             if self.print_learning_progress:
                 win_ratio = float(recent_winners.count(0)) / len(recent_winners)
                 print 'Played game %2d, recent win ratio: %.2f' % (game_number, win_ratio) 
@@ -663,7 +661,7 @@ if __name__ == '__main__':
     print 'Graph name was: %s' % graph_name
         
     avg_num_plies_per_game = float(total_plies) / num_games
-    print 'Games won by White: %d, Black: %d' % (count_wins[MidGammonState.PLAYER_WHITE], count_wins[MidGammonState.PLAYER_BLACK])
+    print 'Games won by White: %d, Black: %d' % (count_wins[PLAYER_WHITE], count_wins[PLAYER_BLACK])
     print 'Average plies per game: %.2f' % avg_num_plies_per_game 
     
     if COLLECT_STATS:

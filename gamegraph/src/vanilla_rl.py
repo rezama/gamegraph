@@ -15,6 +15,7 @@ EPSILON = 0.05
 LAMBDA = 0.90
 
 USE_ALPHA_ANNEALING = True
+MIN_ALPHA = 0.05
 
 NUM_ITERATIONS = 1024 * 100
 NUM_FINAL_EVAL = 1024
@@ -161,6 +162,7 @@ class SarsaLambda(object):
         for (si, ai) in self.e.iterkeys():
             if USE_ALPHA_ANNEALING:
                 alpha = 1.0 / self.visit_count.get((si, ai), 1)
+                alpha = max(alpha, MIN_ALPHA)
             if self.e[(si, ai)] != 0.0:
                 change = alpha * delta * self.e[(si, ai)]
                 self.Q[(si, ai)] = self.Q.get((si, ai), self.default_q) + change
