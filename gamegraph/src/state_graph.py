@@ -5,12 +5,12 @@ Created on Jun 25, 2012
 '''
 from common import PLAYER_WHITE, PLAYER_BLACK
 import random
-import pickle
+import cPickle
 from Queue import Queue
 
 class StateGraph(object):
 
-    def __init__(self, all_actions, all_rolls, roll_offset = 1):
+    def __init__(self, all_rolls, roll_offset, all_actions):
         self.successors = []
         self.node_names = []
         self.node_colors = []
@@ -18,9 +18,9 @@ class StateGraph(object):
         self.node_ids = {}
         self.sources = [[], []]
         self.sinks = [[], []]
-        self.all_actions = all_actions
         self.all_rolls = all_rolls
         self.roll_offset = roll_offset
+        self.all_actions = all_actions
         
         self.distance_buckets = [[], []]
                 
@@ -28,19 +28,7 @@ class StateGraph(object):
         return random.choice(self.sources[player_to_start])
         
     def get_transition_outcome(self, node_id, roll, action):
-        next_node_id = None
-        try:
-            targets = self.successors[node_id][roll - self.roll_offset][action]
-            p = random.random()
-            sum_prob = 0.0
-            for (target_id, prob) in targets.iteritems():
-                sum_prob += prob
-                if sum_prob > p:
-                    next_node_id = target_id
-                    break
-        except KeyError:
-            pass
-        return next_node_id
+        return self.successors[node_id][roll - self.roll_offset][action]
 
     def set_as_source(self, node_id, player):
         if node_id not in self.sources[player]:
@@ -74,7 +62,7 @@ class StateGraph(object):
             for roll in self.all_rolls:
                 self.successors[node_id].append([])
                 for action in self.all_actions: #@UnusedVariable
-                    self.successors[node_id][roll - self.roll_offset].append({})
+                    self.successors[node_id][roll - self.roll_offset].append(None)
         else:
             node_id = self.node_ids[node_name]
         return node_id
@@ -98,19 +86,15 @@ class StateGraph(object):
         return self.node_ids[node_name]
     
     def add_to_distance_bucket(self, node_id, dist):
-        bucket = self.distance_buckets[self.node_colors[node_id]]
-        if dist >= len(bucket):
-            bucket.append([])
-        bucket[dist].append(node_id)
+        buckets = self.distance_buckets[self.node_colors[node_id]]
+        while dist >= len(buckets):
+            buckets.append([])
+        buckets[dist].append(node_id)
         
     def add_edge(self, node_from_id, roll, action, node_to_id):
-        target_map = self.successors[node_from_id][roll - self.roll_offset][action]
-        if node_to_id not in target_map:
-            target_map[node_to_id] = 1.0
-        else:
-            target_map[node_to_id] += 1
+        self.successors[node_from_id][roll - self.roll_offset][action] = node_to_id
                 
-    def get_successors(self, node_id, roll, action):
+    def get_successor(self, node_id, roll, action):
         return self.successors[node_id][roll - self.roll_offset][action]
     
     def get_all_successors(self, node_id):
@@ -118,9 +102,9 @@ class StateGraph(object):
         for roll in self.all_rolls:
             roll_index = roll - self.roll_offset
             for action in self.all_actions:
-                for succ_id in self.successors[node_id][roll_index][action].iterkeys():
-                    if succ_id not in succ:
-                        succ.append(succ_id)
+                succ_id = self.successors[node_id][roll_index][action]
+                if (succ_id is not None) and (succ_id not in succ):
+                    succ.append(succ_id)
         return succ
     
     def get_random_successor_at_distance(self, node_id, color, distance):
@@ -162,16 +146,6 @@ class StateGraph(object):
             result = random.choice(successors)
         return result
     
-    def adjust_probs(self):
-        for node_id in range(len(self.node_names)):
-            for roll in self.all_rolls:
-                roll_index = roll - self.roll_offset
-                for action in self.all_actions:
-                    sum_freq = sum(self.successors[node_id][roll_index][action].itervalues())
-                    for (target_id, freq) in self.successors[node_id][roll_index][action].iteritems():
-                        self.successors[node_id][roll_index][action][target_id] = \
-                                                        float(freq) / sum_freq
-    
     def compute_bfs(self):
         for node_id in range(len(self.node_names)):
             self.set_attr(node_id, 'bfscolor', 'white')
@@ -184,6 +158,7 @@ class StateGraph(object):
             Q.put(s)
         while not Q.empty():
             u = Q.get()
+#            print 'Processing %s' % self.node_names[u]
             u_d = self.get_attr(u, 'd')
             for v in self.get_all_successors(u):
                 if self.get_attr(v, 'bfscolor') == 'white':
@@ -200,13 +175,11 @@ class StateGraph(object):
             for roll in self.all_rolls:
                 roll_index = roll - self.roll_offset
                 for action in self.all_actions:
-                    successors = self.successors[node_id][roll_index][action]
-                    for successor in successors.keys():
+                    successor = self.successors[node_id][roll_index][action]
+                    if successor is not None:
                         successor_dist = self.get_attr(successor, 'd')
                         if successor_dist < node_dist:
-                            current_prob = successors[successor]
 #                            print 'removing edge %s -> %s' % (self.node_names[node_id], self.node_names[successor]) 
-                            del successors[successor]
 #                            new_successor = self.get_random_node_at_distance(
 #                                    self.node_colors[successor], node_dist + 1)
 #                            new_successor = self.get_random_successor_at_distance(
@@ -215,17 +188,15 @@ class StateGraph(object):
                             new_successor = self.get_another_successor(node_id, 
                                                                        successor)
                             if new_successor is not None:
-                                successors[new_successor] = current_prob
+                                self.successors[node_id][roll_index][action] = new_successor
 #                                print 'adding edge %s -> %s' % (self.node_names[node_id], self.node_names[new_successor])
 #                            else:
-#                                successors[successor] = current_prob
 #                                print 'Couldn\'t add a new edge. Restoring the back edge'
-        self.adjust_probs()
 
     def save_to_file(self, path_to_file):
         print 'Saving graph...'
         f = open(path_to_file, 'w')
-        pickle.dump(self, f)
+        cPickle.dump(self, f)
         f.close()
         print 'Done.'
        
@@ -233,7 +204,7 @@ class StateGraph(object):
     def load_from_file(cls, path_to_file):
         print 'Loading graph...'
         f = open(path_to_file, 'r')
-        g = pickle.load(f)
+        g = cPickle.load(f)
         f.close()
         print 'Done.'
         return g
@@ -244,17 +215,13 @@ class StateGraph(object):
         print 'Number of sources: %d' % (len(self.sources[PLAYER_WHITE]) + len(self.sources[PLAYER_BLACK]))
         print 'Number of sinks: %d' % (len(self.sinks[PLAYER_WHITE]) + len(self.sinks[PLAYER_BLACK]))
         total_edges = 0
-        total_transitions = 0
         for node_id in range(len(self.node_names)):
             for roll in self.all_rolls:
                 roll_index = roll - self.roll_offset
                 for action in self.all_actions:
-                    total_transitions += sum(self.successors[node_id][roll_index][action].itervalues())
-                    for freq in self.successors[node_id][roll_index][action].itervalues():
-                        if freq > 0:
-                            total_edges += 1
+                    if self.successors[node_id][roll_index][action] is not None:
+                        total_edges += 1
         print 'Number of edges: %d' % total_edges
-        print 'Number of transitions: %d' % total_transitions
 
 if __name__ == '__main__':
     g = StateGraph([0, 1], [1, 2], 1)
@@ -272,16 +239,13 @@ if __name__ == '__main__':
     g.add_edge(n1, 1, 0, n2)
     g.add_edge(n2, 1, 0, n3)
     g.add_edge(n3, 1, 0, n4)
-    g.add_edge(n2, 1, 0, n5)
-    g.add_edge(n2, 1, 0, n5)
+    g.add_edge(n2, 1, 1, n5)
     g.add_edge(n5, 1, 0, n6)
-    print g.get_successors(n0, 1, 0)
-    print g.get_successors(n6, 1, 0)
-    print g.get_successors(n2, 1, 0)
+    print g.get_successor(n0, 1, 0)
+    print g.get_successor(n6, 1, 0)
+    print g.get_successor(n2, 1, 0)
+    print g.get_all_successors(n2)
     print g.successors[n2]
     g.print_stats()
-    
-    g.adjust_probs()
-    print g.successors[n2]
     
     

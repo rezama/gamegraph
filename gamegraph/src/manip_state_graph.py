@@ -18,17 +18,20 @@ class GraphManipulator(object):
         g.save_to_file(graph_file)
 
     @classmethod
-    def test_remove_cycles(cls):
-        g = StateGraph.load_from_file('../graph/minigammon-graph-offset-0')
+    def trim_all_legible_back_edges(cls, exp_params):
+        orig_graph_file = '../graph/%s-%s' % (Domain.name, exp_params.get_file_suffix_no_trial())
+        new_graph_file = orig_graph_file + '-nocycle'
+        g = StateGraph.load_from_file(orig_graph_file)
         g.print_stats()
         g.compute_bfs()
         g.remove_back_edges()
         g.print_stats()
-        g.save_to_file('../graph/minigammon-graph-offset-0-nocycle')
-        
+        g.save_to_file(new_graph_file)
+
 if __name__ == '__main__':
     exp_params = Experiment.get_command_line_args()
     GraphManipulator.generate_graph(exp_params)
+    GraphManipulator.trim_all_legible_back_edges(exp_params)
     
 #    s = m.graph.get_node_id('1-3949')
 #    print m.graph.successors[s]

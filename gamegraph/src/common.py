@@ -240,10 +240,10 @@ class Experiment:
     def get_command_line_args(cls):
         if len(sys.argv) < 4:
             print 'You can specify an experiment mode with:'
+            print 'python %s graph <name> <trial>' % sys.argv[0]
             print 'python %s p <p> <trial>' % sys.argv[0]
             print 'python %s offset <offset> <trial>' % sys.argv[0]
-            print 'python %s graph <name> <trial>' % sys.argv[0]
-            exp = EXP_VARY_REENTRY
+            exp = EXP_BASE
             p = DEFAULT_P
             offset = DEFAULT_REENTRY_OFFSET
             graph_name = DEFAULT_GRAPH_NAME

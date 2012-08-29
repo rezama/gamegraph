@@ -100,8 +100,8 @@ class MidGammonState(object):
     states_sorted_by_ply_visit_count_over_avg_num_plies = []
 
     # graph
-    RECORD_GAME_GRAPH = StateGraph(MidGammonAction.ALL_ACTIONS, 
-                                   MidGammonDie.SIDES)
+    RECORD_GAME_GRAPH = StateGraph(MidGammonDie.SIDES, 1,
+                                   MidGammonAction.ALL_ACTIONS)
     GAME_GRAPH = None
     
     def __init__(self, exp_params, player_to_move):
@@ -272,7 +272,7 @@ class MidGammonState(object):
     
     @classmethod
     def generate_graph(cls, exp_params):
-        g = StateGraph(MidGammonAction.ALL_ACTIONS, MidGammonDie.SIDES)
+        g = StateGraph(MidGammonDie.SIDES, 1, MidGammonAction.ALL_ACTIONS)
         s = MidGammonState(exp_params, PLAYER_WHITE)
         s_key = s.board_config()
         s_pos = [[s.pos[0][0], s.pos[0][1], s.pos[0][2], s.pos[0][3]],
@@ -318,7 +318,7 @@ class MidGammonState(object):
                                 if not is_state_queued.has_key(sp_key):
                                     Q.put((sp_key, sp_pos, sp_color))
                                     is_state_queued[sp_key] = True
-        g.adjust_probs()
+            print ''
         return g
 
     def __fix_checker_orders(self):

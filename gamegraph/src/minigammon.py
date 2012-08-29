@@ -10,6 +10,7 @@ from pybrain.structure.modules.sigmoidlayer import SigmoidLayer
 from common import Experiment, COLLECT_STATS, RECORD_GRAPH, POS_ATTR,\
     PLAYER_BLACK, PLAYER_WHITE, PLAYER_NAME, other_player
 from state_graph import StateGraph
+from Queue import Queue
 
 HIDDEN_UNITS = 10
 
@@ -111,7 +112,7 @@ class MiniGammonState(object):
     states_sorted_by_ply_visit_count_over_avg_num_plies = []
 
     # graph
-    RECORD_GAME_GRAPH = StateGraph(MiniGammonAction.ALL_ACTIONS, MiniGammonDie.SIDES)
+    RECORD_GAME_GRAPH = StateGraph(MiniGammonDie.SIDES, 1, MiniGammonAction.ALL_ACTIONS)
     GAME_GRAPH = None
     
     def __init__(self, exp_params, player_to_move):
@@ -279,6 +280,57 @@ class MiniGammonState(object):
     @classmethod
     def flip_pos(cls, pos):
         return cls.BOARD_OFF - pos
+
+    @classmethod
+    def generate_graph(cls, exp_params):
+        g = StateGraph(MiniGammonDie.SIDES, 1, MiniGammonAction.ALL_ACTIONS)
+        s = MiniGammonState(exp_params, PLAYER_WHITE)
+        s_key = s.board_config()
+        s_pos = [[s.pos[0][0], s.pos[0][1]],
+                 [s.pos[1][0], s.pos[1][1]]]
+        s_color = s.player_to_move
+        s_id = g.add_node(s_key, s_color)
+        g.set_attr(s_id, POS_ATTR, s_pos)
+        g.set_as_source(s_id, s_color)
+        is_state_processed = {}
+        is_state_queued = {}
+        Q = Queue()
+        Q.put((s_key, s_pos, s_color))
+        is_state_queued[s_key] = True
+        while not Q.empty():
+            (s_key, s_pos, s_color) = Q.get()
+            is_state_processed[s_key] = True
+            print 'Fully processed %d, %d in queue, processing %s...\r' % \
+                    (len(is_state_processed), Q.qsize(), s_key), 
+            s.pos = s_pos
+            s.player_to_move = s_color
+            s_id = g.get_node_id(s_key)
+            for roll in MiniGammonDie.SIDES:
+                s.roll = roll
+                must_consider_forfeit = True
+                for action in MiniGammonAction.ALL_ACTIONS:
+                    if (action != MiniGammonAction.ACTION_FORFEIT_MOVE) or must_consider_forfeit:
+                        sp = s.get_move_outcome(action)
+                        if sp is not None:
+                            must_consider_forfeit = False
+                            sp_key = sp.board_config()
+                            if is_state_processed.has_key(sp_key):
+                                sp_id = g.get_node_id(sp_key)
+                                g.add_edge(s_id, roll, action, sp_id)
+                            else:
+                                sp_pos = [[sp.pos[0][0], sp.pos[0][1]],
+                                          [sp.pos[1][0], sp.pos[1][1]]]
+                                sp_color = sp.player_to_move
+                                sp_id = g.add_node(sp_key, sp_color)
+                                g.set_attr(sp_id, POS_ATTR, sp_pos)
+                                g.add_edge(s_id, roll, action, sp_id)
+                                if sp.is_final():
+                                    g.set_as_sink(sp_id, other_player(sp.player_to_move))
+                                if not is_state_queued.has_key(sp_key):
+                                    Q.put((sp_key, sp_pos, sp_color))
+                                    is_state_queued[sp_key] = True
+            print ''
+        return g
 
     def __fix_checker_orders(self):
         for player in [PLAYER_WHITE, PLAYER_BLACK]:
