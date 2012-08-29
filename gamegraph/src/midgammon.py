@@ -28,7 +28,7 @@ class MidGammonAction(object):
     ACTION_CHECKER3 = 2
     ACTION_CHECKER4 = 3
     ACTION_FORFEIT_MOVE = 4
-    ALL_CHECKERS = range(1, NUM_CHECKERS + 1)
+    ALL_CHECKERS = range(NUM_CHECKERS)
     ALL_ACTIONS = ALL_CHECKERS + [ACTION_FORFEIT_MOVE]
     
     @classmethod
@@ -284,10 +284,12 @@ class MidGammonState(object):
         return cls.BOARD_OFF - pos
 
     def __fix_checker_orders(self):
+#        pairs = [(0, 1), (0, 2), (0, 3), (1, 2), (1, 3), (2, 3)]
         for player in [self.PLAYER_WHITE, self.PLAYER_BLACK]:
-#            if self.pos[player][self.CHECKER1] > self.pos[player][self.CHECKER2]:
-#                (self.pos[player][self.CHECKER1], self.pos[player][self.CHECKER2]) = \
-#                (self.pos[player][self.CHECKER2], self.pos[player][self.CHECKER1])
+#            for (ch1, ch2) in pairs:
+#                if self.pos[player][ch1] > self.pos[player][ch2]:
+#                    (self.pos[player][ch1], self.pos[player][ch2]) = \
+#                    (self.pos[player][ch2], self.pos[player][ch1])
             self.pos[player].sort()
         
     def print_state(self):
@@ -612,6 +614,8 @@ class MidGammonGameSet(object):
                     f.write('%d %f\n' % (game_number, win_ratio))
             self.sum_count_plies += game.get_count_plies()
             player_to_start_game = MidGammonState.other_player(player_to_start_game)
+            if game_number % 100 == 0:
+                MidGammonState.RECORD_GAME_GRAPH.print_stats()
             
         if self.progress_filename is not None:
             f.close()

@@ -3,10 +3,11 @@ Created on Dec 9, 2011
 
 @author: reza
 '''
-from minigammon import Domain
+from midgammon import Domain
 
 import pickle
 import random
+
 from pybrain.datasets.supervised import SupervisedDataSet
 from pybrain.supervised.trainers.backprop import BackpropTrainer
 from common import Experiment
@@ -15,9 +16,9 @@ from common import Experiment
 #NUM_ITERATIONS = 200
 #NUM_TRAINING_GAMES = 16 # 64
 #NUM_EVAL_GAMES = 1024
-NUM_ITERATIONS = 120
-NUM_TRAINING_GAMES = 16 # 64
-NUM_EVAL_GAMES = 1024
+NUM_ITERATIONS = 2
+NUM_TRAINING_GAMES = 4 # 64
+NUM_EVAL_GAMES = 4
 
 GAMMA = 1.0
 ALPHA = 1.0
@@ -180,7 +181,7 @@ class AgentTD(Domain.AgentNeuralClass):
             a = self.last_action
             sp = self.state_str
 #            sp_in = self.state_in
-            ap = action
+            ap = action #@UnusedVariable
             
             reward = [0, 0]
 

@@ -63,7 +63,8 @@ class StateGraph(object):
             return None
     
     def add_node(self, node_name, node_color):
-        if node_name not in self.node_names:
+#        if node_name not in self.node_names:
+        if not self.node_ids.has_key(node_name):
             node_id = len(self.node_names)
             self.node_names.append(node_name)
             self.node_attrs.append({})
