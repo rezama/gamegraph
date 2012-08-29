@@ -5,6 +5,7 @@ Created on Aug 28, 2011
 '''
 import random
 import copy
+from Queue import Queue
 from pybrain.tools.shortcuts import buildNetwork
 from pybrain.structure.modules.sigmoidlayer import SigmoidLayer
 from common import Experiment, COLLECT_STATS, RECORD_GRAPH, POS_ATTR,\
@@ -270,10 +271,54 @@ class MidGammonState(object):
         return cls.BOARD_OFF - pos
     
     @classmethod
-    def generate_graph(cls, p, reentry_offset, graph_name):
+    def generate_graph(cls, exp_params):
         g = StateGraph(MidGammonAction.ALL_ACTIONS, MidGammonDie.SIDES)
-        state = MidGammonState(PLAYER_WHITE, p, reentry_offset, graph_name)
-
+        s = MidGammonState(exp_params, PLAYER_WHITE)
+        s_key = s.board_config()
+        s_pos = [[s.pos[0][0], s.pos[0][1], s.pos[0][2], s.pos[0][3]],
+                 [s.pos[1][0], s.pos[1][1], s.pos[1][2], s.pos[1][3]]]
+        s_color = s.player_to_move
+        s_id = g.add_node(s_key, s_color)
+        g.set_attr(s_id, POS_ATTR, s_pos)
+        g.set_as_source(s_id, s_color)
+        is_state_processed = {}
+        is_state_queued = {}
+        Q = Queue()
+        Q.put((s_key, s_pos, s_color))
+        is_state_queued[s_key] = True
+        while not Q.empty():
+            (s_key, s_pos, s_color) = Q.get()
+            is_state_processed[s_key] = True
+            print 'Fully processed %d, %d in queue, processing %s...\r' % \
+                    (len(is_state_processed), Q.qsize(), s_key), 
+            s.pos = s_pos
+            s.player_to_move = s_color
+            s_id = g.get_node_id(s_key)
+            for roll in MidGammonDie.SIDES:
+                s.roll = roll
+                must_consider_forfeit = True
+                for action in MidGammonAction.ALL_ACTIONS:
+                    if (action != MidGammonAction.ACTION_FORFEIT_MOVE) or must_consider_forfeit:
+                        sp = s.get_move_outcome(action)
+                        if sp is not None:
+                            must_consider_forfeit = False
+                            sp_key = sp.board_config()
+                            if is_state_processed.has_key(sp_key):
+                                sp_id = g.get_node_id(sp_key)
+                                g.add_edge(s_id, roll, action, sp_id)
+                            else:
+                                sp_pos = [[sp.pos[0][0], sp.pos[0][1], sp.pos[0][2], sp.pos[0][3]],
+                                          [sp.pos[1][0], sp.pos[1][1], sp.pos[1][2], sp.pos[1][3]]]
+                                sp_color = sp.player_to_move
+                                sp_id = g.add_node(sp_key, sp_color)
+                                g.set_attr(sp_id, POS_ATTR, sp_pos)
+                                g.add_edge(s_id, roll, action, sp_id)
+                                if sp.is_final():
+                                    g.set_as_sink(sp_id, other_player(sp.player_to_move))
+                                if not is_state_queued.has_key(sp_key):
+                                    Q.put((sp_key, sp_pos, sp_color))
+                                    is_state_queued[sp_key] = True
+        g.adjust_probs()
         return g
 
     def __fix_checker_orders(self):
@@ -286,9 +331,7 @@ class MidGammonState(object):
             self.pos[player].sort()
         
     def print_state(self):
-        
         encoding = self.encode()
-        
         print '#   0       1    2    3    4    5    6    7    8    9    10   11   12      13  '
         print '# +----+  +----+----+----+----+----+----+----+----+----+----+----+----+  +----+'
         print '# %s' % encoding
@@ -308,15 +351,10 @@ class MidGammonState(object):
                 cell_content[pos] += letter
                 
         for pos in range(self.BOARD_OFF + 1):
-#            if cell_content[pos] == 'ww':
-#                cell_content[pos] = cell_content[pos].ljust(3)
-#            elif cell_content[pos] == 'bb':
-#                cell_content[pos] = cell_content[pos].rjust(3)
-#            else:
-#                cell_content[pos] = cell_content[pos].center(3)
             cell_content[pos] = cell_content[pos].center(4)
 
-        encoding = '|%s|  |%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|  |%s|' % (cell_content[0], cell_content[1], cell_content[2], cell_content[3], cell_content[4], cell_content[5], cell_content[6], cell_content[7], cell_content[8], cell_content[9], cell_content[10], cell_content[11], cell_content[12], cell_content[13])
+#        encoding = '|%s|  |%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|  |%s|' % (cell_content[0], cell_content[1], cell_content[2], cell_content[3], cell_content[4], cell_content[5], cell_content[6], cell_content[7], cell_content[8], cell_content[9], cell_content[10], cell_content[11], cell_content[12], cell_content[13])
+        encoding = '|%s|  |%s|%s|%s|%s|%s|%s|%s|%s|  |%s|' % (cell_content[0], cell_content[1], cell_content[2], cell_content[3], cell_content[4], cell_content[5], cell_content[6], cell_content[7], cell_content[8], cell_content[9])
         return encoding
 
     def __repr__(self):

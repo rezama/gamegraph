@@ -15,9 +15,8 @@ PRINT_GAME_RESULTS = False
 #PRINT_GAME_RESULTS = True
 
 ALTERNATE_SEATS = True
-USE_SEEDS = True
 #ALTERNATE_SEATS = False
-#USE_SEEDS = False
+USE_SEEDS = ALTERNATE_SEATS
 
 RECENT_WINNERS_LIST_SIZE = 3000
 
@@ -48,6 +47,7 @@ DEFAULT_TRIAL = 0
 
 NUM_TRIALS = 10
 
+EXP_BASE = 'base'
 EXP_VARY_P = 'p'
 EXP_VARY_REENTRY = 'offset'
 EXP_VARY_GRAPH = 'graph'
@@ -218,12 +218,16 @@ class ExpParams:
         return self.get_file_suffix_no_trial() + ('-%d' % self.trial)
 
     def get_file_suffix_no_trial(self):
-        if self.exp == EXP_VARY_P:
+        if self.exp == EXP_BASE:
+            return EXP_BASE
+        elif self.exp == EXP_VARY_P:
             return '%s-%1.2f' % (self.exp, self.p)
         elif self.exp == EXP_VARY_REENTRY:
             return '%s-%d' % (self.exp, self.offset)
-        else:
+        elif self.exp == EXP_VARY_GRAPH:
             return '%s-%s' % (self.exp, self.graph_name)
+        else:
+            return 'invalidexp'
         
 class Experiment:
 #    exp = None
