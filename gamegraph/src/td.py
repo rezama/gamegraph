@@ -262,9 +262,9 @@ class AgentTD(Domain.AgentNeuralClass):
         self.print_e()
            
 if __name__ == '__main__':
-    (p, reentry_offset, graph_name) = Experiment.get_command_line_args()
+    exp_params = Experiment.get_command_line_args()
    
-    filename = '../data/td-%s-%s.txt' % (Domain.name, Experiment.get_file_suffix())
+    filename = '../data/td-%s-%s.txt' % (Domain.name, exp_params.get_file_suffix())
     f = open(filename, 'w')
 
     agent_td1 = AgentTD()
@@ -280,8 +280,8 @@ if __name__ == '__main__':
         agent_td1.pause_learning()        
 #        agent_td2.pause_learning()
         for agent in [agent_td1]:
-            game_set = GameSet(Domain, NUM_EVAL_GAMES, agent, agent_opponent,
-                               p, reentry_offset, graph_name)
+            game_set = GameSet(Domain, exp_params, NUM_EVAL_GAMES,
+                               agent, agent_opponent)
             count_wins = game_set.run()
             win_ratio = float(count_wins[0]) / NUM_EVAL_GAMES
             print 'Win ratio against the opponent: %.2f' % win_ratio
@@ -292,8 +292,8 @@ if __name__ == '__main__':
         print 'Training against self...'
 #        game_set = Domain.GameSetClass(NUM_TRAINING_GAMES, agent_td1, agent_td1,
 #                                       p, reentry_offset)
-        game_set = GameSet(Domain, NUM_TRAINING_GAMES, agent_td1, agent_td1,
-                           p, reentry_offset, graph_name)
+        game_set = GameSet(Domain, exp_params, NUM_TRAINING_GAMES,
+                           agent_td1, agent_td1)
         count_wins = game_set.run()
 
     f.close()

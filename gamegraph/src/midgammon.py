@@ -103,24 +103,23 @@ class MidGammonState(object):
                                    MidGammonDie.SIDES)
     GAME_GRAPH = None
     
-    def __init__(self, player_to_move, p, reentry_offset, graph_name):
+    def __init__(self, exp_params, player_to_move):
         self.pos = [[self.BOARD_START, self.BOARD_START, self.BOARD_START2, self.BOARD_START2],
                     [self.BOARD_START, self.BOARD_START, self.BOARD_START2, self.BOARD_START2]]
-        self.current_g_id = None
+        self.exp_params = exp_params
         self.player_to_move = player_to_move
+
+        self.current_g_id = None
         self.roll = None
         
-        self.p = p
-        self.reentry_offset = reentry_offset
-        self.graph_name = graph_name
-        self.BOARD_REENTRY_POS1 = self.BOARD_BAR + self.reentry_offset # 0
-        self.BOARD_REENTRY_POS2 = self.BOARD_MID                       # 4
+        self.BOARD_REENTRY_POS1 = self.BOARD_BAR + self.exp_params.offset # 0
+        self.BOARD_REENTRY_POS2 = self.BOARD_MID                          # 4
         
-        self.is_graph_based = (self.graph_name is not None)
+        self.is_graph_based = (self.exp_params.graph_name is not None)
         
         if self.is_graph_based:
             if MidGammonState.GAME_GRAPH is None:
-                filename = '../graph/%s-%s' % (Domain.name, Experiment.get_file_suffix_no_trial())
+                filename = '../graph/%s-%s' % (Domain.name, exp_params.get_file_suffix_no_trial())
                 MidGammonState.GAME_GRAPH = StateGraph.load_from_file(filename)
             self.current_g_id = self.GAME_GRAPH.get_random_source(self.player_to_move)
 
@@ -142,7 +141,8 @@ class MidGammonState(object):
             if (checker == MidGammonAction.ACTION_FORFEIT_MOVE) and not success:
                 self.GAME_GRAPH.set_as_sink(self.current_g_id, 
                                             other_player(self.player_to_move))
-                print "Encountered unexplored graph node: %s" % self.GAME_GRAPH.get_node_name(self.current_g_id)
+                print "Encountered unexplored graph node: %s" % \
+                        self.GAME_GRAPH.get_node_name(self.current_g_id)
                 print "Marking as final."
         else:
             if checker == MidGammonAction.ACTION_FORFEIT_MOVE:
@@ -163,7 +163,7 @@ class MidGammonState(object):
                 if checker_pos == self.BOARD_BAR:
                     offset = self.BOARD_REENTRY_POS1
                     r = random.random()
-                    if r >= self.p:
+                    if r >= self.exp_params.p:
                         offset = self.BOARD_REENTRY_POS2
                     checker_target += offset
                 
@@ -218,9 +218,7 @@ class MidGammonState(object):
     
     def get_move_outcome(self, checker):
         if self.shadow is None:
-            self.shadow = MidGammonState(self.player_to_move, 
-                                         self.p, self.reentry_offset,
-                                         self.graph_name)
+            self.shadow = MidGammonState(self.exp_params, self.player_to_move)
         else:
             self.shadow.player_to_move = self.player_to_move
         self.shadow.roll = self.roll
@@ -272,8 +270,10 @@ class MidGammonState(object):
         return cls.BOARD_OFF - pos
     
     @classmethod
-    def generate_graph(cls):
-        g = StateGraph()
+    def generate_graph(cls, p, reentry_offset, graph_name):
+        g = StateGraph(MidGammonAction.ALL_ACTIONS, MidGammonDie.SIDES)
+        state = MidGammonState(PLAYER_WHITE, p, reentry_offset, graph_name)
+
         return g
 
     def __fix_checker_orders(self):

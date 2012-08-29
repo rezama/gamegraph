@@ -174,7 +174,7 @@ class SarsaLambda(object):
         else:
             tabledir = 'vsrandom'
         filename = '../rl-table/%s/%s-%s.txt' % (tabledir, Domain.name,
-                                                 Experiment.get_file_suffix())
+                                                 exp_params.get_file_suffix())
         f = open(filename, 'w')
         pickle.dump(self.Q, f)
         f.close()
@@ -185,7 +185,7 @@ class SarsaLambda(object):
         else:
             tabledir = 'vsrandom'
         filename = '../rl-table/%s/%s-%s.txt' % (tabledir, Domain.name, 
-                                                 Experiment.get_file_suffix())
+                                                 exp_params.get_file_suffix())
         f = open(filename, 'r')
         self.Q = pickle.load(f)
         f.close()
@@ -233,7 +233,7 @@ class SarsaLambda(object):
         self.print_Q()
         
 if __name__ == '__main__':
-    (p, reentry_offset, graph_name) = Experiment.get_command_line_args()
+    exp_params = Experiment.get_command_line_args()
    
 #    random.seed(0)
     agent_rl = AgentVanillaRL()
@@ -249,12 +249,12 @@ if __name__ == '__main__':
 #                                   p, reentry_offset,
 #                                   print_learning_progress = True)
     if SAVE_TRAINING_STATS:
-        progress_filename = '../data/rl/rl-%s-%s.txt' % (Domain.name, Experiment.get_file_suffix())
+        progress_filename = '../data/rl/rl-%s-%s.txt' % (Domain.name, exp_params.get_file_suffix())
     else:
         progress_filename = None
     print 'Opponent is: %s' % agent_opponent
-    game_set = GameSet(Domain, NUM_ITERATIONS, agent_rl, agent_opponent, 
-                       p, reentry_offset, graph_name,
+    game_set = GameSet(Domain, exp_params, NUM_ITERATIONS,
+                       agent_rl, agent_opponent, 
                        print_learning_progress = True,
                        progress_filename = progress_filename)
     count_wins = game_set.run()

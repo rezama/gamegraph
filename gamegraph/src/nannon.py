@@ -99,24 +99,23 @@ class NannonState(object):
     RECORD_GAME_GRAPH = StateGraph(NannonAction.ALL_ACTIONS, NannonDie.SIDES)
     GAME_GRAPH = None
         
-    def __init__(self, player_to_move, p, reentry_offset, graph_name):
+    def __init__(self, exp_params, player_to_move):
         self.pos = [[0, 1, 2],
                     [0, 1, 2]]
-        self.current_g_id = None
+        self.exp_params = exp_params
         self.player_to_move = player_to_move
+
+        self.current_g_id = None
         self.roll = None
         
-        self.p = p
-        self.reentry_offset = reentry_offset
-        self.graph_name = graph_name
-        self.BOARD_REENTRY_POS1 = self.BOARD_BAR + self.reentry_offset # 0
-        self.BOARD_REENTRY_POS2 = self.BOARD_MID                       # 4
+        self.BOARD_REENTRY_POS1 = self.BOARD_BAR + self.exp_params.offset # 0
+        self.BOARD_REENTRY_POS2 = self.BOARD_MID                          # 4
         
-        self.is_graph_based = (self.graph_name is not None)
+        self.is_graph_based = (self.exp_params.graph_name is not None)        
         
         if self.is_graph_based:
             if NannonState.GAME_GRAPH is None:
-                filename = '../graph/%s-%s' % (Domain.name, Experiment.get_file_suffix_no_trial())
+                filename = '../graph/%s-%s' % (Domain.name, exp_params.get_file_suffix_no_trial())
                 NannonState.GAME_GRAPH = StateGraph.load_from_file(filename)
             self.current_g_id = self.GAME_GRAPH.get_random_source(self.player_to_move)
 
@@ -161,7 +160,7 @@ class NannonState(object):
                 if checker_pos == self.BOARD_BAR:
                     offset = self.BOARD_REENTRY_POS1
                     r = random.random()
-                    if r >= self.p:
+                    if r >= self.exp_params.p:
                         offset = self.BOARD_REENTRY_POS2
                     checker_target += offset
                 
@@ -229,9 +228,7 @@ class NannonState(object):
     
     def get_move_outcome(self, checker):
         if self.shadow is None:
-            self.shadow = NannonState(self.player_to_move,
-                                      self.p, self.reentry_offset,
-                                      self.graph_name)
+            self.shadow = NannonState(self.exp_params, self.player_to_move)
         else:
             self.shadow.player_to_move = self.player_to_move
         self.shadow.roll = self.roll

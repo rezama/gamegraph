@@ -7,6 +7,27 @@ import sys
 import copy
 import random
 
+NUM_STATS_GAMES = 10000
+
+PRINT_GAME_DETAIL = False
+PRINT_GAME_RESULTS = False
+#PRINT_GAME_DETAIL = True
+#PRINT_GAME_RESULTS = True
+
+ALTERNATE_SEATS = True
+USE_SEEDS = True
+#ALTERNATE_SEATS = False
+#USE_SEEDS = False
+
+RECENT_WINNERS_LIST_SIZE = 3000
+
+COLLECT_STATS = False
+SAVE_STATS = False
+
+RECORD_GRAPH = False
+
+#----------------------------------------------------------------------------
+
 PLAYER_WHITE = 0
 PLAYER_BLACK = 1
 
@@ -33,39 +54,17 @@ EXP_VARY_GRAPH = 'graph'
 
 POS_ATTR = 'pos'
 
-ALTERNATE_SEATS = True
-USE_SEEDS = True
-ALTERNATE_SEATS = False
-USE_SEEDS = False
-
-RECENT_WINNERS_LIST_SIZE = 3000
-
-COLLECT_STATS = False
-SAVE_STATS = False
-
-RECORD_GRAPH = False
-
-NUM_STATS_GAMES = 10000
-
-PRINT_GAME_DETAIL = False
-PRINT_GAME_RESULTS = False
-#PRINT_GAME_DETAIL = True
-#PRINT_GAME_RESULTS = True
-
 class Game(object):
         
-    def __init__(self, domain, game_number, agent_white, agent_black,
-                 player_to_start_game, p, reentry_offset, graph_name):
+    def __init__(self, domain, exp_params, game_number, agent_white, agent_black,
+                 player_to_start_game):
         self.domain = domain
         self.game_number = game_number
         self.agents = [None, None]
         self.agents[PLAYER_WHITE] = agent_white
         self.agents[PLAYER_BLACK] = agent_black
-        self.p = p
-        self.reentry_offset = reentry_offset
-        self.graph_name = graph_name
-        self.state = domain.StateClass(player_to_start_game, self.p,
-                                       self.reentry_offset, self.graph_name)
+        self.exp_params = exp_params
+        self.state = domain.StateClass(exp_params, player_to_start_game)
 
         # initial die roll
         self.state.roll = domain.DieClass.roll()
@@ -132,17 +131,14 @@ class Game(object):
         
 class GameSet(object):
     
-    def __init__(self, domain, num_games, agent1, agent2,
-                 p, reentry_offset, graph_name,
+    def __init__(self, domain, exp_params, num_games, agent1, agent2,
                  print_learning_progress = False, 
                  progress_filename = None):
         self.domain = domain
         self.num_games = num_games
         self.agent1 = agent1
         self.agent2 = agent2
-        self.p = p
-        self.reentry_offset = reentry_offset
-        self.graph_name = graph_name
+        self.exp_params = exp_params
         self.print_learning_progress = print_learning_progress
         self.progress_filename = progress_filename
 
@@ -170,7 +166,7 @@ class GameSet(object):
         player_to_start_game = PLAYER_WHITE
         for game_number in range(self.num_games):
             if ALTERNATE_SEATS:
-                if game_number % game_series_size == 0:
+#                if game_number % game_series_size == 0:
                     players[:] = [players[1], players[0]]
                     seats_reversed = not seats_reversed
             # load random seed
@@ -179,9 +175,8 @@ class GameSet(object):
             # setup game
             players[0].begin_episode()
             players[1].begin_episode()
-            game = Game(self.domain, game_number, players[0], players[1], 
-                        player_to_start_game,
-                        self.p, self.reentry_offset, self.graph_name)
+            game = Game(self.domain, self.exp_params, game_number, 
+                        players[0], players[1], player_to_start_game)
             winner = game.play()
             if seats_reversed:
                 winner = other_player(winner)
@@ -191,10 +186,12 @@ class GameSet(object):
                     recent_winners.pop(0)
                 recent_winners.append(winner)
             if PRINT_GAME_RESULTS:
-                print 'Game %2d won by %s in %2d plies' % (game_number, PLAYER_NAME[winner], game.count_plies)
+                print 'Game %2d won by %s in %2d plies' % (game_number, 
+                                        PLAYER_NAME[winner], game.count_plies)
             if self.print_learning_progress:
                 win_ratio = float(recent_winners.count(0)) / len(recent_winners)
-                print 'Played game %2d, recent win ratio: %.2f' % (game_number, win_ratio) 
+                print 'Played game %2d, recent win ratio: %.2f' % (game_number, 
+                                                                   win_ratio) 
                 if self.progress_filename is not None:
                     f.write('%d %f\n' % (game_number, win_ratio))
             self.sum_count_plies += game.get_count_plies()
@@ -208,25 +205,33 @@ class GameSet(object):
     def get_sum_count_plies(self):
         return self.sum_count_plies
 
-class Experiment:
-    exp = None
-    p = None
-    offset = None
-    trial = None
+class ExpParams:
     
-    @classmethod
-    def get_file_suffix(cls):
-        return cls.get_file_suffix_no_trial() + ('-%d' % cls.trial)
+    def __init__(self, exp, p, offset, graph_name, trial):
+        self.exp = exp
+        self.p = p
+        self.offset = offset
+        self.graph_name = graph_name
+        self.trial = trial
 
-    @classmethod
-    def get_file_suffix_no_trial(cls):
-        if cls.exp == EXP_VARY_P:
-            return '%s-%1.2f' % (cls.exp, cls.p)
-        elif cls.exp == EXP_VARY_REENTRY:
-            return '%s-%d' % (cls.exp, cls.offset)
+    def get_file_suffix(self):
+        return self.get_file_suffix_no_trial() + ('-%d' % self.trial)
+
+    def get_file_suffix_no_trial(self):
+        if self.exp == EXP_VARY_P:
+            return '%s-%1.2f' % (self.exp, self.p)
+        elif self.exp == EXP_VARY_REENTRY:
+            return '%s-%d' % (self.exp, self.offset)
         else:
-            return '%s-%s' % (cls.exp, cls.graph_name)
+            return '%s-%s' % (self.exp, self.graph_name)
         
+class Experiment:
+#    exp = None
+#    p = None
+#    offset = None
+#    graph_name = None
+#    trial = None
+    
     @classmethod
     def get_command_line_args(cls):
         if len(sys.argv) < 4:
@@ -237,8 +242,8 @@ class Experiment:
             exp = EXP_VARY_REENTRY
             p = DEFAULT_P
             offset = DEFAULT_REENTRY_OFFSET
-            trial = DEFAULT_TRIAL
             graph_name = DEFAULT_GRAPH_NAME
+            trial = DEFAULT_TRIAL
         else:
             p = DEFAULT_P
             offset = DEFAULT_REENTRY_OFFSET
@@ -254,30 +259,29 @@ class Experiment:
             
             trial = int(sys.argv[3])
     
-        cls.exp = exp
-        cls.p = p
-        cls.offset = offset
-        cls.graph_name = graph_name
-        cls.trial = trial
+#        cls.exp = exp
+#        cls.p = p
+#        cls.offset = offset
+#        cls.graph_name = graph_name
+#        cls.trial = trial
         print 'Using: p = %.2f, offset = %d, graph = %s, trial = %d' % (
                                             p, offset, graph_name, trial)
         print 
-        return (p, offset, graph_name) 
+        return ExpParams(exp, p, offset, graph_name, trial)
 
     @classmethod
     def run_random_games(cls, domain):
-        (p, reentry_offset, graph_name) = Experiment.get_command_line_args()
+        exp_params = cls.get_command_line_args()
         
         num_games = NUM_STATS_GAMES
         agent_white = domain.AgentRandomClass()
         agent_black = domain.AgentRandomClass()
-        game_set = GameSet(domain, num_games, agent_white, agent_black,
-                           p, reentry_offset, graph_name)
+        game_set = GameSet(domain, exp_params, num_games, agent_white, agent_black)
     
         count_wins = game_set.run()
         total_plies = game_set.get_sum_count_plies()
         
-        if RECORD_GRAPH and (graph_name is None):
+        if RECORD_GRAPH and (exp_params.graph_name is None):
             record_graph = domain.StateClass.RECORD_GAME_GRAPH
             record_graph.print_stats()
             record_graph.adjust_probs()
@@ -286,9 +290,9 @@ class Experiment:
         
         # printing overall stats
         print '----'
-        print 'P was: %.2f' % p
-        print 'Re-entry offset was: %d' % reentry_offset
-        print 'Graph name was: %s' % graph_name
+        print 'P was: %.2f' % exp_params.p
+        print 'Re-entry offset was: %d' % exp_params.reentry_offset
+        print 'Graph name was: %s' % exp_params.graph_name
             
         avg_num_plies_per_game = float(total_plies) / num_games
         print 'Games won by White: %d, Black: %d' % (count_wins[PLAYER_WHITE], count_wins[PLAYER_BLACK])

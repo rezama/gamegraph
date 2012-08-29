@@ -52,11 +52,11 @@ class AgentHC(Domain.AgentNeuralClass):
                                      for w in self.network.params]
     
 if __name__ == '__main__':
-    (p, reentry_offset, graph_name) = Experiment.get_command_line_args()
+    exp_params = Experiment.get_command_line_args()
    
-    eval_filename = '../data/hc-%s-%s.txt' % (Domain.name, Experiment.get_file_suffix())
+    eval_filename = '../data/hc-%s-%s.txt' % (Domain.name, exp_params.get_file_suffix())
     eval_f = open(eval_filename, 'w')
-    chal_filename = '../data/hc-challenge-%s-%s.txt' % (Domain.name, Experiment.get_file_suffix())
+    chal_filename = '../data/hc-challenge-%s-%s.txt' % (Domain.name, exp_params.get_file_suffix())
     chal_f = open(chal_filename, 'w')
     
     agent_champion = AgentHC();
@@ -70,8 +70,8 @@ if __name__ == '__main__':
         
         if generation_number % EVALUATE_EVERY == 0: 
             print 'Evaluating against the opponent...'
-            game_set = GameSet(Domain, NUM_EVAL_GAMES, agent_champion,
-                               agent_opponent, p, reentry_offset)
+            game_set = GameSet(Domain, exp_params, NUM_EVAL_GAMES,
+                               agent_champion, agent_opponent)
             count_wins = game_set.run()
             ratio_win = float(count_wins[0]) / NUM_EVAL_GAMES
             print 'Win ratio: %.2f against opponent (out of %d games)' % (
@@ -86,8 +86,8 @@ if __name__ == '__main__':
             # update challenger to have Gaussian distribution around champion
 #            print 'Mutating challenger...'
             agent_champion.mutate_challenger(agent_challenger)
-            game_set = GameSet(Domain, NUM_CHALLENGE_GAMES, agent_champion,
-                               agent_challenger, p, reentry_offset, graph_name)
+            game_set = GameSet(Domain, exp_params, NUM_CHALLENGE_GAMES,
+                               agent_champion, agent_challenger)
             count_wins = game_set.run()
 #            print 'Challenger won %d out of %d games.' % (count_wins[1], NUM_CHALLENGE_GAMES)
             # if the champion loses more games than the challenger
