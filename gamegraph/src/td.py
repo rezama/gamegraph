@@ -10,7 +10,8 @@ import random
 
 from pybrain.datasets.supervised import SupervisedDataSet
 from pybrain.supervised.trainers.backprop import BackpropTrainer
-from common import Experiment, PLAYER_WHITE
+from common import Experiment, PLAYER_WHITE, GameSet, other_player, REWARD_LOSE,\
+    REWARD_WIN
 #from vanilla_rl import AgentVanillaRL
 
 #NUM_ITERATIONS = 200
@@ -84,9 +85,9 @@ class AgentTD(Domain.AgentNeuralClass):
 #            s_in = self.last_state_in
             a = self.last_action
             
-            winner = Domain.StateClass.other_player(self.state.player_to_move)
-            reward_list = [Domain.GameClass.REWARD_LOSE, Domain.GameClass.REWARD_LOSE]
-            reward_list[winner] = Domain.GameClass.REWARD_WIN
+            winner = other_player(self.state.player_to_move)
+            reward_list = [REWARD_LOSE, REWARD_LOSE]
+            reward_list[winner] = REWARD_WIN
             
             current_value = self.get_network_value(s)
             delta = [a - b for a, b in zip(reward_list, current_value)]
@@ -279,8 +280,8 @@ if __name__ == '__main__':
         agent_td1.pause_learning()        
 #        agent_td2.pause_learning()
         for agent in [agent_td1]:
-            game_set = Domain.GameSetClass(NUM_EVAL_GAMES, agent, agent_opponent,
-                                           p, reentry_offset, graph_name)
+            game_set = GameSet(Domain, NUM_EVAL_GAMES, agent, agent_opponent,
+                               p, reentry_offset, graph_name)
             count_wins = game_set.run()
             win_ratio = float(count_wins[0]) / NUM_EVAL_GAMES
             print 'Win ratio against the opponent: %.2f' % win_ratio
@@ -291,8 +292,8 @@ if __name__ == '__main__':
         print 'Training against self...'
 #        game_set = Domain.GameSetClass(NUM_TRAINING_GAMES, agent_td1, agent_td1,
 #                                       p, reentry_offset)
-        game_set = Domain.GameSetClass(NUM_TRAINING_GAMES, agent_td1, agent_td1,
-                                       p, reentry_offset, graph_name)
+        game_set = GameSet(Domain, NUM_TRAINING_GAMES, agent_td1, agent_td1,
+                           p, reentry_offset, graph_name)
         count_wins = game_set.run()
 
     f.close()

@@ -6,7 +6,7 @@ Created on Dec 9, 2011
 from minigammon import Domain
 
 import random
-from common import Experiment, PLAYER_WHITE, PLAYER_BLACK
+from common import Experiment, PLAYER_WHITE, PLAYER_BLACK, GameSet
 #from vanilla_rl import AgentVanillaRL
 
 NUM_GENERATIONS = 500
@@ -70,8 +70,8 @@ if __name__ == '__main__':
         
         if generation_number % EVALUATE_EVERY == 0: 
             print 'Evaluating against the opponent...'
-            game_set = Domain.GameSetClass(NUM_EVAL_GAMES, agent_champion,
-                                           agent_opponent, p, reentry_offset)
+            game_set = GameSet(Domain, NUM_EVAL_GAMES, agent_champion,
+                               agent_opponent, p, reentry_offset)
             count_wins = game_set.run()
             ratio_win = float(count_wins[0]) / NUM_EVAL_GAMES
             print 'Win ratio: %.2f against opponent (out of %d games)' % (
@@ -86,8 +86,8 @@ if __name__ == '__main__':
             # update challenger to have Gaussian distribution around champion
 #            print 'Mutating challenger...'
             agent_champion.mutate_challenger(agent_challenger)
-            game_set = Domain.GameSetClass(NUM_CHALLENGE_GAMES, agent_champion,
-                    agent_challenger, p, reentry_offset, graph_name)
+            game_set = GameSet(Domain, NUM_CHALLENGE_GAMES, agent_champion,
+                               agent_challenger, p, reentry_offset, graph_name)
             count_wins = game_set.run()
 #            print 'Challenger won %d out of %d games.' % (count_wins[1], NUM_CHALLENGE_GAMES)
             # if the champion loses more games than the challenger

@@ -7,9 +7,8 @@ import random
 import copy
 from pybrain.tools.shortcuts import buildNetwork
 from pybrain.structure.modules.sigmoidlayer import SigmoidLayer
-from common import NUM_STATS_GAMES, PRINT_GAME_DETAIL, PRINT_GAME_RESULTS, \
-    RECENT_WINNERS_LIST_SIZE, COLLECT_STATS, ALTERNATE_SEATS, Experiment,\
-    USE_SEEDS, RECORD_GRAPH, POS_ATTR, PLAYER_BLACK, PLAYER_WHITE, PLAYER_NAME
+from common import Experiment, COLLECT_STATS, RECORD_GRAPH, POS_ATTR,\
+    PLAYER_BLACK, PLAYER_WHITE, PLAYER_NAME, other_player
 from state_graph import StateGraph
 
 HIDDEN_UNITS = 10
@@ -153,7 +152,7 @@ class MiniGammonState(object):
                 success = True
             if (checker == MiniGammonAction.ACTION_FORFEIT_MOVE) and not success:
                 self.GAME_GRAPH.set_as_sink(self.current_g_id, 
-                                            self.other_player(self.player_to_move))
+                                            other_player(self.player_to_move))
                 print "Encountered unexplored graph node: %s" % self.GAME_GRAPH.get_node_name(self.current_g_id)
                 print "Marking as final."
         else:
@@ -164,7 +163,7 @@ class MiniGammonState(object):
                 checker_pos = self.pos[player][checker]
                 other_checker = MiniGammonAction.next_checker(checker)
                 other_checker_pos = self.pos[player][other_checker]
-                opponent = self.other_player(player)
+                opponent = other_player(player)
                 opponent_actual_checker1_pos = self.flip_pos(self.pos[opponent][self.CHECKER1])
                 opponent_actual_checker2_pos = self.flip_pos(self.pos[opponent][self.CHECKER2])
                 
@@ -261,7 +260,7 @@ class MiniGammonState(object):
             return None
 
     def switch_turn(self):
-        self.player_to_move = self.other_player(self.player_to_move)
+        self.player_to_move = other_player(self.player_to_move)
         self.roll = MiniGammonDie.roll()
     
     def is_final(self):
@@ -280,10 +279,6 @@ class MiniGammonState(object):
             return (checker1_pos == self.BOARD_OFF) and \
                    (checker2_pos == self.BOARD_OFF)
     
-    @classmethod
-    def other_player(cls, player):
-        return 1 - player
-        
     @classmethod
     def flip_pos(cls, pos):
         return cls.BOARD_OFF - pos
@@ -473,165 +468,11 @@ class MiniGammonAgentNeural(MiniGammonAgent):
     def __repr__(self):
         return str(self.network.params)
     
-class MiniGammonGame(object):
-    
-    REWARD_WIN = 1.0
-    REWARD_LOSE = 0.0
-    
-    def __init__(self, game_number, agent_white, agent_black,
-                 player_to_start_game, p, reentry_offset, graph_name):
-        self.game_number = game_number
-        self.agents = [None, None]
-        self.agents[PLAYER_WHITE] = agent_white
-        self.agents[PLAYER_BLACK] = agent_black
-        self.p = p
-        self.reentry_offset = reentry_offset
-        self.graph_name = graph_name
-        self.state = MiniGammonState(player_to_start_game, self.p,
-                                     self.reentry_offset, self.graph_name)
-
-        # initial die roll
-        self.state.roll = MiniGammonDie.roll()
-        if RECORD_GRAPH and not self.state.is_graph_based:
-            record_graph = self.state.RECORD_GAME_GRAPH
-            s = record_graph.add_node(self.state.board_config(), self.state.player_to_move)
-            if not record_graph.has_attr(s, POS_ATTR):
-                record_graph.set_attr(s, POS_ATTR, copy.deepcopy(self.state.pos))
-                record_graph.set_as_source(s, player_to_start_game)
-        
-        agent_white.set_state(self.state)
-        agent_black.set_state(self.state)
-        self.count_plies = 0
-        
-    def play(self):
-        while not self.state.is_final():
-#            if self.player_to_play == PLAYER_WHITE:
-#                self.state.compute_per_ply_stats(self.count_plies)
-            self.state.compute_per_ply_stats(self.count_plies)
-            if PRINT_GAME_DETAIL:
-                self.state.print_state()
-            action = self.agents[self.state.player_to_move].select_action()
-            if PRINT_GAME_DETAIL:
-                print '#  %s rolls %d, playing %s checker...' % \
-                        (PLAYER_NAME[self.state.player_to_move], 
-                         self.state.roll, MiniGammonState.CHECKER_NAME[action])
-            self.state.move(action)
-            if PRINT_GAME_DETAIL:
-                print '# '
-            self.count_plies += 1
-        
-        if PRINT_GAME_DETAIL:
-            self.state.print_state()
-
-        self.state.compute_per_game_stats(self.game_number)
-        
-        winner = None
-        loser = None
-        if self.state.has_player_won(PLAYER_WHITE):
-            winner = PLAYER_WHITE
-            loser = PLAYER_BLACK
-        elif self.state.has_player_won(PLAYER_BLACK):
-            winner = PLAYER_BLACK
-            loser = PLAYER_WHITE
-        else:
-            print 'Error: Game ended without winning player!'
-        
-        self.agents[winner].end_episode(self.REWARD_WIN)
-        self.agents[loser].end_episode(self.REWARD_LOSE)
-        
-        if RECORD_GRAPH and not self.state.is_graph_based:
-            sink_name = self.state.board_config()
-            sink_id = self.state.RECORD_GAME_GRAPH.get_node_id(sink_name)
-            self.state.RECORD_GAME_GRAPH.set_as_sink(sink_id, winner)
-        
-        return winner
-        
-    def get_count_plies(self):
-        return self.count_plies
-    
-    @classmethod
-    def get_max_episode_reward(cls):
-        return cls.REWARD_WIN
-        
-class MiniGammonGameSet(object):
-    
-    def __init__(self, num_games, agent1, agent2, p, reentry_offset,
-                 graph_name, print_learning_progress = False, 
-                 progress_filename = None):
-        self.num_games = num_games
-        self.agent1 = agent1
-        self.agent2 = agent2
-        self.p = p
-        self.reentry_offset = reentry_offset
-        self.graph_name = graph_name
-        self.print_learning_progress = print_learning_progress
-        self.progress_filename = progress_filename
-
-        self.sum_count_plies = 0 
-    
-    def run(self):
-        if self.progress_filename is not None:
-            f = open(self.progress_filename, 'w')
-
-        if USE_SEEDS:
-            random_seeds = []
-            for i in range(self.num_games / 4): #@UnusedVariable
-                random_seeds.append(random.random())
-            
-        # agent1, agent2
-        players = [self.agent1, self.agent2]
-        seats_reversed = False
-        count_wins = [0, 0]
-        recent_winners = [] # 0 for agent1, 1 for agent2
-        
-        player_to_start_game = PLAYER_WHITE
-        for game_number in range(self.num_games):
-            if ALTERNATE_SEATS:
-                if game_number % 2 == 0:
-                    players[:] = [players[1], players[0]]
-                    seats_reversed = not seats_reversed
-            # load random seed
-            if USE_SEEDS:
-                random.seed(random_seeds[game_number / 4])
-            # setup game
-            players[0].begin_episode()
-            players[1].begin_episode()
-            game = MiniGammonGame(game_number, players[0], players[1],
-                                  player_to_start_game, self.p,
-                                  self.reentry_offset, self.graph_name)
-            winner = game.play()
-            if seats_reversed:
-                winner = MiniGammonState.other_player(winner)
-            count_wins[winner] += 1
-            if self.print_learning_progress:
-                if len(recent_winners) > RECENT_WINNERS_LIST_SIZE - 1:
-                    recent_winners.pop(0)
-                recent_winners.append(winner)
-            if PRINT_GAME_RESULTS:
-                print 'Game %2d won by %s in %2d plies' % (game_number, PLAYER_NAME[winner], game.count_plies)
-            if self.print_learning_progress:
-                win_ratio = float(recent_winners.count(0)) / len(recent_winners)
-                print 'Played game %2d, recent win ratio: %.2f' % (game_number, win_ratio) 
-                if self.progress_filename is not None:
-                    f.write('%d %f\n' % (game_number, win_ratio))
-            self.sum_count_plies += game.get_count_plies()
-            player_to_start_game = MiniGammonState.other_player(player_to_start_game)
-            
-        if self.progress_filename is not None:
-            f.close()
-            
-        return count_wins
-    
-    def get_sum_count_plies(self):
-        return self.sum_count_plies
-
 class Domain(object):
     name = 'minigammon'
     DieClass = MiniGammonDie
     StateClass = MiniGammonState
     ActionClass = MiniGammonAction
-    GameClass = MiniGammonGame
-    GameSetClass = MiniGammonGameSet
     AgentClass = MiniGammonAgent
     AgentRandomClass = MiniGammonAgentRandom
     AgentNeuralClass = MiniGammonAgentNeural
@@ -640,45 +481,4 @@ class Domain(object):
     print 
 
 if __name__ == '__main__':
-    (p, reentry_offset, graph_name) = Experiment.get_command_line_args()
-    
-    num_games = NUM_STATS_GAMES
-    agent_white = MiniGammonAgentRandom()
-    agent_black = MiniGammonAgentRandom()
-    game_set = MiniGammonGameSet(num_games, agent_white, agent_black,
-                                 p, reentry_offset, graph_name)
-
-    count_wins = game_set.run()
-    total_plies = game_set.get_sum_count_plies()
-    
-    if RECORD_GRAPH and (graph_name is None):
-        record_graph = MiniGammonState.RECORD_GAME_GRAPH
-        record_graph.print_stats()
-        record_graph.adjust_probs()
-        filename = '../graph/%s-%s' % (Domain.name, Experiment.get_file_suffix_no_trial())
-        record_graph.save_to_file(filename)
-    
-    # printing overall stats
-    print '----'
-    print 'P was: %.2f' % p
-    print 'Re-entry offset was: %d' % reentry_offset
-    print 'Graph name was: %s' % graph_name
-        
-    avg_num_plies_per_game = float(total_plies) / num_games
-    print 'Games won by White: %d, Black: %d' % (count_wins[PLAYER_WHITE], count_wins[PLAYER_BLACK])
-    print 'Average plies per game: %.2f' % avg_num_plies_per_game 
-    
-    if COLLECT_STATS:
-        total_states_visited = len(MiniGammonState.states_visit_count)
-        print 'Total number of states encountered: %d' % total_states_visited
-        print 'per 1000 plies: %.2f' % (float(total_states_visited) / avg_num_plies_per_game)
-        
-        avg_visit_count_to_states = sum(MiniGammonState.states_visit_count.itervalues()) / float(total_states_visited)
-        print 'Average number of visits to states: %.2f' % avg_visit_count_to_states
-        print 'per 1000 plies: %.2f' % (float(avg_visit_count_to_states) / avg_num_plies_per_game)
-        
-        var_visit_count_to_states = sum([(e - avg_visit_count_to_states) ** 2 for e in MiniGammonState.states_visit_count.itervalues()]) / float(total_states_visited) 
-        print 'Variance of number of visits to states: %.2f' % var_visit_count_to_states
-        
-        MiniGammonState.compute_overall_stats(avg_num_plies_per_game)
-        Experiment.save_stats(MiniGammonState, Domain.name)
+    Experiment.run_random_games(Domain)

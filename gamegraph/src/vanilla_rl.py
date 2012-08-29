@@ -6,7 +6,7 @@ Created on Dec 10, 2011
 from midgammon import Domain
 
 import random
-from common import Experiment
+from common import Experiment, Game, GameSet
 import pickle
 
 GAMMA = 1.0
@@ -81,7 +81,7 @@ class SarsaLambda(object):
         self.e = {}
         self.visit_count = {}
         
-        self.default_q = Domain.GameClass.get_max_episode_reward() #* 1.1
+        self.default_q = Game.get_max_episode_reward() #* 1.1
         
     def begin_episode(self, state):
         self.e = {}
@@ -253,10 +253,10 @@ if __name__ == '__main__':
     else:
         progress_filename = None
     print 'Opponent is: %s' % agent_opponent
-    game_set = Domain.GameSetClass(NUM_ITERATIONS, agent_rl, agent_opponent, 
-                                   p, reentry_offset, graph_name,
-                                   print_learning_progress = True,
-                                   progress_filename = progress_filename)
+    game_set = GameSet(Domain, NUM_ITERATIONS, agent_rl, agent_opponent, 
+                       p, reentry_offset, graph_name,
+                       print_learning_progress = True,
+                       progress_filename = progress_filename)
     count_wins = game_set.run()
 #    print 'Won %d out of %d games against random agent.' % (
 #                    count_wins[1], NUM_ITERATIONS)
