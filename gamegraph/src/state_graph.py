@@ -199,6 +199,11 @@ class StateGraph(object):
 #                                print 'Couldn\'t add a new edge. Restoring the back edge'
         print 'Found %d back edges, replaced %d' % (count_back_edges, count_replaced_back_edges)
 
+    def cleanup_attrs(self):
+        for node_id in range(len(self.node_names)):
+            del self.node_attrs[node_id]['d']
+            del self.node_attrs[node_id]['bfscolor']
+
     def save_to_file(self, path_to_file):
         print 'Saving graph...'
         f = open(path_to_file, 'w')

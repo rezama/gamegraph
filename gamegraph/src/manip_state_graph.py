@@ -25,7 +25,7 @@ class GraphManipulator(object):
         g.print_stats()
         g.compute_bfs()
         g.remove_back_edges()
-#        g.print_stats()
+        g.cleanup_attrs()
         g.save_to_file(new_graph_file)
 
 if __name__ == '__main__':
