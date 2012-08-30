@@ -9,7 +9,8 @@ from Queue import Queue
 from pybrain.tools.shortcuts import buildNetwork
 from pybrain.structure.modules.sigmoidlayer import SigmoidLayer
 from common import Experiment, COLLECT_STATS, RECORD_GRAPH, POS_ATTR,\
-    PLAYER_BLACK, PLAYER_WHITE, PLAYER_NAME, other_player
+    PLAYER_BLACK, PLAYER_WHITE, PLAYER_NAME, other_player,\
+    GENERATE_GRAPH_REPORT_EVERY
 from state_graph import StateGraph
 
 HIDDEN_UNITS = 10
@@ -290,7 +291,7 @@ class MidGammonState(object):
         while not Q.empty():
             (s_key, s_pos, s_color) = Q.get()
             is_state_processed[s_key] = True
-            if len(is_state_processed) % 100 == 0:
+            if len(is_state_processed) % GENERATE_GRAPH_REPORT_EVERY == 0:
                 print 'Fully processed %d, %d in queue, processing %s...' % \
                         (len(is_state_processed), Q.qsize(), s_key)
             s.pos = s_pos

@@ -148,12 +148,13 @@ class StateGraph(object):
         return result
     
     def compute_bfs(self):
+        print 'Computing BFS...'
         for node_id in range(len(self.node_names)):
-            self.set_attr(node_id, 'bfscolor', 'white')
+            self.set_attr(node_id, 'bfscolor', 'w')
             self.set_attr(node_id, 'd', -1)
         Q = Queue()
         for s in (self.sources[PLAYER_WHITE] + self.sources[PLAYER_BLACK]):
-            self.set_attr(s, 'bfscolor', 'gray')
+            self.set_attr(s, 'bfscolor', 'g')
             self.set_attr(s, 'd',  0)
             self.add_to_distance_bucket(s, 0)
             Q.put(s)
@@ -162,17 +163,20 @@ class StateGraph(object):
 #            print 'Processing %s' % self.node_names[u]
             u_d = self.get_attr(u, 'd')
             for v in self.get_all_successors(u):
-                if self.get_attr(v, 'bfscolor') == 'white':
-                    self.set_attr(v, 'bfscolor', 'gray')
+                if self.get_attr(v, 'bfscolor') == 'w':
+                    self.set_attr(v, 'bfscolor', 'g')
                     v_d = u_d + 1
                     self.set_attr(v, 'd', v_d)
                     self.add_to_distance_bucket(v, v_d)
                     Q.put(v)
-            self.set_attr(u, 'bfscolor', 'black')
+            self.set_attr(u, 'bfscolor', 'b')
+        print 'Done.'
     
-    def remove_back_edges(self):
+    def trim_back_edges(self, prob_keep = 0.0):
+        print 'Trimming \%%d of existing back edges...'
         count_back_edges = 0
-        count_replaced_back_edges = 0
+        count_replaceable = 0
+        count_replaced = 0
         for node_id in range(len(self.node_names)):
             node_dist = self.get_attr(node_id, 'd')
             for roll in self.all_rolls:
@@ -189,15 +193,18 @@ class StateGraph(object):
 #                            new_successor = self.get_random_successor_at_distance(
 #                                    successor, self.node_colors[successor],
 #                                    node_dist + 1)
-                            new_successor = self.get_another_successor(node_id, 
-                                                                       successor)
+                            new_successor = self.get_another_successor(node_id, successor)
                             if new_successor is not None:
-                                count_replaced_back_edges += 1
-                                self.successors[node_id][roll_index][action] = new_successor
+                                count_replaceable += 1
+                                p = random.random()
+                                if p >= prob_keep:
+                                    count_replaced += 1
+                                    self.successors[node_id][roll_index][action] = new_successor
 #                                print 'adding edge %s -> %s' % (self.node_names[node_id], self.node_names[new_successor])
 #                            else:
 #                                print 'Couldn\'t add a new edge. Restoring the back edge'
-        print 'Found %d back edges, replaced %d' % (count_back_edges, count_replaced_back_edges)
+        print 'Found %d back edges, %d replaceable, %d replaced' % (
+                count_back_edges, count_replaceable, count_replaced)
 
     def cleanup_attrs(self):
         for node_id in range(len(self.node_names)):
@@ -205,7 +212,7 @@ class StateGraph(object):
             del self.node_attrs[node_id]['bfscolor']
 
     def save_to_file(self, path_to_file):
-        print 'Saving graph...'
+        print 'Saving graph %s...' % path_to_file
         f = open(path_to_file, 'w')
         cPickle.dump(self, f)
 #        marshal.dump(self, f)
@@ -214,7 +221,7 @@ class StateGraph(object):
        
     @classmethod 
     def load_from_file(cls, path_to_file):
-        print 'Loading graph...'
+        print 'Loading graph %s...' % path_to_file
         f = open(path_to_file, 'r')
         g = cPickle.load(f)
 #        g = marshal.load(f)

@@ -9,6 +9,9 @@ import random
 
 NUM_STATS_GAMES = 10000
 
+COLLECT_STATS = False
+SAVE_STATS = False
+
 PRINT_GAME_DETAIL = False
 PRINT_GAME_RESULTS = False
 #PRINT_GAME_DETAIL = True
@@ -20,10 +23,8 @@ USE_SEEDS = ALTERNATE_SEATS
 
 RECENT_WINNERS_LIST_SIZE = 3000
 
-COLLECT_STATS = False
-SAVE_STATS = False
-
 RECORD_GRAPH = False
+GENERATE_GRAPH_REPORT_EVERY = 1000
 
 #----------------------------------------------------------------------------
 
@@ -41,16 +42,16 @@ REWARD_WIN = 1.0
 REWARD_LOSE = 0.0
 
 DEFAULT_P = 1.0
-DEFAULT_REENTRY_OFFSET = 0
+DEFAULT_OFFSET = 0
 DEFAULT_GRAPH_NAME = None
 DEFAULT_TRIAL = 0
 
 NUM_TRIALS = 10
 
 EXP_BASE = 'base'
-EXP_VARY_P = 'p'
-EXP_VARY_REENTRY = 'offset'
-EXP_VARY_GRAPH = 'graph'
+EXP_P = 'p'
+EXP_OFFSET = 'offset'
+EXP_GRAPH = 'graph'
 
 POS_ATTR = 'pos'
 
@@ -220,56 +221,51 @@ class ExpParams:
     def get_file_suffix_no_trial(self):
         if self.exp == EXP_BASE:
             return EXP_BASE
-        elif self.exp == EXP_VARY_P:
+        elif self.exp == EXP_P:
             return '%s-%1.2f' % (self.exp, self.p)
-        elif self.exp == EXP_VARY_REENTRY:
+        elif self.exp == EXP_OFFSET:
             return '%s-%d' % (self.exp, self.offset)
-        elif self.exp == EXP_VARY_GRAPH:
+        elif self.exp == EXP_GRAPH:
             return '%s-%s' % (self.exp, self.graph_name)
         else:
             return 'invalidexp'
         
 class Experiment:
-#    exp = None
-#    p = None
-#    offset = None
-#    graph_name = None
-#    trial = None
     
     @classmethod
     def get_command_line_args(cls):
-        if len(sys.argv) < 4:
+        if len(sys.argv) < 3:
             print 'You can specify an experiment mode with:'
-            print 'python %s graph <name> <trial>' % sys.argv[0]
-            print 'python %s p <p> <trial>' % sys.argv[0]
-            print 'python %s offset <offset> <trial>' % sys.argv[0]
+            print 'python %s graph <name> [<trial>]' % sys.argv[0]
+            print 'python %s p <p> [<trial>]' % sys.argv[0]
+            print 'python %s offset <offset> [<trial>]' % sys.argv[0]
             exp = EXP_BASE
             p = DEFAULT_P
-            offset = DEFAULT_REENTRY_OFFSET
+            offset = DEFAULT_OFFSET
             graph_name = DEFAULT_GRAPH_NAME
             trial = DEFAULT_TRIAL
         else:
             p = DEFAULT_P
-            offset = DEFAULT_REENTRY_OFFSET
+            offset = DEFAULT_OFFSET
             graph_name = DEFAULT_GRAPH_NAME
+            trial = DEFAULT_TRIAL
         
+            if len(sys.argv) == 4:
+                trial = int(sys.argv[3])
+
             exp = sys.argv[1]
-            if exp == EXP_VARY_P:
+            if exp == EXP_P:
                 p = float(sys.argv[2])
-            elif exp == EXP_VARY_REENTRY:
+                print 'Using: p = %.2f, trial = %d' % (p, trial)
+            elif exp == EXP_OFFSET:
                 offset = int(sys.argv[2])
-            else:
+                print 'Using: offset = %d, trial = %d' % (offset, trial)
+            elif exp == EXP_GRAPH:
                 graph_name = sys.argv[2]
-            
-            trial = int(sys.argv[3])
-    
-#        cls.exp = exp
-#        cls.p = p
-#        cls.offset = offset
-#        cls.graph_name = graph_name
-#        cls.trial = trial
-        print 'Using: p = %.2f, offset = %d, graph = %s, trial = %d' % (
-                                            p, offset, graph_name, trial)
+                print 'Using: graph = %s, trial = %d' % (graph_name, trial)
+            else:
+                print 'Using: base, trial = %d' % trial
+
         print 
         return ExpParams(exp, p, offset, graph_name, trial)
 
