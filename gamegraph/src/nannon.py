@@ -280,6 +280,7 @@ class NannonState(object):
 
     @classmethod
     def generate_graph(cls, exp_params):
+        print 'Generating graph...'
         g = StateGraph(NannonDie.SIDES, 1, NannonAction.ALL_ACTIONS)
         s = NannonState(exp_params, PLAYER_WHITE)
         s_key = s.board_config()
@@ -297,8 +298,9 @@ class NannonState(object):
         while not Q.empty():
             (s_key, s_pos, s_color) = Q.get()
             is_state_processed[s_key] = True
-            print 'Fully processed %d, %d in queue, processing %s...\r' % \
-                    (len(is_state_processed), Q.qsize(), s_key), 
+            if len(is_state_processed) % 100 == 0:
+                print 'Fully processed %d, %d in queue, processing %s...' % \
+                        (len(is_state_processed), Q.qsize(), s_key)
             s.pos = s_pos
             s.player_to_move = s_color
             s_id = g.get_node_id(s_key)
@@ -326,7 +328,6 @@ class NannonState(object):
                                 if not is_state_queued.has_key(sp_key):
                                     Q.put((sp_key, sp_pos, sp_color))
                                     is_state_queued[sp_key] = True
-            print ''
         return g
 
     def __fix_checker_orders(self):

@@ -295,7 +295,7 @@ class Experiment:
         # printing overall stats
         print '----'
         print 'P was: %.2f' % exp_params.p
-        print 'Re-entry offset was: %d' % exp_params.reentry_offset
+        print 'Re-entry offset was: %d' % exp_params.offset
         print 'Graph name was: %s' % exp_params.graph_name
             
         avg_num_plies_per_game = float(total_plies) / num_games

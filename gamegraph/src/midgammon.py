@@ -15,7 +15,7 @@ from state_graph import StateGraph
 HIDDEN_UNITS = 10
 
 class MidGammonDie(object):
-    SIDES = [1, 2, 3]
+    SIDES = [1, 2, 3, 4]
     
     @classmethod
     def roll(cls):
@@ -76,7 +76,7 @@ class MidGammonState(object):
     CHECKER_NAME[FORFEIT_MOVE] = 'no'
 
     BOARD_SIZE   = 8
-    BOARD_MID    = BOARD_SIZE / 2 # 6
+    BOARD_MID    = BOARD_SIZE / 2 # 4
     
     BOARD_BAR    = 0              # 0
     BOARD_START  = 1              # 1
@@ -272,6 +272,7 @@ class MidGammonState(object):
     
     @classmethod
     def generate_graph(cls, exp_params):
+        print 'Generating graph...'
         g = StateGraph(MidGammonDie.SIDES, 1, MidGammonAction.ALL_ACTIONS)
         s = MidGammonState(exp_params, PLAYER_WHITE)
         s_key = s.board_config()
@@ -289,8 +290,9 @@ class MidGammonState(object):
         while not Q.empty():
             (s_key, s_pos, s_color) = Q.get()
             is_state_processed[s_key] = True
-            print 'Fully processed %d, %d in queue, processing %s...\r' % \
-                    (len(is_state_processed), Q.qsize(), s_key), 
+            if len(is_state_processed) % 100 == 0:
+                print 'Fully processed %d, %d in queue, processing %s...' % \
+                        (len(is_state_processed), Q.qsize(), s_key)
             s.pos = s_pos
             s.player_to_move = s_color
             s_id = g.get_node_id(s_key)
@@ -318,7 +320,6 @@ class MidGammonState(object):
                                 if not is_state_queued.has_key(sp_key):
                                     Q.put((sp_key, sp_pos, sp_color))
                                     is_state_queued[sp_key] = True
-            print ''
         return g
 
     def __fix_checker_orders(self):

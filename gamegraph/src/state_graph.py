@@ -6,6 +6,7 @@ Created on Jun 25, 2012
 from common import PLAYER_WHITE, PLAYER_BLACK
 import random
 import cPickle
+#import marshal
 from Queue import Queue
 
 class StateGraph(object):
@@ -170,6 +171,8 @@ class StateGraph(object):
             self.set_attr(u, 'bfscolor', 'black')
     
     def remove_back_edges(self):
+        count_back_edges = 0
+        count_replaced_back_edges = 0
         for node_id in range(len(self.node_names)):
             node_dist = self.get_attr(node_id, 'd')
             for roll in self.all_rolls:
@@ -179,6 +182,7 @@ class StateGraph(object):
                     if successor is not None:
                         successor_dist = self.get_attr(successor, 'd')
                         if successor_dist < node_dist:
+                            count_back_edges += 1
 #                            print 'removing edge %s -> %s' % (self.node_names[node_id], self.node_names[successor]) 
 #                            new_successor = self.get_random_node_at_distance(
 #                                    self.node_colors[successor], node_dist + 1)
@@ -188,15 +192,18 @@ class StateGraph(object):
                             new_successor = self.get_another_successor(node_id, 
                                                                        successor)
                             if new_successor is not None:
+                                count_replaced_back_edges += 1
                                 self.successors[node_id][roll_index][action] = new_successor
 #                                print 'adding edge %s -> %s' % (self.node_names[node_id], self.node_names[new_successor])
 #                            else:
 #                                print 'Couldn\'t add a new edge. Restoring the back edge'
+        print 'Found %d back edges, replaced %d' % (count_back_edges, count_replaced_back_edges)
 
     def save_to_file(self, path_to_file):
         print 'Saving graph...'
         f = open(path_to_file, 'w')
         cPickle.dump(self, f)
+#        marshal.dump(self, f)
         f.close()
         print 'Done.'
        
@@ -205,6 +212,7 @@ class StateGraph(object):
         print 'Loading graph...'
         f = open(path_to_file, 'r')
         g = cPickle.load(f)
+#        g = marshal.load(f)
         f.close()
         print 'Done.'
         return g
