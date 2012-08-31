@@ -6,9 +6,16 @@ Created on Aug 22, 2012
 from midgammon import Domain
 
 from common import Experiment
+from state_graph import StateGraph
 
 class GraphManipulator(object):
     
+    @classmethod
+    def load_graph(cls, exp_params):
+        graph_file = '../graph/%s-%s' % (Domain.name, exp_params.get_file_suffix_no_trial())
+        g = StateGraph.load_from_file(graph_file)
+        return g
+
     @classmethod
     def generate_graph(cls, exp_params):
         g = Domain.StateClass.generate_graph(exp_params)
@@ -50,6 +57,7 @@ class GraphManipulator(object):
 
 if __name__ == '__main__':
     exp_params = Experiment.get_command_line_args()
-    g = GraphManipulator.generate_graph(exp_params)
+#    g = GraphManipulator.generate_graph(exp_params)
+    g = GraphManipulator.load_graph(exp_params)
     GraphManipulator.create_ergo_range(exp_params, g)
     

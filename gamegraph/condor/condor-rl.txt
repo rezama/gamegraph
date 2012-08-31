@@ -1,0 +1,9 @@
++Group = "GRAD"
++Project = "AI_ROBOTICS"
++ProjectDescription = "Studying impact of domain ergodicity on reinforcement learning and self-play"
+
+Universe = vanilla
+Executable = /usr/bin/python 
+getenv = true
+transfer_executable = false
+
