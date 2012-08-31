@@ -144,7 +144,7 @@ class StateGraph(object):
                             if n_id != current_successor and
                             self.node_attrs[n_id]['d'] >= node_distance] 
         if len(other_successors) > 1:
-            result = random.choice(successors)
+            result = random.choice(other_successors)
         return result
     
     def compute_bfs(self):
@@ -173,7 +173,7 @@ class StateGraph(object):
         print 'Done.'
     
     def trim_back_edges(self, prob_keep = 0.0):
-        print 'Trimming \%%d of existing back edges...'
+        print 'Trimming back edges, keeping %d%%...' % (prob_keep * 100)
         count_back_edges = 0
         count_replaceable = 0
         count_replaced = 0
@@ -187,7 +187,7 @@ class StateGraph(object):
                         successor_dist = self.get_attr(successor, 'd')
                         if successor_dist < node_dist:
                             count_back_edges += 1
-#                            print 'removing edge %s -> %s' % (self.node_names[node_id], self.node_names[successor]) 
+#                            print 'Found back edge %s -> %s' % (self.node_names[node_id], self.node_names[successor]) 
 #                            new_successor = self.get_random_node_at_distance(
 #                                    self.node_colors[successor], node_dist + 1)
 #                            new_successor = self.get_random_successor_at_distance(
@@ -200,9 +200,13 @@ class StateGraph(object):
                                 if p >= prob_keep:
                                     count_replaced += 1
                                     self.successors[node_id][roll_index][action] = new_successor
-#                                print 'adding edge %s -> %s' % (self.node_names[node_id], self.node_names[new_successor])
+#                                    print 'Replaced back edge %s -> %s with %s -> %s' % \
+#                                    (self.node_names[node_id], self.node_names[successor],
+#                                     self.node_names[node_id], self.node_names[new_successor]) 
+#                                print 'Replacing edge %s -> %s' % (self.node_names[node_id], self.node_names[new_successor])
 #                            else:
-#                                print 'Couldn\'t add a new edge. Restoring the back edge'
+#                                print 'Couldn\'t replace. Keeping the back edge'
+                                
         print 'Found %d back edges, %d replaceable, %d replaced' % (
                 count_back_edges, count_replaceable, count_replaced)
 

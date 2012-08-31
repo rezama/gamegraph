@@ -44,7 +44,7 @@ class GraphManipulator(object):
             new_graph_file = '../graph/%s-%s-ergo%d' % (Domain.name, 
                     exp_params.get_file_suffix_no_trial(), keep_probs[i] * 100)
             g.trim_back_edges(keep_probs_inc[i])
-            g.print_stats()
+#            g.print_stats()
             g.save_to_file(new_graph_file)
             print ''
 
