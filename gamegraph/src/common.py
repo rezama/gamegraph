@@ -256,16 +256,19 @@ class Experiment:
             exp = sys.argv[1]
             if exp == EXP_P:
                 p = float(sys.argv[2])
-                print 'Using: p = %.2f, trial = %d' % (p, trial)
             elif exp == EXP_OFFSET:
                 offset = int(sys.argv[2])
-                print 'Using: offset = %d, trial = %d' % (offset, trial)
             elif exp == EXP_GRAPH:
                 graph_name = sys.argv[2]
-                print 'Using: graph = %s, trial = %d' % (graph_name, trial)
-            else:
-                print 'Using: base, trial = %d' % trial
 
+        if exp == EXP_P:
+            print 'Using: p = %.2f, trial = %d' % (p, trial)
+        elif exp == EXP_OFFSET:
+            print 'Using: offset = %d, trial = %d' % (offset, trial)
+        elif exp == EXP_GRAPH:
+            print 'Using: graph = %s, trial = %d' % (graph_name, trial)
+        else:
+            print 'Using: base, trial = %d' % trial
         print 
         return ExpParams(exp, p, offset, graph_name, trial)
 

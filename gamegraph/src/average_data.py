@@ -50,3 +50,8 @@ if __name__ == '__main__':
                 for ergo in ['0', '10', '20', '30', '40', '50', '60', '70', '80', '90', '100']:
                     basename = '%s-%s-graph-%s-ergo%s' % (alg, game, graph, ergo)
                     compute_average(basename)
+        for game in ['minigammon']:
+            for graph in ['base']:
+                for ergo in ['0', '10', '20', '30', '40', '50', '60', '70', '80', '90', '100']:
+                    basename = '%s-%s-graph-%s-ergo%s' % (alg, game, graph, ergo)
+                    compute_average(basename)

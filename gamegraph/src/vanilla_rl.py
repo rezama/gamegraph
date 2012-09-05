@@ -3,7 +3,7 @@ Created on Dec 10, 2011
 
 @author: reza
 '''
-from midgammon import Domain
+from minigammon import Domain
 
 import random
 from common import Experiment, Game, GameSet
@@ -17,7 +17,7 @@ LAMBDA = 0.90
 USE_ALPHA_ANNEALING = True
 MIN_ALPHA = 0.05
 
-NUM_ITERATIONS = 1024 * 800
+NUM_ITERATIONS = 1024 * 600
 NUM_FINAL_EVAL = 1024
 
 TRAIN_AGAINST_SELF = False

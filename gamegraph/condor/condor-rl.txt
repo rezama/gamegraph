@@ -7,3 +7,12 @@ Executable = /usr/bin/python
 getenv = true
 transfer_executable = false
 
+Arguments = ../src/vanilla_rl.py graph base 0
+Queue
+
+Arguments = ../src/vanilla_rl.py graph base-nocycle 0
+Queue
+
+Arguments = ../src/vanilla_rl.py graph base-nohit 0
+Queue
+

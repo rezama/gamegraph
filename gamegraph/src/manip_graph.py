@@ -3,7 +3,7 @@ Created on Aug 22, 2012
 
 @author: reza
 '''
-from midgammon import Domain
+from minigammon import Domain
 
 from common import Experiment
 from state_graph import StateGraph
@@ -27,10 +27,15 @@ class GraphManipulator(object):
     @classmethod
     def trim_all_legible_back_edges(cls, exp_params, g):
         new_graph_file = '../graph/%s-%s-nocycle' % (Domain.name, exp_params.get_file_suffix_no_trial())
-        g.print_stats()
         g.compute_bfs()
         g.trim_back_edges()
         g.cleanup_attrs()
+        g.save_to_file(new_graph_file)
+
+    @classmethod
+    def trim_all_legible_hit_edges(cls, exp_params, g):
+        new_graph_file = '../graph/%s-%s-nohit' % (Domain.name, exp_params.get_file_suffix_no_trial())
+        g.trim_hit_edges()
         g.save_to_file(new_graph_file)
 
     @classmethod
@@ -38,6 +43,7 @@ class GraphManipulator(object):
         g.compute_bfs()
 
         keep_probs = [1.0, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1, 0.0]
+#        keep_probs = [1.0, 0.8, 0.5, 0.2, 0.0]
         keep_probs_inc = []
         currently_kept = 1.0
         for p in keep_probs:
@@ -51,13 +57,15 @@ class GraphManipulator(object):
             new_graph_file = '../graph/%s-%s-ergo%d' % (Domain.name, 
                     exp_params.get_file_suffix_no_trial(), keep_probs[i] * 100)
             g.trim_back_edges(keep_probs_inc[i])
-#            g.print_stats()
             g.save_to_file(new_graph_file)
             print ''
 
 if __name__ == '__main__':
     exp_params = Experiment.get_command_line_args()
-#    g = GraphManipulator.generate_graph(exp_params)
-    g = GraphManipulator.load_graph(exp_params)
-    GraphManipulator.create_ergo_range(exp_params, g)
+    g = GraphManipulator.generate_graph(exp_params)
+#    GraphManipulator.trim_all_legible_hit_edges(exp_params, g)
+    GraphManipulator.trim_all_legible_back_edges(exp_params, g)
+#    g.print_back_edges()
+#    g = GraphManipulator.load_graph(exp_params)
+#    GraphManipulator.create_ergo_range(exp_params, g)
     

@@ -1,0 +1,390 @@
++Group = "GRAD"
++Project = "AI_ROBOTICS"
++ProjectDescription = "Studying impact of domain ergodicity on reinforcement learning and self-play"
+
+Universe = vanilla
+Executable = /usr/bin/python 
+getenv = true
+transfer_executable = false
+
+Arguments = ../src/td.py graph base-ergo0 0
+Queue
+
+Arguments = ../src/td.py graph base-ergo0 1
+Queue
+
+Arguments = ../src/td.py graph base-ergo0 2
+Queue
+
+Arguments = ../src/td.py graph base-ergo0 3
+Queue
+
+Arguments = ../src/td.py graph base-ergo0 4
+Queue
+
+Arguments = ../src/td.py graph base-ergo0 5
+Queue
+
+Arguments = ../src/td.py graph base-ergo0 6
+Queue
+
+Arguments = ../src/td.py graph base-ergo0 7
+Queue
+
+Arguments = ../src/td.py graph base-ergo0 8
+Queue
+
+Arguments = ../src/td.py graph base-ergo0 9
+Queue
+
+
+
+Arguments = ../src/td.py graph base-ergo10 0
+Queue
+
+Arguments = ../src/td.py graph base-ergo10 1
+Queue
+
+Arguments = ../src/td.py graph base-ergo10 2
+Queue
+
+Arguments = ../src/td.py graph base-ergo10 3
+Queue
+
+Arguments = ../src/td.py graph base-ergo10 4
+Queue
+
+Arguments = ../src/td.py graph base-ergo10 5
+Queue
+
+Arguments = ../src/td.py graph base-ergo10 6
+Queue
+
+Arguments = ../src/td.py graph base-ergo10 7
+Queue
+
+Arguments = ../src/td.py graph base-ergo10 8
+Queue
+
+Arguments = ../src/td.py graph base-ergo10 9
+Queue
+
+
+
+Arguments = ../src/td.py graph base-ergo20 0
+Queue
+
+Arguments = ../src/td.py graph base-ergo20 1
+Queue
+
+Arguments = ../src/td.py graph base-ergo20 2
+Queue
+
+Arguments = ../src/td.py graph base-ergo20 3
+Queue
+
+Arguments = ../src/td.py graph base-ergo20 4
+Queue
+
+Arguments = ../src/td.py graph base-ergo20 5
+Queue
+
+Arguments = ../src/td.py graph base-ergo20 6
+Queue
+
+Arguments = ../src/td.py graph base-ergo20 7
+Queue
+
+Arguments = ../src/td.py graph base-ergo20 8
+Queue
+
+Arguments = ../src/td.py graph base-ergo20 9
+Queue
+
+
+
+Arguments = ../src/td.py graph base-ergo30 0
+Queue
+
+Arguments = ../src/td.py graph base-ergo30 1
+Queue
+
+Arguments = ../src/td.py graph base-ergo30 2
+Queue
+
+Arguments = ../src/td.py graph base-ergo30 3
+Queue
+
+Arguments = ../src/td.py graph base-ergo30 4
+Queue
+
+Arguments = ../src/td.py graph base-ergo30 5
+Queue
+
+Arguments = ../src/td.py graph base-ergo30 6
+Queue
+
+Arguments = ../src/td.py graph base-ergo30 7
+Queue
+
+Arguments = ../src/td.py graph base-ergo30 8
+Queue
+
+Arguments = ../src/td.py graph base-ergo30 9
+Queue
+
+
+
+Arguments = ../src/td.py graph base-ergo40 0
+Queue
+
+Arguments = ../src/td.py graph base-ergo40 1
+Queue
+
+Arguments = ../src/td.py graph base-ergo40 2
+Queue
+
+Arguments = ../src/td.py graph base-ergo40 3
+Queue
+
+Arguments = ../src/td.py graph base-ergo40 4
+Queue
+
+Arguments = ../src/td.py graph base-ergo40 5
+Queue
+
+Arguments = ../src/td.py graph base-ergo40 6
+Queue
+
+Arguments = ../src/td.py graph base-ergo40 7
+Queue
+
+Arguments = ../src/td.py graph base-ergo40 8
+Queue
+
+Arguments = ../src/td.py graph base-ergo40 9
+Queue
+
+
+
+Arguments = ../src/td.py graph base-ergo50 0
+Queue
+
+Arguments = ../src/td.py graph base-ergo50 1
+Queue
+
+Arguments = ../src/td.py graph base-ergo50 2
+Queue
+
+Arguments = ../src/td.py graph base-ergo50 3
+Queue
+
+Arguments = ../src/td.py graph base-ergo50 4
+Queue
+
+Arguments = ../src/td.py graph base-ergo50 5
+Queue
+
+Arguments = ../src/td.py graph base-ergo50 6
+Queue
+
+Arguments = ../src/td.py graph base-ergo50 7
+Queue
+
+Arguments = ../src/td.py graph base-ergo50 8
+Queue
+
+Arguments = ../src/td.py graph base-ergo50 9
+Queue
+
+
+
+Arguments = ../src/td.py graph base-ergo50 0
+Queue
+
+Arguments = ../src/td.py graph base-ergo50 1
+Queue
+
+Arguments = ../src/td.py graph base-ergo50 2
+Queue
+
+Arguments = ../src/td.py graph base-ergo50 3
+Queue
+
+Arguments = ../src/td.py graph base-ergo50 4
+Queue
+
+Arguments = ../src/td.py graph base-ergo50 5
+Queue
+
+Arguments = ../src/td.py graph base-ergo50 6
+Queue
+
+Arguments = ../src/td.py graph base-ergo50 7
+Queue
+
+Arguments = ../src/td.py graph base-ergo50 8
+Queue
+
+Arguments = ../src/td.py graph base-ergo50 9
+Queue
+
+
+
+Arguments = ../src/td.py graph base-ergo60 0
+Queue
+
+Arguments = ../src/td.py graph base-ergo60 1
+Queue
+
+Arguments = ../src/td.py graph base-ergo60 2
+Queue
+
+Arguments = ../src/td.py graph base-ergo60 3
+Queue
+
+Arguments = ../src/td.py graph base-ergo60 4
+Queue
+
+Arguments = ../src/td.py graph base-ergo60 5
+Queue
+
+Arguments = ../src/td.py graph base-ergo60 6
+Queue
+
+Arguments = ../src/td.py graph base-ergo60 7
+Queue
+
+Arguments = ../src/td.py graph base-ergo60 8
+Queue
+
+Arguments = ../src/td.py graph base-ergo60 9
+Queue
+
+
+
+Arguments = ../src/td.py graph base-ergo70 0
+Queue
+
+Arguments = ../src/td.py graph base-ergo70 1
+Queue
+
+Arguments = ../src/td.py graph base-ergo70 2
+Queue
+
+Arguments = ../src/td.py graph base-ergo70 3
+Queue
+
+Arguments = ../src/td.py graph base-ergo70 4
+Queue
+
+Arguments = ../src/td.py graph base-ergo70 5
+Queue
+
+Arguments = ../src/td.py graph base-ergo70 6
+Queue
+
+Arguments = ../src/td.py graph base-ergo70 7
+Queue
+
+Arguments = ../src/td.py graph base-ergo70 8
+Queue
+
+Arguments = ../src/td.py graph base-ergo70 9
+Queue
+
+
+
+Arguments = ../src/td.py graph base-ergo80 0
+Queue
+
+Arguments = ../src/td.py graph base-ergo80 1
+Queue
+
+Arguments = ../src/td.py graph base-ergo80 2
+Queue
+
+Arguments = ../src/td.py graph base-ergo80 3
+Queue
+
+Arguments = ../src/td.py graph base-ergo80 4
+Queue
+
+Arguments = ../src/td.py graph base-ergo80 5
+Queue
+
+Arguments = ../src/td.py graph base-ergo80 6
+Queue
+
+Arguments = ../src/td.py graph base-ergo80 7
+Queue
+
+Arguments = ../src/td.py graph base-ergo80 8
+Queue
+
+Arguments = ../src/td.py graph base-ergo80 9
+Queue
+
+
+
+Arguments = ../src/td.py graph base-ergo90 0
+Queue
+
+Arguments = ../src/td.py graph base-ergo90 1
+Queue
+
+Arguments = ../src/td.py graph base-ergo90 2
+Queue
+
+Arguments = ../src/td.py graph base-ergo90 3
+Queue
+
+Arguments = ../src/td.py graph base-ergo90 4
+Queue
+
+Arguments = ../src/td.py graph base-ergo90 5
+Queue
+
+Arguments = ../src/td.py graph base-ergo90 6
+Queue
+
+Arguments = ../src/td.py graph base-ergo90 7
+Queue
+
+Arguments = ../src/td.py graph base-ergo90 8
+Queue
+
+Arguments = ../src/td.py graph base-ergo90 9
+Queue
+
+
+
+Arguments = ../src/td.py graph base-ergo100 0
+Queue
+
+Arguments = ../src/td.py graph base-ergo100 1
+Queue
+
+Arguments = ../src/td.py graph base-ergo100 2
+Queue
+
+Arguments = ../src/td.py graph base-ergo100 3
+Queue
+
+Arguments = ../src/td.py graph base-ergo100 4
+Queue
+
+Arguments = ../src/td.py graph base-ergo100 5
+Queue
+
+Arguments = ../src/td.py graph base-ergo100 6
+Queue
+
+Arguments = ../src/td.py graph base-ergo100 7
+Queue
+
+Arguments = ../src/td.py graph base-ergo100 8
+Queue
+
+Arguments = ../src/td.py graph base-ergo100 9
+Queue

@@ -6,7 +6,6 @@ Created on Jun 25, 2012
 from common import PLAYER_WHITE, PLAYER_BLACK
 import random
 import cPickle
-#import marshal
 from Queue import Queue
 
 class StateGraph(object):
@@ -136,13 +135,23 @@ class StateGraph(object):
                 break
         return result
 
-    def get_another_successor(self, node_id, current_successor):
+    def get_another_successor_check_distance(self, node_id, current_successor):
         result = None
         node_distance = self.node_attrs[node_id]['d']
         successors = self.get_all_successors(node_id)
         other_successors = [n_id for n_id in successors
                             if n_id != current_successor and
                             self.node_attrs[n_id]['d'] >= node_distance] 
+        if len(other_successors) > 1:
+            result = random.choice(other_successors)
+        return result
+    
+    def get_another_successor_check_hit(self, node_id, current_successor):
+        result = None
+        successors = self.get_all_successors(node_id)
+        other_successors = [n_id for n_id in successors
+                            if (n_id != current_successor) and
+                            ('0' not in self.node_names[n_id][2:])]
         if len(other_successors) > 1:
             result = random.choice(other_successors)
         return result
@@ -172,6 +181,60 @@ class StateGraph(object):
             self.set_attr(u, 'bfscolor', 'b')
         print 'Done.'
     
+    def print_all_edges(self):
+        for node_id in range(len(self.node_names)):
+            node_dist = self.get_attr(node_id, 'd')
+            for roll in self.all_rolls:
+                roll_index = roll - self.roll_offset
+                for action in self.all_actions:
+                    successor = self.successors[node_id][roll_index][action]
+                    if successor is not None:
+                        successor_dist = self.get_attr(successor, 'd')
+                        is_replaceable = False 
+                        flags = ''
+                        if '0' in self.node_names[successor][2:]:
+                            flags += '-HIT'
+                        if successor_dist < node_dist:
+                            flags += '-BACK'
+                            new_successor = self.get_another_successor_check_distance(node_id, successor)
+                            if new_successor is not None:
+                                is_replaceable = True
+                        print 'Found edge %s -> %s, id: %d -> %d, dist: %d -> %d %s' % \
+                        (self.node_names[node_id], self.node_names[successor],
+                         node_id, successor,
+                         node_dist, successor_dist, flags),
+                        if is_replaceable:
+                            print 'replaceable with %s' % self.node_names[new_successor]
+                        else:
+                            print ''  
+                            
+    def print_back_edges(self):
+        for node_id in range(len(self.node_names)):
+            node_dist = self.get_attr(node_id, 'd')
+            for roll in self.all_rolls:
+                roll_index = roll - self.roll_offset
+                for action in self.all_actions:
+                    successor = self.successors[node_id][roll_index][action]
+                    if successor is not None:
+                        successor_dist = self.get_attr(successor, 'd')
+                        if successor_dist < node_dist:
+                            flags = ''
+                            is_replaceable = False 
+                            new_successor = self.get_another_successor_check_distance(node_id, successor)
+                            if new_successor is not None:
+                                is_replaceable = True
+                            if '0' in self.node_names[successor][2:]:
+                                flags += '-HIT'
+                                
+                            print 'Found back edge %s -> %s, id: %d -> %d, dist: %d -> %d %s' % \
+                            (self.node_names[node_id], self.node_names[successor],
+                             node_id, successor,
+                             node_dist, successor_dist, flags),
+                            if is_replaceable:
+                                print 'replaceable to %s' % self.node_names[new_successor]
+                            else:
+                                print ''  
+                            
     def trim_back_edges(self, prob_keep = 0.0):
         print 'Trimming back edges, keeping %d%%...' % (prob_keep * 100)
         count_back_edges = 0
@@ -193,7 +256,7 @@ class StateGraph(object):
 #                            new_successor = self.get_random_successor_at_distance(
 #                                    successor, self.node_colors[successor],
 #                                    node_dist + 1)
-                            new_successor = self.get_another_successor(node_id, successor)
+                            new_successor = self.get_another_successor_check_distance(node_id, successor)
                             if new_successor is not None:
                                 count_replaceable += 1
                                 p = random.random()
@@ -209,6 +272,30 @@ class StateGraph(object):
                                 
         print 'Found %d back edges, %d replaceable, %d replaced' % (
                 count_back_edges, count_replaceable, count_replaced)
+
+    def trim_hit_edges(self, prob_keep = 0.0):
+        print 'Trimming hit edges, keeping %d%%...' % (prob_keep * 100)
+        count_hit_edges = 0
+        count_replaceable = 0
+        count_replaced = 0
+        for node_id in range(len(self.node_names)):
+            for roll in self.all_rolls:
+                roll_index = roll - self.roll_offset
+                for action in self.all_actions:
+                    successor = self.successors[node_id][roll_index][action]
+                    if successor is not None:
+                        if '0' in self.node_names[successor][2:]:
+                            count_hit_edges += 1
+                            new_successor = self.get_another_successor_check_hit(node_id, successor)
+                            if new_successor is not None:
+                                count_replaceable += 1
+                                p = random.random()
+                                if p >= prob_keep:
+                                    count_replaced += 1
+                                    self.successors[node_id][roll_index][action] = new_successor
+                                
+        print 'Found %d hit edges, %d replaceable, %d replaced' % (
+                count_hit_edges, count_replaceable, count_replaced)
 
     def cleanup_attrs(self):
         for node_id in range(len(self.node_names)):

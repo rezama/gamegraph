@@ -3,7 +3,7 @@ Created on Dec 9, 2011
 
 @author: reza
 '''
-from midgammon import Domain
+from minigammon import Domain
 
 import pickle
 import random
