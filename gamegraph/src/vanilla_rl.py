@@ -17,7 +17,7 @@ LAMBDA = 0.90
 USE_ALPHA_ANNEALING = True
 MIN_ALPHA = 0.05
 
-NUM_ITERATIONS = 1024 * 600
+NUM_ITERATIONS = 1024 * 200
 NUM_FINAL_EVAL = 1024
 
 TRAIN_AGAINST_SELF = False
@@ -249,7 +249,7 @@ if __name__ == '__main__':
 #                                   p, reentry_offset,
 #                                   print_learning_progress = True)
     if SAVE_TRAINING_STATS:
-        progress_filename = '../data/rl/rl-%s-%s.txt' % (Domain.name, exp_params.get_file_suffix())
+        progress_filename = '../data/trials/rl-%s-%s.txt' % (Domain.name, exp_params.get_file_suffix())
     else:
         progress_filename = None
     print 'Opponent is: %s' % agent_opponent
@@ -260,7 +260,7 @@ if __name__ == '__main__':
     count_wins = game_set.run()
 #    print 'Won %d out of %d games against random agent.' % (
 #                    count_wins[1], NUM_ITERATIONS)
-    print 'Won ratio: %.2f against the opponent.' % (float(count_wins[0]) / NUM_ITERATIONS)
+    print 'Win ratio: %.2f against the opponent.' % (float(count_wins[0]) / NUM_ITERATIONS)
     
     
 #    # evaluate against random
@@ -271,7 +271,7 @@ if __name__ == '__main__':
 #    count_wins = game_set.run()
 ##    print 'Won %d out of %d games against random agent.' % (
 ##                    count_wins[1], NUM_ITERATIONS)
-#    print 'Won ratio: %.2f against the opponent.' % (float(count_wins[0]) / NUM_FINAL_EVAL)
+#    print 'Win ratio: %.2f against the opponent.' % (float(count_wins[0]) / NUM_FINAL_EVAL)
 
     if SAVE_TABLES:
         agent_rl.algorithm.save_knowledge()

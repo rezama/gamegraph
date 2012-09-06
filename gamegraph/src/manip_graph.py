@@ -25,17 +25,19 @@ class GraphManipulator(object):
         return g
 
     @classmethod
-    def trim_all_legible_back_edges(cls, exp_params, g):
-        new_graph_file = '../graph/%s-%s-nocycle' % (Domain.name, exp_params.get_file_suffix_no_trial())
+    def trim_back_edges(cls, exp_params, g, prob_keep = 0.0):
+        new_graph_file = '../graph/%s-%s-%dback' % (Domain.name, 
+                        exp_params.get_file_suffix_no_trial(), prob_keep * 100)
         g.compute_bfs()
-        g.trim_back_edges()
+        g.trim_back_edges(prob_keep)
         g.cleanup_attrs()
         g.save_to_file(new_graph_file)
 
     @classmethod
-    def trim_all_legible_hit_edges(cls, exp_params, g):
-        new_graph_file = '../graph/%s-%s-nohit' % (Domain.name, exp_params.get_file_suffix_no_trial())
-        g.trim_hit_edges()
+    def trim_hit_edges(cls, exp_params, g, prob_keep = 0.0):
+        new_graph_file = '../graph/%s-%s-%dhit' % (Domain.name,
+                        exp_params.get_file_suffix_no_trial(), prob_keep * 100)
+        g.trim_hit_edges(prob_keep)
         g.save_to_file(new_graph_file)
 
     @classmethod
@@ -63,9 +65,12 @@ class GraphManipulator(object):
 if __name__ == '__main__':
     exp_params = Experiment.get_command_line_args()
     g = GraphManipulator.generate_graph(exp_params)
-#    GraphManipulator.trim_all_legible_hit_edges(exp_params, g)
-    GraphManipulator.trim_all_legible_back_edges(exp_params, g)
-#    g.print_back_edges()
-#    g = GraphManipulator.load_graph(exp_params)
+    GraphManipulator.trim_back_edges(exp_params, g)
+    g = GraphManipulator.generate_graph(exp_params)
+    GraphManipulator.trim_back_edges(exp_params, g, 0.5)
+    g = GraphManipulator.generate_graph(exp_params)
+    GraphManipulator.trim_hit_edges(exp_params, g)
+    g = GraphManipulator.generate_graph(exp_params)
+    GraphManipulator.trim_hit_edges(exp_params, g, 0.5)
 #    GraphManipulator.create_ergo_range(exp_params, g)
     

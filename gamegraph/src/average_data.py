@@ -25,7 +25,7 @@ def compute_average(basename):
                 value = float(two_values[1])
                 table[key] = table.get(key, 0) + value
             num_existing += 1
-        except IOError as e:
+        except IOError as e: #@UnusedVariable
             print "Couldn't read from %s" % datafile
 
     keylist = table.keys()
@@ -44,14 +44,19 @@ if __name__ == '__main__':
 #            for offset in ['0', '1', '2', '3', '4', '5', '6']:
 #                basename = '%s-%s-offset-%s' % (alg, game, offset)
 #                compute_average(basename)
-    for alg in ['td']:
-        for game in ['midgammon']:
-            for graph in ['d4s8']:
-                for ergo in ['0', '10', '20', '30', '40', '50', '60', '70', '80', '90', '100']:
-                    basename = '%s-%s-graph-%s-ergo%s' % (alg, game, graph, ergo)
-                    compute_average(basename)
+#    for alg in ['td']:
+#        for game in ['midgammon']:
+#            for graph in ['d4s8']:
+#                for ergo in ['0', '10', '20', '30', '40', '50', '60', '70', '80', '90', '100']:
+#                    basename = '%s-%s-graph-%s-ergo%s' % (alg, game, graph, ergo)
+#                    compute_average(basename)
+#        for game in ['minigammon']:
+#            for graph in ['base']:
+#                for ergo in ['0', '10', '20', '30', '40', '50', '60', '70', '80', '90', '100']:
+#                    basename = '%s-%s-graph-%s-ergo%s' % (alg, game, graph, ergo)
+#                    compute_average(basename)
+    for alg in ['td', 'rl']:
         for game in ['minigammon']:
-            for graph in ['base']:
-                for ergo in ['0', '10', '20', '30', '40', '50', '60', '70', '80', '90', '100']:
-                    basename = '%s-%s-graph-%s-ergo%s' % (alg, game, graph, ergo)
-                    compute_average(basename)
+            for graph in ['base', 'base-0back', 'base-0hit', 'base-50back', 'base-50hit']:
+                basename = '%s-%s-graph-%s' % (alg, game, graph)
+                compute_average(basename)

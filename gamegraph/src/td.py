@@ -19,7 +19,7 @@ from common import Experiment, PLAYER_WHITE, GameSet, other_player, REWARD_LOSE,
 #NUM_EVAL_GAMES = 1024
 NUM_ITERATIONS = 100
 NUM_TRAINING_GAMES = 16 # 64
-NUM_EVAL_GAMES = 1024
+NUM_EVAL_GAMES = 512
 
 GAMMA = 1.0
 ALPHA = 1.0
@@ -137,7 +137,7 @@ class AgentTD(Domain.AgentNeuralClass):
 #            return network_out[1]
 #        else:
 #            return network_out[0]
-    
+
     def cache_network_values(self, state):
         state_str = str(state)[:-2]
         if state_str not in self.network_inputs:
@@ -264,7 +264,7 @@ class AgentTD(Domain.AgentNeuralClass):
 if __name__ == '__main__':
     exp_params = Experiment.get_command_line_args()
    
-    filename = '../data/td-%s-%s.txt' % (Domain.name, exp_params.get_file_suffix())
+    filename = '../data/trials/td-%s-%s.txt' % (Domain.name, exp_params.get_file_suffix())
     f = open(filename, 'w')
 
     agent_td1 = AgentTD()
