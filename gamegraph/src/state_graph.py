@@ -3,10 +3,13 @@ Created on Jun 25, 2012
 
 @author: reza
 '''
-from common import PLAYER_WHITE, PLAYER_BLACK
+from common import PLAYER_WHITE, PLAYER_BLACK, REWARD_WIN, REWARD_LOSE
 import random
 import cPickle
 from Queue import Queue
+import gzip
+
+USE_GZIP = True
 
 class StateGraph(object):
 
@@ -192,6 +195,8 @@ class StateGraph(object):
                         successor_dist = self.get_attr(successor, 'd')
                         is_replaceable = False 
                         flags = ''
+                        if 'value' in self.node_attrs[node_id]:
+                            flags += '(value: %.2f -> %.2f)' % (self.node_attrs[node_id]['value'], self.node_attrs[successor]['value'])
                         if '0' in self.node_names[successor][2:]:
                             flags += '-HIT'
                         if successor_dist < node_dist:
@@ -219,6 +224,8 @@ class StateGraph(object):
                         successor_dist = self.get_attr(successor, 'd')
                         if successor_dist < node_dist:
                             flags = ''
+                            if 'value' in self.node_attrs[node_id]:
+                                flags += '(value: %.2f -> %.2f)' % (self.node_attrs[node_id]['value'], self.node_attrs[successor]['value'])
                             is_replaceable = False 
                             new_successor = self.get_another_successor_check_distance(node_id, successor)
                             if new_successor is not None:
@@ -297,6 +304,22 @@ class StateGraph(object):
         print 'Found %d hit edges, %d replaceable, %d replaced' % (
                 count_hit_edges, count_replaceable, count_replaced)
 
+    def transfer_state_values(self, agent):
+        print 'Transferring state values...'
+        for node_id in range(len(self.node_names)):
+            node_name = self.node_names[node_id]
+            if node_id in self.sinks[PLAYER_WHITE]:
+                self.node_attrs[node_id]['value'] = REWARD_WIN
+            elif node_id in self.sinks[PLAYER_BLACK]:
+                self.node_attrs[node_id]['value'] = REWARD_LOSE
+            else:
+                value = agent.get_board_value(node_name)
+                if self.node_colors[node_id] == PLAYER_BLACK:
+                    value = REWARD_WIN - REWARD_LOSE - value
+                self.node_attrs[node_id]['value'] = value
+                                
+        print 'Done.'
+
     def cleanup_attrs(self):
         for node_id in range(len(self.node_names)):
             del self.node_attrs[node_id]['d']
@@ -304,7 +327,10 @@ class StateGraph(object):
 
     def save_to_file(self, path_to_file):
         print 'Saving graph %s...' % path_to_file
-        f = open(path_to_file, 'w')
+        if USE_GZIP:
+            f = gzip.open(path_to_file + '.gz', 'w')
+        else:
+            f = open(path_to_file, 'w')
         cPickle.dump(self, f)
 #        marshal.dump(self, f)
         f.close()
@@ -313,7 +339,10 @@ class StateGraph(object):
     @classmethod 
     def load_from_file(cls, path_to_file):
         print 'Loading graph %s...' % path_to_file
-        f = open(path_to_file, 'r')
+        if USE_GZIP:
+            f = gzip.open(path_to_file + '.gz', 'r')
+        else:
+            f = open(path_to_file, 'r')
         g = cPickle.load(f)
 #        g = marshal.load(f)
         f.close()

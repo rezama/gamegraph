@@ -334,6 +334,13 @@ class MiniGammonState(object):
                                     is_state_queued[sp_key] = True
         return g
 
+    @classmethod
+    def copy_state_values_to_graph(cls, exp_params, agent_rl):
+        cls.GAME_GRAPH.transfer_state_values(agent_rl)
+        new_graph_filename = '../graph/%s-%s-augmented' % (Domain.name,
+                                    exp_params.get_file_suffix_no_trial())
+        cls.GAME_GRAPH.save_to_file(new_graph_filename)
+        
     def __fix_checker_orders(self):
         for player in [PLAYER_WHITE, PLAYER_BLACK]:
             if self.pos[player][self.CHECKER1] > self.pos[player][self.CHECKER2]:

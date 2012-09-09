@@ -3,7 +3,7 @@ Created on Dec 10, 2011
 
 @author: reza
 '''
-from minigammon import Domain
+from midgammon import Domain
 
 import random
 from common import Experiment, Game, GameSet
@@ -17,12 +17,16 @@ LAMBDA = 0.90
 USE_ALPHA_ANNEALING = True
 MIN_ALPHA = 0.05
 
-NUM_ITERATIONS = 1024 * 200
+NUM_ITERATIONS = 1024 * 600
 NUM_FINAL_EVAL = 1024
 
 TRAIN_AGAINST_SELF = False
-SAVE_TABLES = False
+
+SAVE_STATE_VALUES_IN_GRAPH = False
+
 SAVE_TRAINING_STATS = True
+SAVE_TABLES = False
+
 
 class AgentVanillaRL(Domain.AgentClass):
 
@@ -43,13 +47,14 @@ class AgentVanillaRL(Domain.AgentClass):
     def select_action(self):
         return self.algorithm.select_action(self.state)
     
+    def get_board_value(self, board_str):
+        return self.algorithm.get_board_value(board_str)
+    
     def pause_learning(self):
-        if self.algorithm is not None:
-            self.algorithm.pause_learning()
+        self.algorithm.pause_learning()
 
     def resume_learning(self):
-        if self.algorithm is not None:
-            self.algorithm.resume_learning()
+        self.algorithm.resume_learning()
     
 #    def save_learning_state(self):
 #        if self.algorithm is not None:
@@ -157,6 +162,31 @@ class SarsaLambda(object):
                 
         return action
 
+    def get_board_value(self, board_str):
+        INVALID_ACTION_VALUE = -2
+        sum_values = 0.0
+        count = 0
+        for roll in Domain.DieClass.SIDES:
+            state_str = board_str + ('-%d' % roll)
+            action_values = []
+            for action in Domain.ActionClass.ALL_ACTIONS:
+                action_value = self.Q.get((state_str, action), INVALID_ACTION_VALUE)
+                # insert a random number to break the ties
+                action_values.append(((action_value, random.random()), action))
+                
+            action_values_sorted = sorted(action_values, reverse=True)
+            best_action_value = action_values_sorted[0][0][0]
+
+            if best_action_value != INVALID_ACTION_VALUE:
+                sum_values += best_action_value
+                count += 1
+        
+        if count == 0:
+            return INVALID_ACTION_VALUE
+        else:
+            return sum_values / count    
+        
+    
     def update_values(self, delta):
         alpha = self.alpha
         for (si, ai) in self.e.iterkeys():
@@ -262,17 +292,22 @@ if __name__ == '__main__':
 #                    count_wins[1], NUM_ITERATIONS)
     print 'Win ratio: %.2f against the opponent.' % (float(count_wins[0]) / NUM_ITERATIONS)
     
-    
-#    # evaluate against random
-#    agent_rl.pause_learning()
-#    agent_opponent = Domain.AgentRandomClass()
-#    game_set = Domain.GameSetClass(NUM_FINAL_EVAL, agent_rl, agent_opponent, 
-#                                   p, reentry_offset)
-#    count_wins = game_set.run()
-##    print 'Won %d out of %d games against random agent.' % (
-##                    count_wins[1], NUM_ITERATIONS)
-#    print 'Win ratio: %.2f against the opponent.' % (float(count_wins[0]) / NUM_FINAL_EVAL)
-
     if SAVE_TABLES:
         agent_rl.algorithm.save_knowledge()
 #    agent_rl.algorithm.print_values()
+
+    if SAVE_STATE_VALUES_IN_GRAPH and exp_params.is_graph_based():
+        print 'Saving state values...'
+        Domain.StateClass.copy_state_values_to_graph(exp_params, agent_rl)
+    
+    if TRAIN_AGAINST_SELF:
+        # evaluate against random
+        agent_rl.pause_learning()
+        agent_opponent = Domain.AgentRandomClass()
+        game_set = GameSet(Domain, exp_params, NUM_FINAL_EVAL,
+                           agent_rl, agent_opponent)
+        count_wins = game_set.run()
+    #    print 'Won %d out of %d games against random agent.' % (
+    #                    count_wins[1], NUM_ITERATIONS)
+        print 'Win ratio: %.2f against the opponent.' % (float(count_wins[0]) / NUM_FINAL_EVAL)
+

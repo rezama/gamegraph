@@ -4,6 +4,8 @@ Created on Dec 13, 2011
 @author: reza
 '''
 from common import NUM_TRIALS
+import os
+import gzip
 
 def compute_average(basename):
     print 'Processing %s...' % basename
@@ -14,13 +16,19 @@ def compute_average(basename):
     num_existing = 0
     for t in range(NUM_TRIALS):
         datafile = '../data/trials/%s-%d.txt' % (basename, t)
-
-#        print 'Reading values from %s' % datafile
+        datafile_gz = datafile + '.gz'
+        print 'Reading values from %s' % datafile
         try:
-            f = open(datafile, 'r')
+            if os.path.isfile(datafile_gz):
+                f = gzip.open(datafile_gz, 'r')
+            else:
+                f = open(datafile, 'r')
+                
             for line in f:
                 line_stripped = line.rstrip()
                 two_values = line_stripped.split()
+#                if len(two_values) != 2:
+#                    print 'file %s, bad line: %s' % (datafile, line)
                 key = int(two_values[0])
                 value = float(two_values[1])
                 table[key] = table.get(key, 0) + value
@@ -55,8 +63,15 @@ if __name__ == '__main__':
 #                for ergo in ['0', '10', '20', '30', '40', '50', '60', '70', '80', '90', '100']:
 #                    basename = '%s-%s-graph-%s-ergo%s' % (alg, game, graph, ergo)
 #                    compute_average(basename)
-    for alg in ['td', 'rl']:
-        for game in ['minigammon']:
-            for graph in ['base', 'base-0back', 'base-0hit', 'base-50back', 'base-50hit']:
-                basename = '%s-%s-graph-%s' % (alg, game, graph)
-                compute_average(basename)
+#    for alg in ['td', 'rl']:
+#        for game in ['minigammon']:
+#            for graph in ['base', 'base-0back', 'base-0hit', 'base-50back', 'base-50hit']:
+#                basename = '%s-%s-graph-%s' % (alg, game, graph)
+#                compute_average(basename)
+    for alg in ['rl']:
+        for game in ['midgammon']:
+            for graph in ['base']:
+                for ergo in ['0', '10', '20', '30', '40', '50', '60', '70', '80', '90', '100']:
+                    for exp in ['back', 'hit']:
+                        basename = '%s-%s-graph-%s-%s%s' % (alg, game, graph, ergo, exp)
+                        compute_average(basename)

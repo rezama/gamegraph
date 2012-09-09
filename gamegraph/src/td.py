@@ -3,7 +3,7 @@ Created on Dec 9, 2011
 
 @author: reza
 '''
-from minigammon import Domain
+from midgammon import Domain
 
 import pickle
 import random
@@ -17,7 +17,7 @@ from common import Experiment, PLAYER_WHITE, GameSet, other_player, REWARD_LOSE,
 #NUM_ITERATIONS = 200
 #NUM_TRAINING_GAMES = 16 # 64
 #NUM_EVAL_GAMES = 1024
-NUM_ITERATIONS = 100
+NUM_ITERATIONS = 200
 NUM_TRAINING_GAMES = 16 # 64
 NUM_EVAL_GAMES = 512
 

@@ -6,6 +6,7 @@ Created on Dec 11, 2011
 import sys
 import copy
 import random
+import gzip
 
 NUM_STATS_GAMES = 10000
 
@@ -25,6 +26,8 @@ RECENT_WINNERS_LIST_SIZE = 3000
 
 RECORD_GRAPH = False
 GENERATE_GRAPH_REPORT_EVERY = 1000
+
+USE_GZIP = True
 
 #----------------------------------------------------------------------------
 
@@ -147,7 +150,10 @@ class GameSet(object):
     
     def run(self):
         if self.progress_filename is not None:
-            f = open(self.progress_filename, 'w')
+            if USE_GZIP:
+                f = gzip.open(self.progress_filename + '.gz', 'w')
+            else:
+                f = open(self.progress_filename, 'w')
 
         game_series_size = 1
         if ALTERNATE_SEATS:
@@ -229,6 +235,10 @@ class ExpParams:
             return '%s-%s' % (self.exp, self.graph_name)
         else:
             return 'invalidexp'
+        
+    def is_graph_based(self):
+        return (self.graph_name is not None)
+
         
 class Experiment:
     

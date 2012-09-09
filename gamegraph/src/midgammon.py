@@ -13,7 +13,7 @@ from common import Experiment, COLLECT_STATS, RECORD_GRAPH, POS_ATTR,\
     GENERATE_GRAPH_REPORT_EVERY
 from state_graph import StateGraph
 
-HIDDEN_UNITS = 10
+HIDDEN_UNITS = 20
 
 class MidGammonDie(object):
     SIDES = [1, 2, 3, 4]
@@ -322,6 +322,13 @@ class MidGammonState(object):
                                     Q.put((sp_key, sp_pos, sp_color))
                                     is_state_queued[sp_key] = True
         return g
+
+    @classmethod
+    def copy_state_values_to_graph(cls, exp_params, agent_rl):
+        cls.GAME_GRAPH.transfer_state_values(agent_rl)
+        new_graph_filename = '../graph/%s-%s-augmented' % (Domain.name,
+                                    exp_params.get_file_suffix_no_trial())
+        cls.GAME_GRAPH.save_to_file(new_graph_filename)
 
     def __fix_checker_orders(self):
 #        pairs = [(0, 1), (0, 2), (0, 3), (1, 2), (1, 3), (2, 3)]
