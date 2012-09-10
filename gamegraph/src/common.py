@@ -22,12 +22,13 @@ ALTERNATE_SEATS = True
 #ALTERNATE_SEATS = False
 USE_SEEDS = ALTERNATE_SEATS
 
-RECENT_WINNERS_LIST_SIZE = 3000
+GAMESET_RECENT_WINNERS_LIST_SIZE = 3000
+GAMESET_PROGRESS_REPORT_EVERY = 100
+GAMESET_PROGRESS_REPORT_USE_GZIP = True
 
 RECORD_GRAPH = False
 GENERATE_GRAPH_REPORT_EVERY = 1000
 
-USE_GZIP = True
 
 #----------------------------------------------------------------------------
 
@@ -150,7 +151,7 @@ class GameSet(object):
     
     def run(self):
         if self.progress_filename is not None:
-            if USE_GZIP:
+            if GAMESET_PROGRESS_REPORT_USE_GZIP:
                 f = gzip.open(self.progress_filename + '.gz', 'w')
             else:
                 f = open(self.progress_filename, 'w')
@@ -189,18 +190,19 @@ class GameSet(object):
                 winner = other_player(winner)
             count_wins[winner] += 1
             if self.print_learning_progress:
-                if len(recent_winners) > RECENT_WINNERS_LIST_SIZE - 1:
+                if len(recent_winners) > GAMESET_RECENT_WINNERS_LIST_SIZE - 1:
                     recent_winners.pop(0)
                 recent_winners.append(winner)
             if PRINT_GAME_RESULTS:
                 print 'Game %2d won by %s in %2d plies' % (game_number, 
                                         PLAYER_NAME[winner], game.count_plies)
             if self.print_learning_progress:
-                win_ratio = float(recent_winners.count(0)) / len(recent_winners)
-                print 'Played game %2d, recent win ratio: %.2f' % (game_number, 
-                                                                   win_ratio) 
-                if self.progress_filename is not None:
-                    f.write('%d %f\n' % (game_number, win_ratio))
+                if game_number % GAMESET_PROGRESS_REPORT_EVERY == 0:
+                    win_ratio = float(recent_winners.count(0)) / len(recent_winners)
+                    print 'Played game %2d, recent win ratio: %.2f' % (
+                                                    game_number, win_ratio) 
+                    if self.progress_filename is not None:
+                        f.write('%d %f\n' % (game_number, win_ratio))
             self.sum_count_plies += game.get_count_plies()
 #            player_to_start_game = other_player(player_to_start_game)
             
