@@ -27,8 +27,8 @@ def compute_average(basename):
             for line in f:
                 line_stripped = line.rstrip()
                 two_values = line_stripped.split()
-#                if len(two_values) != 2:
-#                    print 'file %s, bad line: %s' % (datafile, line)
+                if len(two_values) != 2:
+                    print 'file %s, bad line: %s' % (datafile, line)
                 key = int(two_values[0])
                 value = float(two_values[1])
                 table[key] = table.get(key, 0) + value
