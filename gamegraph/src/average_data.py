@@ -7,6 +7,20 @@ from common import NUM_TRIALS
 import os
 import gzip
 
+def compute_all():
+    processed_bases = []
+    for (dirpath, dirname, filenames) in os.walk('../data/trials/'): #@UnusedVariable
+        for filename in filenames:
+            filename = filename.replace('.gz', '') # remove .gz extension
+            filename = filename.replace('.txt', '') # remove .txt extension
+            filename = filename[:filename.rfind('-')] # remove trial
+            basename = filename
+            if basename not in processed_bases:
+                processed_bases.append(basename)
+                compute_average(basename)
+        break
+    
+
 def compute_average(basename):
     print 'Processing %s...' % basename
     
@@ -44,6 +58,36 @@ def compute_average(basename):
     favg.close()
     
 if __name__ == '__main__':
+    
+    compute_all()
+    
+#    for alg in ['td']:
+#        for game in ['nohitgammon']:
+#            for graph in ['base', 'base-0back']:
+#                basename = '%s-%s-graph-%s' % (alg, game, graph)
+#                compute_average(basename)
+
+#    for alg in ['rl']:
+#        for game in ['midgammon']:
+#            for graph in ['base']:
+#                for ergo in ['0', '10', '20', '30', '40', '50', '60', '70', '80', '90', '100']:
+#                    for exp in ['back', 'hit']:
+#                        basename = '%s-%s-graph-%s-%s%s' % (alg, game, graph, ergo, exp)
+#                        compute_average(basename)
+
+#        for game in ['minigammon']:
+#            for graph in ['base']:
+#                for ergo in ['0', '10', '20', '30', '40', '50', '60', '70', '80', '90', '100']:
+#                    basename = '%s-%s-graph-%s-ergo%s' % (alg, game, graph, ergo)
+#                    compute_average(basename)
+
+#    for alg in ['td']:
+#        for game in ['midgammon']:
+#            for graph in ['d4s8']:
+#                for ergo in ['0', '10', '20', '30', '40', '50', '60', '70', '80', '90', '100']:
+#                    basename = '%s-%s-graph-%s-ergo%s' % (alg, game, graph, ergo)
+#                    compute_average(basename)
+
 #    for alg in ['td', 'hc', 'hc-challenge']:
 #        for game in ['minigammon', 'nannon']:
 #            for p in ['1.00', '0.75', '0.50', '0.25', '0.00']:
@@ -52,26 +96,3 @@ if __name__ == '__main__':
 #            for offset in ['0', '1', '2', '3', '4', '5', '6']:
 #                basename = '%s-%s-offset-%s' % (alg, game, offset)
 #                compute_average(basename)
-#    for alg in ['td']:
-#        for game in ['midgammon']:
-#            for graph in ['d4s8']:
-#                for ergo in ['0', '10', '20', '30', '40', '50', '60', '70', '80', '90', '100']:
-#                    basename = '%s-%s-graph-%s-ergo%s' % (alg, game, graph, ergo)
-#                    compute_average(basename)
-#        for game in ['minigammon']:
-#            for graph in ['base']:
-#                for ergo in ['0', '10', '20', '30', '40', '50', '60', '70', '80', '90', '100']:
-#                    basename = '%s-%s-graph-%s-ergo%s' % (alg, game, graph, ergo)
-#                    compute_average(basename)
-#    for alg in ['td', 'rl']:
-#        for game in ['minigammon']:
-#            for graph in ['base', 'base-0back', 'base-0hit', 'base-50back', 'base-50hit']:
-#                basename = '%s-%s-graph-%s' % (alg, game, graph)
-#                compute_average(basename)
-    for alg in ['rl']:
-        for game in ['midgammon']:
-            for graph in ['base']:
-                for ergo in ['0', '10', '20', '30', '40', '50', '60', '70', '80', '90', '100']:
-                    for exp in ['back', 'hit']:
-                        basename = '%s-%s-graph-%s-%s%s' % (alg, game, graph, ergo, exp)
-                        compute_average(basename)
