@@ -8,25 +8,10 @@ from nohitgammon import Domain
 import random
 from common import Experiment, Game, GameSet
 import pickle
-
-GAMMA = 1.0
-ALPHA = 0.1
-EPSILON = 0.05
-LAMBDA = 0.90
-
-USE_ALPHA_ANNEALING = True
-MIN_ALPHA = 0.05
-
-NUM_ITERATIONS = 1024 * 200000
-NUM_FINAL_EVAL = 1024
-
-TRAIN_AGAINST_SELF = False
-
-SAVE_STATE_VALUES_IN_GRAPH = True
-
-SAVE_TRAINING_STATS = True
-SAVE_TABLES = False
-
+from params import RL_EPSILON, RL_LAMBDA, RL_ALPHA, RL_GAMMA,\
+    RL_USE_ALPHA_ANNEALING, RL_MIN_ALPHA, RL_TRAIN_AGAINST_SELF,\
+    RL_SAVE_TRIAL_DATA, RL_NUM_ITERATIONS, RL_SAVE_TABLES,\
+    RL_SAVE_STATE_VALUES_IN_GRAPH, RL_NUM_FINAL_EVAL
 
 class AgentVanillaRL(Domain.AgentClass):
 
@@ -71,10 +56,10 @@ class AgentVanillaRL(Domain.AgentClass):
 class SarsaLambda(object):
 
     def __init__(self):
-        self.epsilon = EPSILON
-        self.lamda = LAMBDA
-        self.alpha = ALPHA
-        self.gamma = GAMMA
+        self.epsilon = RL_EPSILON
+        self.lamda = RL_LAMBDA
+        self.alpha = RL_ALPHA
+        self.gamma = RL_GAMMA
         
         self.state_str = None
         self.last_state_str = None
@@ -190,16 +175,16 @@ class SarsaLambda(object):
     def update_values(self, delta):
         alpha = self.alpha
         for (si, ai) in self.e.iterkeys():
-            if USE_ALPHA_ANNEALING:
+            if RL_USE_ALPHA_ANNEALING:
                 alpha = 1.0 / self.visit_count.get((si, ai), 1)
-                alpha = max(alpha, MIN_ALPHA)
+                alpha = max(alpha, RL_MIN_ALPHA)
             if self.e[(si, ai)] != 0.0:
                 change = alpha * delta * self.e[(si, ai)]
                 self.Q[(si, ai)] = self.Q.get((si, ai), self.default_q) + change
                         
     
     def save_knowledge(self):
-        if TRAIN_AGAINST_SELF:
+        if RL_TRAIN_AGAINST_SELF:
             tabledir = 'vsself'
         else:
             tabledir = 'vsrandom'
@@ -210,7 +195,7 @@ class SarsaLambda(object):
         f.close()
 
     def load_knowledge(self):
-        if TRAIN_AGAINST_SELF:
+        if RL_TRAIN_AGAINST_SELF:
             tabledir = 'vsself'
         else:
             tabledir = 'vsrandom'
@@ -267,7 +252,7 @@ if __name__ == '__main__':
    
 #    random.seed(0)
     agent_rl = AgentVanillaRL()
-    if TRAIN_AGAINST_SELF:
+    if RL_TRAIN_AGAINST_SELF:
         agent_opponent = AgentVanillaRL()
     else:
         agent_opponent = Domain.AgentRandomClass()
@@ -278,36 +263,39 @@ if __name__ == '__main__':
 #    game_set = Domain.GameSetClass(NUM_ITERATIONS, agent_opponent, agent_rl, 
 #                                   p, reentry_offset,
 #                                   print_learning_progress = True)
-    if SAVE_TRAINING_STATS:
-        progress_filename = '../data/trials/rl-%s-%s.txt' % (Domain.name, exp_params.get_file_suffix())
+    if RL_SAVE_TRIAL_DATA:
+        progress_filename = '../data/trials/rl-%s-%s.txt' % (Domain.name, 
+                                                exp_params.get_file_suffix())
     else:
         progress_filename = None
     print 'Opponent is: %s' % agent_opponent
-    game_set = GameSet(Domain, exp_params, NUM_ITERATIONS,
+    game_set = GameSet(Domain, exp_params, RL_NUM_ITERATIONS,
                        agent_rl, agent_opponent, 
                        print_learning_progress = True,
                        progress_filename = progress_filename)
     count_wins = game_set.run()
 #    print 'Won %d out of %d games against random agent.' % (
 #                    count_wins[1], NUM_ITERATIONS)
-    print 'Win ratio: %.2f against the opponent.' % (float(count_wins[0]) / NUM_ITERATIONS)
+    print 'Win ratio: %.2f against the opponent.' % (float(count_wins[0]) / 
+                                                     RL_NUM_ITERATIONS)
     
-    if SAVE_TABLES:
+    if RL_SAVE_TABLES:
         agent_rl.algorithm.save_knowledge()
 #    agent_rl.algorithm.print_values()
 
-    if SAVE_STATE_VALUES_IN_GRAPH and exp_params.is_graph_based():
+    if RL_SAVE_STATE_VALUES_IN_GRAPH and exp_params.is_graph_based():
         print 'Saving state values...'
         Domain.StateClass.copy_state_values_to_graph(exp_params, agent_rl)
     
-    if TRAIN_AGAINST_SELF:
+    if RL_TRAIN_AGAINST_SELF:
         # evaluate against random
         agent_rl.pause_learning()
         agent_opponent = Domain.AgentRandomClass()
-        game_set = GameSet(Domain, exp_params, NUM_FINAL_EVAL,
+        game_set = GameSet(Domain, exp_params, RL_NUM_FINAL_EVAL,
                            agent_rl, agent_opponent)
         count_wins = game_set.run()
     #    print 'Won %d out of %d games against random agent.' % (
     #                    count_wins[1], NUM_ITERATIONS)
-        print 'Win ratio: %.2f against the opponent.' % (float(count_wins[0]) / NUM_FINAL_EVAL)
+        print 'Win ratio: %.2f against the opponent.' % (float(count_wins[0]) / 
+                                                         RL_NUM_FINAL_EVAL)
 

@@ -7,16 +7,10 @@ from minigammon import Domain
 
 import random
 from common import Experiment, PLAYER_WHITE, PLAYER_BLACK, GameSet
+from params import HC_RATIO_KEEP_CHAMPION_WEIGHTS, HC_MUTATE_WEIGHT_SIGMA,\
+    HC_NUM_GENERATIONS, HC_EVALUATE_EVERY_N_GENERATIONS, HC_NUM_EVAL_GAMES,\
+    HC_NUM_CHALLENGE_GAMES, HC_CHALLENGER_NEEDS_TO_WIN
 #from vanilla_rl import AgentVanillaRL
-
-NUM_GENERATIONS = 500
-NUM_CHALLENGE_GAMES = 8
-CHALLENGER_NEEDS_TO_WIN = 7
-NUM_EVAL_GAMES = 1024
-EVALUATE_EVERY = 10
-
-RATIO_KEEP_CHAMPION_WEIGHTS = 0.95
-MUTATE_WEIGHT_SIGMA = 0.22 # 0.05
 
 class AgentHC(Domain.AgentNeuralClass):
     
@@ -39,8 +33,8 @@ class AgentHC(Domain.AgentNeuralClass):
         return multiplier * network_out[0]
     
     def move_weights_toward(self, challenger):
-        ratio_challenger_weights = 1.0 - RATIO_KEEP_CHAMPION_WEIGHTS
-        self.network.params[:] = [RATIO_KEEP_CHAMPION_WEIGHTS * pair[0] +
+        ratio_challenger_weights = 1.0 - HC_RATIO_KEEP_CHAMPION_WEIGHTS
+        self.network.params[:] = [HC_RATIO_KEEP_CHAMPION_WEIGHTS * pair[0] +
                                   ratio_challenger_weights * pair[1]
                                   for pair in zip(self.network.params, 
                                                   challenger.network.params)]
@@ -48,15 +42,17 @@ class AgentHC(Domain.AgentNeuralClass):
     def mutate_challenger(self, challenger):
 #        challenger.network.params[:] = [random.gauss(w, w * MUTATE_WEIGHT_SIGMA)
 #                                     for w in self.network.params]
-        challenger.network.params[:] = [random.gauss(w, MUTATE_WEIGHT_SIGMA)
+        challenger.network.params[:] = [random.gauss(w, HC_MUTATE_WEIGHT_SIGMA)
                                      for w in self.network.params]
     
 if __name__ == '__main__':
     exp_params = Experiment.get_command_line_args()
    
-    eval_filename = '../data/trials/hc-%s-%s.txt' % (Domain.name, exp_params.get_file_suffix())
+    eval_filename = '../data/trials/hc-%s-%s.txt' % (Domain.name, 
+                                                exp_params.get_file_suffix())
     eval_f = open(eval_filename, 'w')
-    chal_filename = '../data/trials/hc-challenge-%s-%s.txt' % (Domain.name, exp_params.get_file_suffix())
+    chal_filename = '../data/trials/hc-challenge-%s-%s.txt' % (Domain.name, 
+                                                exp_params.get_file_suffix())
     chal_f = open(chal_filename, 'w')
     
     agent_champion = AgentHC();
@@ -65,17 +61,17 @@ if __name__ == '__main__':
 #    agent_opponent = AgentVanillaRL(load_knowledge = True)
     print 'Opponent is: %s' % agent_opponent
 
-    for generation_number in range(NUM_GENERATIONS):
+    for generation_number in range(HC_NUM_GENERATIONS):
         print 'Generation %d' % generation_number
         
-        if generation_number % EVALUATE_EVERY == 0: 
+        if generation_number % HC_EVALUATE_EVERY_N_GENERATIONS == 0: 
             print 'Evaluating against the opponent...'
-            game_set = GameSet(Domain, exp_params, NUM_EVAL_GAMES,
+            game_set = GameSet(Domain, exp_params, HC_NUM_EVAL_GAMES,
                                agent_champion, agent_opponent)
             count_wins = game_set.run()
-            ratio_win = float(count_wins[0]) / NUM_EVAL_GAMES
+            ratio_win = float(count_wins[0]) / HC_NUM_EVAL_GAMES
             print 'Win ratio: %.2f against opponent (out of %d games)' % (
-                            ratio_win, NUM_EVAL_GAMES)
+                            ratio_win, HC_NUM_EVAL_GAMES)
             eval_f.write('%d %f\n' % (generation_number, ratio_win))
             eval_f.flush()
         
@@ -86,12 +82,12 @@ if __name__ == '__main__':
             # update challenger to have Gaussian distribution around champion
 #            print 'Mutating challenger...'
             agent_champion.mutate_challenger(agent_challenger)
-            game_set = GameSet(Domain, exp_params, NUM_CHALLENGE_GAMES,
+            game_set = GameSet(Domain, exp_params, HC_NUM_CHALLENGE_GAMES,
                                agent_champion, agent_challenger)
             count_wins = game_set.run()
 #            print 'Challenger won %d out of %d games.' % (count_wins[1], NUM_CHALLENGE_GAMES)
             # if the champion loses more games than the challenger
-            if count_wins[PLAYER_BLACK] >= CHALLENGER_NEEDS_TO_WIN:
+            if count_wins[PLAYER_BLACK] >= HC_CHALLENGER_NEEDS_TO_WIN:
                 found_good_challenger = True
                 print 'Found with %d tries' % tries
                 chal_f.write('%d %d\n' % (generation_number, tries))

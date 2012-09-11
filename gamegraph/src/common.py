@@ -7,29 +7,10 @@ import sys
 import copy
 import random
 import gzip
-
-NUM_STATS_GAMES = 10000
-
-COLLECT_STATS = False
-SAVE_STATS = False
-
-PRINT_GAME_DETAIL = False
-PRINT_GAME_RESULTS = False
-#PRINT_GAME_DETAIL = True
-#PRINT_GAME_RESULTS = True
-
-ALTERNATE_SEATS = True
-#ALTERNATE_SEATS = False
-USE_SEEDS = ALTERNATE_SEATS
-
-GAMESET_RECENT_WINNERS_LIST_SIZE = 3000
-GAMESET_PROGRESS_REPORT_EVERY = 10000
-GAMESET_PROGRESS_REPORT_USE_GZIP = True
-
-RECORD_GRAPH = False
-GENERATE_GRAPH_REPORT_EVERY = 1000
-
-#----------------------------------------------------------------------------
+from params import RECORD_GRAPH, PRINT_GAME_DETAIL,\
+    GAMESET_PROGRESS_REPORT_USE_GZIP, ALTERNATE_SEATS, USE_SEEDS,\
+    GAMESET_RECENT_WINNERS_LIST_SIZE, PRINT_GAME_RESULTS,\
+    GAMESET_PROGRESS_REPORT_EVERY_N_GAMES, NUM_STATS_GAMES, SAVE_STATS, COLLECT_STATS
 
 PLAYER_WHITE = 0
 PLAYER_BLACK = 1
@@ -48,8 +29,6 @@ DEFAULT_P = 1.0
 DEFAULT_OFFSET = 0
 DEFAULT_GRAPH_NAME = None
 DEFAULT_TRIAL = 0
-
-NUM_TRIALS = 10
 
 EXP_BASE = 'base'
 EXP_P = 'p'
@@ -196,7 +175,7 @@ class GameSet(object):
                 print 'Game %2d won by %s in %2d plies' % (game_number, 
                                         PLAYER_NAME[winner], game.count_plies)
             if self.print_learning_progress:
-                if game_number % GAMESET_PROGRESS_REPORT_EVERY == 0:
+                if game_number % GAMESET_PROGRESS_REPORT_EVERY_N_GAMES == 0:
                     win_ratio = float(recent_winners.count(0)) / len(recent_winners)
                     print 'Played game %2d, recent win ratio: %.2f' % (
                                                     game_number, win_ratio) 

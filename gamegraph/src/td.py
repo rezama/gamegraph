@@ -12,24 +12,10 @@ from pybrain.datasets.supervised import SupervisedDataSet
 from pybrain.supervised.trainers.backprop import BackpropTrainer
 from common import Experiment, PLAYER_WHITE, GameSet, other_player, REWARD_LOSE,\
     REWARD_WIN
+from params import TD_LEARNING_RATE, TD_EPSILON, TD_LAMBDA, TD_ALPHA, TD_GAMMA,\
+    TD_TRAIN_EPOCHS, TD_USE_ALPHA_ANNEALING, TD_NUM_ITERATIONS,\
+    TD_NUM_EVAL_GAMES, TD_NUM_TRAINING_GAMES
 #from vanilla_rl import AgentVanillaRL
-
-#NUM_ITERATIONS = 200
-#NUM_TRAINING_GAMES = 16 # 64
-#NUM_EVAL_GAMES = 1024
-NUM_ITERATIONS = 300
-NUM_TRAINING_GAMES = 16 # 64
-NUM_EVAL_GAMES = 512
-
-GAMMA = 1.0
-ALPHA = 1.0
-EPSILON = 0.05
-LAMBDA = 0.7
-
-TRAIN_EPOCHS = 1
-LEARNING_RATE = 0.1
-
-USE_ALPHA_ANNEALING = False
 
 class AgentTD(Domain.AgentNeuralClass):
     
@@ -38,13 +24,13 @@ class AgentTD(Domain.AgentNeuralClass):
         super(AgentTD, self).__init__(2)
 
         self.trainer = BackpropTrainer(self.network, 
-                                       learningrate = LEARNING_RATE, 
+                                       learningrate = TD_LEARNING_RATE, 
                                        momentum = 0.0, verbose = False)
         
-        self.epsilon = EPSILON
-        self.lamda = LAMBDA
-        self.alpha = ALPHA
-        self.gamma = GAMMA
+        self.epsilon = TD_EPSILON
+        self.lamda = TD_LAMBDA
+        self.alpha = TD_ALPHA
+        self.gamma = TD_GAMMA
         
         self.state_str = None
         self.state_in = None
@@ -100,7 +86,7 @@ class AgentTD(Domain.AgentNeuralClass):
             return
         alpha = self.alpha
         for si in self.e.iterkeys():
-            if USE_ALPHA_ANNEALING:
+            if TD_USE_ALPHA_ANNEALING:
                 alpha = 1.0 / self.visit_count.get(si, 1)
             if self.e[si] != 0.0:
                 change = [alpha * e * self.e[si] for e in delta]
@@ -119,7 +105,7 @@ class AgentTD(Domain.AgentNeuralClass):
 #                current_value[0], current_value[1], new_value[0], new_value[1])
         if len(dataset) > 0:
             self.trainer.setData(dataset)
-            self.trainer.trainEpochs(TRAIN_EPOCHS)
+            self.trainer.trainEpochs(TD_TRAIN_EPOCHS)
 #        print '----'
         
     def get_state_value(self, state):
@@ -273,17 +259,17 @@ if __name__ == '__main__':
 #    agent_opponent = AgentVanillaRL(load_knowledge = True)
     print 'Opponent is: %s' % agent_opponent
 
-    for i in range(NUM_ITERATIONS):
+    for i in range(TD_NUM_ITERATIONS):
         print 'Iteration %d' % i
         print 'Evaluating against opponent...'
 
         agent_td1.pause_learning()        
 #        agent_td2.pause_learning()
         for agent in [agent_td1]:
-            game_set = GameSet(Domain, exp_params, NUM_EVAL_GAMES,
+            game_set = GameSet(Domain, exp_params, TD_NUM_EVAL_GAMES,
                                agent, agent_opponent)
             count_wins = game_set.run()
-            win_ratio = float(count_wins[0]) / NUM_EVAL_GAMES
+            win_ratio = float(count_wins[0]) / TD_NUM_EVAL_GAMES
             print 'Win ratio against the opponent: %.2f' % win_ratio
             f.write('%d %f\n' % (i, win_ratio))
         agent_td1.resume_learning()        
@@ -292,7 +278,7 @@ if __name__ == '__main__':
         print 'Training against self...'
 #        game_set = Domain.GameSetClass(NUM_TRAINING_GAMES, agent_td1, agent_td1,
 #                                       p, reentry_offset)
-        game_set = GameSet(Domain, exp_params, NUM_TRAINING_GAMES,
+        game_set = GameSet(Domain, exp_params, TD_NUM_TRAINING_GAMES,
                            agent_td1, agent_td1)
         count_wins = game_set.run()
 
