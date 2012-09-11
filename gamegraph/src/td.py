@@ -34,8 +34,8 @@ USE_ALPHA_ANNEALING = False
 class AgentTD(Domain.AgentNeuralClass):
     
     def __init__(self, load_knowledge = False):
-        super(AgentTD, self).__init__(2, init_weights = 0.15)
-#        super(AgentTD, self).__init__(2)
+#        super(AgentTD, self).__init__(2, init_weights = 0.15)
+        super(AgentTD, self).__init__(2)
 
         self.trainer = BackpropTrainer(self.network, 
                                        learningrate = LEARNING_RATE, 
