@@ -3,7 +3,7 @@ Created on Aug 22, 2012
 
 @author: reza
 '''
-from midgammon import Domain
+from nohitgammon import Domain
 
 from common import Experiment
 from state_graph import StateGraph
@@ -87,11 +87,15 @@ class GraphManipulator(object):
 if __name__ == '__main__':
     exp_params = Experiment.get_command_line_args()
 
-#    g = GraphManipulator.generate_graph(exp_params)
-    g = GraphManipulator.load_graph(exp_params)
-    GraphManipulator.create_back_range(exp_params, g)
-    g = GraphManipulator.load_graph(exp_params)
-    GraphManipulator.create_hit_range(exp_params, g)
+    g = GraphManipulator.generate_graph(exp_params)
+#    g = GraphManipulator.load_graph(exp_params)
+    GraphManipulator.trim_back_edges(exp_params, g)
+
+##    g = GraphManipulator.generate_graph(exp_params)
+#    g = GraphManipulator.load_graph(exp_params)
+#    GraphManipulator.create_back_range(exp_params, g)
+#    g = GraphManipulator.load_graph(exp_params)
+#    GraphManipulator.create_hit_range(exp_params, g)
     
 #    g = GraphManipulator.load_graph(exp_params)
 #    g.compute_bfs()
