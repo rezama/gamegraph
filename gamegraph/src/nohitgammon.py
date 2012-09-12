@@ -14,22 +14,24 @@ from common import Experiment, COLLECT_STATS, POS_ATTR, PLAYER_BLACK, \
 from params import GENERATE_GRAPH_REPORT_EVERY_N_STATES, RECORD_GRAPH
 from state_graph import StateGraph
 
-HIDDEN_UNITS = 10
+HIDDEN_UNITS = 20
 
 class NohitGammonDie(object):
-    SIDES = [1, 2]
+    SIDES = [1, 2, 3]
     
     @classmethod
     def roll(cls):
         return random.choice(cls.SIDES)
 
 class NohitGammonAction(object):
+    NUM_CHECKERS = 4
     ACTION_CHECKER1 = 0
     ACTION_CHECKER2 = 1
-    ACTION_FORFEIT_MOVE = 2
-    ALL_CHECKERS = [ACTION_CHECKER1, ACTION_CHECKER2]
+    ACTION_CHECKER3 = 2
+    ACTION_CHECKER4 = 3
+    ACTION_FORFEIT_MOVE = 4
+    ALL_CHECKERS = range(NUM_CHECKERS)
     ALL_ACTIONS = ALL_CHECKERS + [ACTION_FORFEIT_MOVE]
-    NUM_CHECKERS = 2
     
     @classmethod
     def random_action(cls, state):
@@ -52,32 +54,38 @@ class NohitGammonAction(object):
 
 class NohitGammonState(object):
     
-    #        -->                           <--   
-    #   0      1   2   3   4   5   6   7   8      9
-    # +---+  +---+---+---+---+---+---+---+---+  +---+
-    # |   |  |ww |   |   |   |   |   |   | bb|  |   |
-    # +---+  +---+---+---+---+---+---+---+---+  +---+
-    #  Bar                                       Off
+    #        -->                                           <--   
+    #   0      1   2   3   4   5   6   7   8   9  10  11  12     13
+    # +---+  +---+---+---+---+---+---+---+---+---+---+---+---+  +---+
+    # |   |  |ww |ww |   |   |   |   |   |   |   |   | bb| bb|  |   |
+    # +---+  +---+---+---+---+---+---+---+---+---+---+---+---+  +---+
+    #  Bar                                                       Off
     #      
     
     CHECKER1 = 0
     CHECKER2 = 1
-    FORFEIT_MOVE = 2
-    NUM_CHECKERS = 2
+    CHECKER3 = 2
+    CHECKER4 = 3
+    CHECKERS = [CHECKER1, CHECKER2, CHECKER3, CHECKER4]
+    FORFEIT_MOVE = 4
+    NUM_CHECKERS = 4
         
     CHECKER_NAME = {}
-    CHECKER_NAME[CHECKER1] = 'back'
-    CHECKER_NAME[CHECKER2] = 'front'
+    CHECKER_NAME[CHECKER1] = 'first'
+    CHECKER_NAME[CHECKER2] = 'second'
+    CHECKER_NAME[CHECKER3] = 'third'
+    CHECKER_NAME[CHECKER4] = 'fourth'
     CHECKER_NAME[FORFEIT_MOVE] = 'no'
 
-    BOARD_SIZE   = 9
+    BOARD_SIZE   = 8
     BOARD_MID    = BOARD_SIZE / 2 # 4
     
     BOARD_BAR    = 0              # 0
     BOARD_START  = 1              # 1
-    BOARD_END    = BOARD_SIZE     # 8
-    BOARD_OFF    = BOARD_SIZE + 1 # 9
-    
+    BOARD_START2 = 2              # 2
+    BOARD_END    = BOARD_SIZE     # 12
+    BOARD_OFF    = BOARD_SIZE + 1 # 13
+        
     # stats updated per move
     states_visit_count = {}
     states_visit_history = {}
@@ -94,12 +102,13 @@ class NohitGammonState(object):
     states_sorted_by_ply_visit_count_over_avg_num_plies = []
 
     # graph
-    RECORD_GAME_GRAPH = StateGraph(NohitGammonDie.SIDES, 1, NohitGammonAction.ALL_ACTIONS)
+    RECORD_GAME_GRAPH = StateGraph(NohitGammonDie.SIDES, 1,
+                                   NohitGammonAction.ALL_ACTIONS)
     GAME_GRAPH = None
     
     def __init__(self, exp_params, player_to_move):
-        self.pos = [[self.BOARD_START, self.BOARD_START],
-                    [self.BOARD_START, self.BOARD_START]]
+        self.pos = [[self.BOARD_START, self.BOARD_START, self.BOARD_START2, self.BOARD_START2],
+                    [self.BOARD_START, self.BOARD_START, self.BOARD_START2, self.BOARD_START2]]
         self.exp_params = exp_params
         self.player_to_move = player_to_move
 
@@ -135,7 +144,8 @@ class NohitGammonState(object):
             if (checker == NohitGammonAction.ACTION_FORFEIT_MOVE) and not success:
                 self.GAME_GRAPH.set_as_sink(self.current_g_id, 
                                             other_player(self.player_to_move))
-                print "Encountered unexplored graph node: %s" % self.GAME_GRAPH.get_node_name(self.current_g_id)
+                print "Encountered unexplored graph node: %s" % \
+                        self.GAME_GRAPH.get_node_name(self.current_g_id)
                 print "Marking as final."
         else:
             if checker == NohitGammonAction.ACTION_FORFEIT_MOVE:
@@ -143,11 +153,12 @@ class NohitGammonState(object):
             else:
                 player = self.player_to_move
                 checker_pos = self.pos[player][checker]
-                other_checker = NohitGammonAction.next_checker(checker)
-                other_checker_pos = self.pos[player][other_checker]
+#                other_checker = NohitGammonAction.next_checker(checker)
+#                other_checker_pos = self.pos[player][other_checker]
                 opponent = other_player(player)
-                opponent_actual_checker1_pos = self.flip_pos(self.pos[opponent][self.CHECKER1])
-                opponent_actual_checker2_pos = self.flip_pos(self.pos[opponent][self.CHECKER2])
+#                opponent_actual_checker1_pos = self.flip_pos(self.pos[opponent][self.CHECKER1])
+#                opponent_actual_checker2_pos = self.flip_pos(self.pos[opponent][self.CHECKER2])
+                opponent_actual_checker_pos = [self.BOARD_OFF - x for x in self.pos[opponent]]
                 
                 checker_target = checker_pos + self.roll
         
@@ -163,12 +174,19 @@ class NohitGammonState(object):
                 if checker_target > self.BOARD_OFF:
                     checker_target = self.BOARD_OFF
                     
-                # if both checkers from opponent sit together                                
+                # if both checkers from opponent sit together
+#                opponent_has_block = (opponent_actual_checker1_pos == opponent_actual_checker2_pos) and\
+#                                     (opponent_actual_checker1_pos != self.BOARD_OFF)
+#                
+#                hitting_opponent = (opponent_actual_checker1_pos == checker_target) or \
+#                                   (opponent_actual_checker2_pos == checker_target)
+                hitting_opponent = (checker_target != self.BOARD_OFF) and \
+                        (opponent_actual_checker_pos.count(checker_target) >= 1)
+                
+                # illegal move conditions
                 moving_bourne_off_checker = (checker_pos == self.BOARD_OFF)
                 premature_bear_off = (checker_target > self.BOARD_END) and \
-                        (other_checker_pos <= self.BOARD_MID)
-                hitting_opponent = (checker_target == opponent_actual_checker1_pos) or \
-                                   (checker_target == opponent_actual_checker2_pos)
+                        (min(self.pos[player]) <= self.BOARD_MID)
                 
                 is_illegal_move = (moving_bourne_off_checker or
                                    premature_bear_off or
@@ -178,8 +196,9 @@ class NohitGammonState(object):
                     success = True
                     # move checker
                     self.pos[player][checker] = checker_target
+                    # hit if checker from opponent is there
                     self.__fix_checker_orders()
-                        
+            
         if success:
             self.switch_turn()
             if RECORD_GRAPH and not self.is_graph_based:
@@ -194,14 +213,18 @@ class NohitGammonState(object):
     
     def get_move_outcome(self, checker):
         if self.shadow is None:
-            self.shadow = NohitGammonState(self.exp_params, self.player_to_move) 
+            self.shadow = NohitGammonState(self.exp_params, self.player_to_move)
         else:
             self.shadow.player_to_move = self.player_to_move
         self.shadow.roll = self.roll
         self.shadow.pos[0][0] = self.pos[0][0]
         self.shadow.pos[0][1] = self.pos[0][1]
+        self.shadow.pos[0][2] = self.pos[0][2]
+        self.shadow.pos[0][3] = self.pos[0][3]
         self.shadow.pos[1][0] = self.pos[1][0]
         self.shadow.pos[1][1] = self.pos[1][1]
+        self.shadow.pos[1][2] = self.pos[1][2]
+        self.shadow.pos[1][3] = self.pos[1][3]
         self.shadow.current_g_id = self.current_g_id
         # move shadow
 #        print 'Self before move: %s' % self.pos
@@ -230,23 +253,25 @@ class NohitGammonState(object):
         if self.is_graph_based:
             return (self.GAME_GRAPH.get_sink_color(self.current_g_id) == player)
         else:
-            checker1_pos = self.pos[player][self.CHECKER1]
-            checker2_pos = self.pos[player][self.CHECKER2]
-            return (checker1_pos == self.BOARD_OFF) and \
-                   (checker2_pos == self.BOARD_OFF)
+#            checker1_pos = self.pos[player][self.CHECKER1]
+#            checker2_pos = self.pos[player][self.CHECKER2]
+#            return (checker1_pos == self.BOARD_OFF) and \
+#                   (checker2_pos == self.BOARD_OFF)
+            sum_checker_pos = sum(self.pos[player])
+            return (sum_checker_pos == self.NUM_CHECKERS * self.BOARD_OFF)
     
     @classmethod
     def flip_pos(cls, pos):
         return cls.BOARD_OFF - pos
-
+    
     @classmethod
     def generate_graph(cls, exp_params):
         print 'Generating graph...'
         g = StateGraph(NohitGammonDie.SIDES, 1, NohitGammonAction.ALL_ACTIONS)
         s = NohitGammonState(exp_params, PLAYER_WHITE)
         s_key = s.board_config()
-        s_pos = [[s.pos[0][0], s.pos[0][1]],
-                 [s.pos[1][0], s.pos[1][1]]]
+        s_pos = [[s.pos[0][0], s.pos[0][1], s.pos[0][2], s.pos[0][3]],
+                 [s.pos[1][0], s.pos[1][1], s.pos[1][2], s.pos[1][3]]]
         s_color = s.player_to_move
         s_id = g.add_node(s_key, s_color)
         g.set_attr(s_id, POS_ATTR, s_pos)
@@ -278,8 +303,8 @@ class NohitGammonState(object):
                                 sp_id = g.get_node_id(sp_key)
                                 g.add_edge(s_id, roll, action, sp_id)
                             else:
-                                sp_pos = [[sp.pos[0][0], sp.pos[0][1]],
-                                          [sp.pos[1][0], sp.pos[1][1]]]
+                                sp_pos = [[sp.pos[0][0], sp.pos[0][1], sp.pos[0][2], sp.pos[0][3]],
+                                          [sp.pos[1][0], sp.pos[1][1], sp.pos[1][2], sp.pos[1][3]]]
                                 sp_color = sp.player_to_move
                                 sp_id = g.add_node(sp_key, sp_color)
                                 g.set_attr(sp_id, POS_ATTR, sp_pos)
@@ -297,29 +322,30 @@ class NohitGammonState(object):
         new_graph_filename = '../graph/%s-%s-augmented' % (Domain.name,
                                     exp_params.get_file_suffix_no_trial())
         cls.GAME_GRAPH.save_to_file(new_graph_filename)
-        
+
     def __fix_checker_orders(self):
+#        pairs = [(0, 1), (0, 2), (0, 3), (1, 2), (1, 3), (2, 3)]
         for player in [PLAYER_WHITE, PLAYER_BLACK]:
-            if self.pos[player][self.CHECKER1] > self.pos[player][self.CHECKER2]:
-                (self.pos[player][self.CHECKER1], self.pos[player][self.CHECKER2]) = \
-                (self.pos[player][self.CHECKER2], self.pos[player][self.CHECKER1])
+#            for (ch1, ch2) in pairs:
+#                if self.pos[player][ch1] > self.pos[player][ch2]:
+#                    (self.pos[player][ch1], self.pos[player][ch2]) = \
+#                    (self.pos[player][ch2], self.pos[player][ch1])
+            self.pos[player].sort()
         
     def print_state(self):
-        
         encoding = self.encode()
-        
-        print '#   0      1   2   3   4   5   6   7   8      9  '
-        print '# +---+  +---+---+---+---+---+---+---+---+  +---+'
+        print '#   0       1    2    3    4    5    6    7    8    9    10   11   12      13  '
+        print '# +----+  +----+----+----+----+----+----+----+----+----+----+----+----+  +----+'
         print '# %s' % encoding
-        print '# +---+  +---+---+---+---+---+---+---+---+  +---+'
-        print '#                                                '
+        print '# +----+  +----+----+----+----+----+----+----+----+----+----+----+----+  +----+'
+        print '#                                                                              '
 
     def encode(self):
         if self.is_graph_based:
             return self.GAME_GRAPH.get_node_name(self.current_g_id)[2:]
         cell_content = [''] * (self.BOARD_OFF + 1)
         for player in [PLAYER_WHITE, PLAYER_BLACK]:
-            for checker in [self.CHECKER1, self.CHECKER2]:
+            for checker in self.CHECKERS:
                 pos = self.pos[player][checker]
                 if (player == PLAYER_BLACK):
                     pos = self.flip_pos(pos)
@@ -327,17 +353,13 @@ class NohitGammonState(object):
                 cell_content[pos] += letter
                 
         for pos in range(self.BOARD_OFF + 1):
-            if cell_content[pos] == 'ww':
-                cell_content[pos] = cell_content[pos].ljust(3)
-            elif cell_content[pos] == 'bb':
-                cell_content[pos] = cell_content[pos].rjust(3)
-            else:
-                cell_content[pos] = cell_content[pos].center(3)
+            cell_content[pos] = cell_content[pos].center(4)
 
+#        encoding = '|%s|  |%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|  |%s|' % (cell_content[0], cell_content[1], cell_content[2], cell_content[3], cell_content[4], cell_content[5], cell_content[6], cell_content[7], cell_content[8], cell_content[9], cell_content[10], cell_content[11], cell_content[12], cell_content[13])
         encoding = '|%s|  |%s|%s|%s|%s|%s|%s|%s|%s|  |%s|' % (cell_content[0], cell_content[1], cell_content[2], cell_content[3], cell_content[4], cell_content[5], cell_content[6], cell_content[7], cell_content[8], cell_content[9])
         return encoding
 
-    def __repr__(self):        
+    def __repr__(self):
         return self.encode()
     
     def __str__(self):
@@ -347,24 +369,25 @@ class NohitGammonState(object):
         if self.is_graph_based:
             return self.GAME_GRAPH.get_node_name(self.current_g_id)
         else:
-            return '%d-%d%d%d%d' % (self.player_to_move,
-                                self.pos[0][0], self.pos[0][1], 
-                                self.pos[1][0], self.pos[1][1])
+            return '%d-%d%d%d%d%d%d%d%d' % (self.player_to_move,
+                self.pos[0][0], self.pos[0][1], self.pos[0][2], self.pos[0][3], 
+                self.pos[1][0], self.pos[1][1], self.pos[1][2], self.pos[1][3])
 
     def board_config_and_roll(self):
         if self.is_graph_based:
             return self.GAME_GRAPH.get_node_name(self.current_g_id) + \
                 ('-%d' % self.roll)
         else:
-            return '%d-%d%d%d%d-%d' % (self.player_to_move,
-                                self.pos[0][0], self.pos[0][1], 
-                                self.pos[1][0], self.pos[1][1],
-                                self.roll)
+            return '%d-%d%d%d%d%d%d%d%d-%d' % (self.player_to_move,
+                self.pos[0][0], self.pos[0][1], self.pos[0][2], self.pos[0][3], 
+                self.pos[1][0], self.pos[1][1], self.pos[1][2], self.pos[1][3],
+                self.roll)
 
     def compute_per_ply_stats(self, current_ply_number):
         if COLLECT_STATS:
-            state = self.encode()
             # FIXME: change this to self.board_config()
+#            state = self.encode()
+            state = self.board_config()
             if state in self.states_visit_count:
                 self.states_visit_count[state] += 1
             else:
@@ -438,8 +461,8 @@ class NohitGammonAgentNeural(NohitGammonAgent):
     
     def __init__(self, outputdim, init_weights = None):
         super(NohitGammonAgentNeural, self).__init__()
-        self.inputdim = (NohitGammonState.BOARD_SIZE + 2) * 4   + 2
-        #               10 points: |1w |2w |1b |2b             |white's turn |black's turn
+        self.inputdim = (NohitGammonState.BOARD_SIZE + 2) * 8   + 2
+        #               |1w |2w |3w |4w |1b |2b |3b |4b       |white's turn |black's turn
         self.outputdim = outputdim
         self.hiddendim = HIDDEN_UNITS
         self.network = buildNetwork(self.inputdim, self.hiddendim, self.outputdim,
@@ -469,13 +492,11 @@ class NohitGammonAgentNeural(NohitGammonAgent):
         for player in [PLAYER_WHITE, PLAYER_BLACK]:
             for checker in NohitGammonAction.ALL_CHECKERS:
                 pos = state.pos[player][checker]
-                offset = pos * 4 + player * 2
+                offset = pos * 8 + player * 4
                 # Seeing a second checker on the same point?
-                if network_in[offset] == 1:
-#                    network_in[offset] = 0
-                    network_in[offset + 1] = 1
-                else:
-                    network_in[offset] = 1
+                while network_in[offset] == 1:
+                    offset += 1
+                network_in[offset] = 1
         turn_offset = self.inputdim - 2
         network_in[turn_offset + state.player_to_move] = 1
         return network_in

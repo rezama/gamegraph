@@ -3,7 +3,7 @@ Created on Dec 13, 2011
 
 @author: reza
 '''
-from common import NUM_TRIALS
+from params import NUM_TRIALS
 import os
 import gzip
 
