@@ -1,7 +1,7 @@
 
 set terminal postscript eps color
 
-set output "../plots/td/td-midgammon-base-back.eps"
+set output "./plots/td/td-midgammon-base-back.eps"
 set xlabel "Iteration (16 training games each)"
 set ylabel "Wins against Random Agent"
 #set yrange [0:1900]
@@ -11,7 +11,7 @@ plot "../data/avg/td-midgammon-graph-base-0back.txt" using 1:2 with lines title 
      "../data/avg/td-midgammon-graph-base-80back.txt" using 1:2 with lines title "80% back edges", \
      "../data/avg/td-midgammon-graph-base-100back.txt" using 1:2 with lines title "100% back edges"
 
-set output "../plots/td/td-midgammon-base-hit.eps"
+set output "./plots/td/td-midgammon-base-hit.eps"
 set xlabel "Iteration (16 training games each)"
 set ylabel "Wins against Random Agent"
 #set yrange [0:1900]

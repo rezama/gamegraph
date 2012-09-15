@@ -3,7 +3,7 @@ Created on Aug 22, 2012
 
 @author: reza
 '''
-from midgammon import Domain
+from minigammon import Domain
 
 from common import Experiment
 from state_graph import StateGraph
@@ -12,21 +12,21 @@ class GraphManipulator(object):
     
     @classmethod
     def load_graph(cls, exp_params):
-        graph_filename = exp_params.get_graph_filename()
+        graph_filename = exp_params.get_graph_filename(Domain.name)
         g = StateGraph.load_from_file(graph_filename)
         return g
 
     @classmethod
     def generate_graph(cls, exp_params):
         g = Domain.StateClass.generate_graph(exp_params)
-        graph_filename = exp_params.get_graph_filename()
+        graph_filename = exp_params.get_graph_filename(Domain.name)
         g.print_stats()
         g.save_to_file(graph_filename)
         return g
 
     @classmethod
     def trim_back_edges(cls, exp_params, g, prob_keep = 0.0):
-        new_graph_filename = exp_params.get_graph_filename() + \
+        new_graph_filename = exp_params.get_graph_filename(Domain.name) + \
                 ('-%dback' % (prob_keep * 100))
         g.compute_bfs()
         g.trim_back_edges(prob_keep)
@@ -35,7 +35,7 @@ class GraphManipulator(object):
 
     @classmethod
     def trim_hit_edges(cls, exp_params, g, prob_keep = 0.0):
-        new_graph_filename = exp_params.get_graph_filename() + \
+        new_graph_filename = exp_params.get_graph_filename(Domain.name) + \
                 ('-%dhit' % (prob_keep * 100))
         g.trim_hit_edges(prob_keep)
         g.save_to_file(new_graph_filename)
@@ -56,7 +56,7 @@ class GraphManipulator(object):
 #        print prob_keep_range_inc
         
         for i in range(len(prob_keep_range)):
-            new_graph_filename = exp_params.get_graph_filename() + \
+            new_graph_filename = exp_params.get_graph_filename(Domain.name) + \
                     ('-%dback' % (prob_keep_range[i] * 100))
             g.trim_back_edges(prob_keep_range_inc[i])
             g.save_to_file(new_graph_filename)
@@ -78,7 +78,7 @@ class GraphManipulator(object):
 #        print prob_keep_range_inc
         
         for i in range(len(prob_keep_range)):
-            new_graph_filename = exp_params.get_graph_filename() + \
+            new_graph_filename = exp_params.get_graph_filename(Domain.name) + \
                     ('-%dhit' % (prob_keep_range[i] * 100))
             g.trim_hit_edges(prob_keep_range_inc[i])
             g.save_to_file(new_graph_filename)

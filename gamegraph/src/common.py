@@ -45,6 +45,8 @@ FOLDER_TRIALS = '../data/trials'
 FOLDER_AVG = '../data/avg'
 FOLDER_DOMAINSTATS = '../data/domainstats'
 FOLDER_GRAPH = '../graph'
+FOLDER_RLTABLE_VS_SELF = '../rl-table/vsself'
+FOLDER_RLTABLE_VS_RANDOM = '../rl-table/vsrandom'
 
 FILE_PREFIX_TD = 'td'
 FILE_PREFIX_HC = 'hc'
@@ -215,7 +217,7 @@ class ExpParams:
         self.graph_name = graph_name
         self.trial = trial
 
-    def get_filename_suffix(self):
+    def get_filename_suffix_with_trial(self):
         return self.get_file_suffix_no_trial() + ('-%d' % self.trial)
 
     def get_filename_suffix_no_trial(self):
@@ -230,18 +232,31 @@ class ExpParams:
         else:
             return 'invalidexp'
         
-    def get_trial_filename(self, file_prefix, domain_name):
-        filename = '%s/%s-%s-%s.txt' % (FOLDER_TRIALS, file_prefix, domain_name,
-                                        self.get_file_suffix())
+    def get_custom_filename_no_trial(self, folder, file_prefix, domain_name):
+        filename = '%s/%s-%s-%s.txt' % (folder, file_prefix, domain_name,
+                                        self.get_filename_suffix_no_trial()())
         return filename
         
-    def get_graph_filename(self, file_prefix, domain_name):
-        filename = '%s/%s-%s-%s.txt' % (FOLDER_GRAPH, file_prefix, domain_name,
-                                        self.get_file_suffix_no_trial())
+    def get_custom_filename_with_trial(self, folder, file_prefix, domain_name):
+        filename = '%s/%s-%s-%s.txt' % (folder, file_prefix, domain_name,
+                                        self.get_filename_suffix_with_trial()())
+        return filename
+        
+    def get_trial_filename(self, file_prefix, domain_name):
+        filename = '%s/%s-%s-%s.txt' % (FOLDER_TRIALS, file_prefix, domain_name,
+                                        self.get_filename_suffix_with_trial())
+        return filename
+        
+    def get_graph_filename(self, domain_name):
+        filename = '%s/%s-%s' % (FOLDER_GRAPH, domain_name,
+                                 self.get_filename_suffix_no_trial())
         return filename
         
     def is_graph_based(self):
         return (self.graph_name is not None)
+    
+    def is_first_trial(self):
+        return self.trial == 0
 
         
 class Experiment:
@@ -302,6 +317,7 @@ class Experiment:
             record_graph = domain.StateClass.RECORD_GAME_GRAPH
             record_graph.print_stats()
             record_graph.adjust_probs()
+            filename = exp_params.get_graph_filename()
             filename = '../graph/%s-%s' % (domain.name, Experiment.get_file_suffix_no_trial())
             record_graph.save_to_file(filename)
         
@@ -313,69 +329,89 @@ class Experiment:
             
         if SAVE_STATS:
             # general info
-            filename = '../data/%s-%s-overall-stats.txt' % (domain.name, cls.get_file_suffix())
+#            filename = '../data/%s-%s-overall-stats.txt' % (domain.name, 
+#                                            cls.get_file_suffix_with_trial())
+            filename = exp_params.get_custom_filename_with_trial(FOLDER_DOMAINSTATS,
+                                            'overall-stats', domain.name)
             f = open(filename, 'w')
             
         avg_num_plies_per_game = float(total_plies) / num_games
-        print 'Games won by agent: %d, opponent: %d' % (count_wins[PLAYER_WHITE], count_wins[PLAYER_BLACK])
+        print 'Games won by agent: %d, opponent: %d' % (count_wins[PLAYER_WHITE], 
+                                                        count_wins[PLAYER_BLACK])
         print 'Average plies per game: %.2f' % avg_num_plies_per_game 
         if SAVE_STATS:
-            f.write('Games won by agent: %d, opponent: %d' % (count_wins[PLAYER_WHITE], count_wins[PLAYER_BLACK]))
+            f.write('Games won by agent: %d, opponent: %d' % (count_wins[PLAYER_WHITE],
+                                                              count_wins[PLAYER_BLACK]))
             f.write('Average plies per game: %.2f' % avg_num_plies_per_game) 
             
         if COLLECT_STATS:
             total_states_visited = len(domain.StateClass.states_visit_count)
             print 'Total number of states encountered: %d' % total_states_visited
-            print 'per 1000 plies: %.2f' % (float(total_states_visited) / avg_num_plies_per_game)
+            print 'per 1000 plies: %.2f' % (float(total_states_visited) / 
+                                            avg_num_plies_per_game)
             if SAVE_STATS:
                 f.write('Total number of states encountered: %d' % total_states_visited)
-                f.write('per 1000 plies: %.2f' % (float(total_states_visited) / avg_num_plies_per_game))
+                f.write('per 1000 plies: %.2f' % (float(total_states_visited) / 
+                                                  avg_num_plies_per_game))
             
             avg_visit_count_to_states = sum(domain.StateClass.states_visit_count.itervalues()) / float(total_states_visited)
             print 'Average number of visits to states: %.2f' % avg_visit_count_to_states
-            print 'per 1000 plies: %.2f' % (float(avg_visit_count_to_states) / avg_num_plies_per_game)
+            print 'per 1000 plies: %.2f' % (float(avg_visit_count_to_states) / 
+                                            avg_num_plies_per_game)
             if SAVE_STATS:
                 f.write('Average number of visits to states: %.2f' % avg_visit_count_to_states)
-                f.write('per 1000 plies: %.2f' % (float(avg_visit_count_to_states) / avg_num_plies_per_game))
+                f.write('per 1000 plies: %.2f' % (float(avg_visit_count_to_states) / 
+                                                  avg_num_plies_per_game))
             
-            var_visit_count_to_states = sum([(e - avg_visit_count_to_states) ** 2 for e in domain.StateClass.states_visit_count.itervalues()]) / float(total_states_visited) 
+            sum_squared_diffs = sum([(e - avg_visit_count_to_states) ** 2 
+                                     for e in domain.StateClass.states_visit_count.itervalues()])
+            var_visit_count_to_states =  sum_squared_diffs / float(total_states_visited) 
             print 'Variance of number of visits to states: %.2f' % var_visit_count_to_states
             if SAVE_STATS:
                 f.write('Variance of number of visits to states: %.2f' % var_visit_count_to_states)
             
             domain.StateClass.compute_overall_stats(avg_num_plies_per_game)
-            Experiment.save_stats(domain.StateClass, domain.name)        
+            Experiment.save_stats(domain.StateClass, domain, exp_params)        
     
         if SAVE_STATS:
             f.close()
 
     @classmethod
-    def save_stats(cls, state_class, domain_name):
+    def save_stats(cls, state_class, domain, exp_params):
         if not SAVE_STATS:
             return
     #    # visit counts to individual states        
     #    filename = '../data/states-visit-count-%1.2f.txt' % state_class.p
     #    f = open(filename, 'w')
-    #    for state, count_visits in sorted(state_class.states_visit_count.iteritems(), key=lambda (k,v): (v,k)):
+    #    for state, count_visits in sorted(state_class.states_visit_count.iteritems(), 
+    #                                      key=lambda (k,v): (v,k)):
     #        f.write('%s %d\n' % (state, count_visits))
     ##        print '%s: %d' % (state, count_visits)
     #    f.close()
     
         # number of states discovered by game
-        filename = '../data/%s-%s-games-discovered-states-count.txt' % (domain_name, cls.get_file_suffix())
+#        filename = '../data/%s-%s-games-discovered-states-count.txt' % (domain.name, cls.get_file_suffix_with_trial())
+        filename = exp_params.get_custom_filename_with_trial(FOLDER_DOMAINSTATS, 
+                    'games-discovered-states-count', domain.name)
         f = open(filename, 'w')
         for game_number in range(len(state_class.games_discovered_states_count)):
-            f.write('%d %d\n' % (game_number, state_class.games_discovered_states_count[game_number])) 
+            f.write('%d %d\n' % (game_number, 
+                                 state_class.games_discovered_states_count[game_number])) 
         f.close()
     
         # number of states discovered by game over average number of plies per game      
-        filename = '../data/%s-%s-games-discovered-states-count-over-avg-num-plies.txt' % (domain_name, cls.get_file_suffix())
+#        filename = '../data/%s-%s-games-discovered-states-count-over-avg-num-plies.txt' % (domain.name, cls.get_file_suffix_with_trial())
+        filename = exp_params.get_custom_filename_with_trial(FOLDER_DOMAINSTATS, 
+                    'games-discovered-states-count-over-avg-num-plies', domain.name)
         f = open(filename, 'w')
         for game_number in range(len(state_class.games_discovered_states_count_over_avg_num_plies)):
-            f.write('%d %f\n' % (game_number, state_class.games_discovered_states_count_over_avg_num_plies[game_number])) 
+            f.write('%d %f\n' % (game_number, 
+                                 state_class.games_discovered_states_count_over_avg_num_plies[game_number])) 
         f.close()
     
-        filename = '../data/%s-%s-games-new-discovered-states-count.txt' % (domain_name, cls.get_file_suffix())
+#        filename = '../data/%s-%s-games-new-discovered-states-count.txt' % (domain.name, cls.get_file_suffix_with_trial())
+        filename = exp_params.get_custom_filename_with_trial(FOLDER_DOMAINSTATS, 
+                    'games-new-discovered-states-count', domain.name)
         f = open(filename, 'w')
         for game_number in range(len(state_class.games_discovered_states_count)):
             newly_discovered_count = state_class.games_discovered_states_count[game_number]
@@ -385,7 +421,9 @@ class Experiment:
         f.close()
     
         # number of visits to game states sorted by first ply of visit    
-        filename = '../data/%s-%s-states-sorted-by-ply-visit-count.txt' % (domain_name, cls.get_file_suffix())
+#        filename = '../data/%s-%s-states-sorted-by-ply-visit-count.txt' % (domain.name, cls.get_file_suffix_with_trial())
+        filename = exp_params.get_custom_filename_with_trial(FOLDER_DOMAINSTATS, 
+                    'states-sorted-by-ply-visit-count', domain.name)
         f = open(filename, 'w')
         for i in range(len(state_class.states_sorted_by_ply_visit_count)):
             state_sorted_by_ply_visit_count = state_class.states_sorted_by_ply_visit_count[i]
@@ -393,7 +431,9 @@ class Experiment:
         f.close()        
     
         # same as above, over average num of plies per game   
-        filename = '../data/%s-%s-states-sorted-by-ply-visit-count-over-avg-num-plies.txt' % (domain_name, cls.get_file_suffix())
+#        filename = '../data/%s-%s-states-sorted-by-ply-visit-count-over-avg-num-plies.txt' % (domain.name, cls.get_file_suffix_with_trial())
+        filename = exp_params.get_custom_filename_with_trial(FOLDER_DOMAINSTATS, 
+                    'states-sorted-by-ply-visit-count-over-avg-num-plies', domain.name)
         f = open(filename, 'w')
         for i in range(len(state_class.states_sorted_by_ply_visit_count_over_avg_num_plies)):
             state_sorted_by_ply_visit_count_over_avg_num_plies = state_class.states_sorted_by_ply_visit_count_over_avg_num_plies[i]

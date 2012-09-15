@@ -11,7 +11,7 @@ import random
 from pybrain.datasets.supervised import SupervisedDataSet
 from pybrain.supervised.trainers.backprop import BackpropTrainer
 from common import Experiment, PLAYER_WHITE, GameSet, other_player, REWARD_LOSE,\
-    REWARD_WIN, FILE_PREFIX_TD, FOLDER_TRIALS
+    REWARD_WIN, FILE_PREFIX_TD
 from params import TD_LEARNING_RATE, TD_EPSILON, TD_LAMBDA, TD_ALPHA, TD_GAMMA,\
     TD_TRAIN_EPOCHS, TD_USE_ALPHA_ANNEALING, TD_NUM_ITERATIONS,\
     TD_NUM_EVAL_GAMES, TD_NUM_TRAINING_GAMES

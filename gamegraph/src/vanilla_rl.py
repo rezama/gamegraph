@@ -6,7 +6,8 @@ Created on Dec 10, 2011
 from nohitgammon import Domain
 
 import random
-from common import Experiment, Game, GameSet, FILE_PREFIX_RL, FOLDER_TRIALS
+from common import Experiment, Game, GameSet, FILE_PREFIX_RL, \
+    FOLDER_RLTABLE_VS_SELF, FOLDER_RLTABLE_VS_RANDOM
 import pickle
 from params import RL_EPSILON, RL_LAMBDA, RL_ALPHA, RL_GAMMA,\
     RL_USE_ALPHA_ANNEALING, RL_MIN_ALPHA, RL_TRAIN_AGAINST_SELF,\
@@ -183,24 +184,25 @@ class SarsaLambda(object):
                 self.Q[(si, ai)] = self.Q.get((si, ai), self.default_q) + change
                         
     
-    def save_knowledge(self):
+    def get_knowledge_filename(self):
         if RL_TRAIN_AGAINST_SELF:
-            tabledir = 'vsself'
+            table_folder = FOLDER_RLTABLE_VS_SELF
         else:
-            tabledir = 'vsrandom'
-        filename = '../rl-table/%s/%s-%s.txt' % (tabledir, Domain.name,
-                                                 exp_params.get_file_suffix())
+            table_folder = FOLDER_RLTABLE_VS_RANDOM
+#        filename = '../rl-table/%s/%s-%s.txt' % (table_folder, Domain.name,
+#                                                 exp_params.get_file_suffix())
+        filename = exp_params.get_custom_filename_no_trial(table_folder,
+                                                FILE_PREFIX_RL, Domain.name)
+        return filename
+    
+    def save_knowledge(self):
+        filename = self.get_knowledge_filename()
         f = open(filename, 'w')
         pickle.dump(self.Q, f)
         f.close()
 
     def load_knowledge(self):
-        if RL_TRAIN_AGAINST_SELF:
-            tabledir = 'vsself'
-        else:
-            tabledir = 'vsrandom'
-        filename = '../rl-table/%s/%s-%s.txt' % (tabledir, Domain.name, 
-                                                 exp_params.get_file_suffix())
+        filename = self.get_knowledge_filename()
         f = open(filename, 'r')
         self.Q = pickle.load(f)
         f.close()
@@ -280,11 +282,12 @@ if __name__ == '__main__':
     print 'Win ratio: %.2f against the opponent.' % (float(count_wins[0]) / 
                                                      RL_NUM_ITERATIONS)
     
-    if RL_SAVE_TABLES:
-        agent_rl.algorithm.save_knowledge()
 #    agent_rl.algorithm.print_values()
+    if RL_SAVE_TABLES and exp_params.is_first_trial():
+        agent_rl.algorithm.save_knowledge()
 
-    if RL_SAVE_STATE_VALUES_IN_GRAPH and exp_params.is_graph_based():
+    if RL_SAVE_STATE_VALUES_IN_GRAPH and exp_params.is_graph_based() and \
+                exp_params.is_first_trial():
         print 'Saving state values...'
         Domain.StateClass.copy_state_values_to_graph(exp_params, agent_rl)
     

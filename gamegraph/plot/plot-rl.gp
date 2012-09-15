@@ -1,7 +1,7 @@
 
 set terminal postscript eps color
 #
-set output "../plots/rl/rl-nohitgammon-graph.eps"
+set output "./plots/rl/rl-nohitgammon-graph.eps"
 set xlabel "Training Episode"
 set ylabel "Wins against Random Agent"
 set yrange [0.45:0.90]

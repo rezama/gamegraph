@@ -10,7 +10,7 @@ from pybrain.tools.shortcuts import buildNetwork
 from pybrain.structure.modules.sigmoidlayer import SigmoidLayer
 
 from common import Experiment, COLLECT_STATS, POS_ATTR, PLAYER_BLACK, \
-    PLAYER_WHITE, PLAYER_NAME, other_player
+    PLAYER_WHITE, PLAYER_NAME, other_player, VAL_ATTR
 from params import GENERATE_GRAPH_REPORT_EVERY_N_STATES, RECORD_GRAPH
 from state_graph import StateGraph
 
@@ -122,7 +122,7 @@ class MidGammonState(object):
         
         if self.is_graph_based:
             if MidGammonState.GAME_GRAPH is None:
-                filename = '../graph/%s-%s' % (Domain.name, exp_params.get_file_suffix_no_trial())
+                filename = exp_params.get_graph_filename(Domain.name)
                 MidGammonState.GAME_GRAPH = StateGraph.load_from_file(filename)
             self.current_g_id = self.GAME_GRAPH.get_random_source(self.player_to_move)
 
@@ -327,8 +327,8 @@ class MidGammonState(object):
     @classmethod
     def copy_state_values_to_graph(cls, exp_params, agent_rl):
         cls.GAME_GRAPH.transfer_state_values(agent_rl)
-        new_graph_filename = '../graph/%s-%s-augmented' % (Domain.name,
-                                    exp_params.get_file_suffix_no_trial())
+        new_graph_filename = exp_params.get_graph_filename(Domain.name) + \
+                '-' + VAL_ATTR
         cls.GAME_GRAPH.save_to_file(new_graph_filename)
 
     def __fix_checker_orders(self):

@@ -1,7 +1,7 @@
 
 set terminal postscript eps color
 #
-set output "../plots/rl/rl-midgammon-back.eps"
+set output "./plots/rl/rl-midgammon-back.eps"
 set xlabel "Training Episode"
 set ylabel "Wins against Random Agent"
 set yrange [0.65:0.87]
@@ -12,7 +12,7 @@ plot "../data/avg/rl-midgammon-graph-base-0back.txt" using 1:2 with lines title 
      "../data/avg/rl-midgammon-graph-base-80back.txt" using 1:2 with lines title "80% back edges", \
      "../data/avg/rl-midgammon-graph-base-100back.txt" using 1:2 with lines title "100% back edges"
 
-set output "../plots/rl/rl-midgammon-hit.eps"
+set output "./plots/rl/rl-midgammon-hit.eps"
 set xlabel "Training Episode"
 set ylabel "Wins against Random Agent"
 set yrange [0.65:0.87]
