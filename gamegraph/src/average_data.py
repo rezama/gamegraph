@@ -6,6 +6,7 @@ Created on Dec 13, 2011
 from params import NUM_TRIALS
 import os
 import gzip
+from common import FOLDER_AVG, FOLDER_TRIALS
 
 def compute_all():
     processed_bases = []
@@ -24,12 +25,12 @@ def compute_all():
 def compute_average(basename):
     print 'Processing %s...' % basename
     
-    favg = open('../data/avg/%s.txt' % basename, 'w')
+    favg = open('%s/%s.txt' % (FOLDER_AVG, basename), 'w')
     
     table = {}
     num_existing = 0
     for t in range(NUM_TRIALS):
-        datafile = '../data/trials/%s-%d.txt' % (basename, t)
+        datafile = '%s/%s-%d.txt' % (FOLDER_TRIALS, basename, t)
         datafile_gz = datafile + '.gz'
         print 'Reading values from %s' % datafile
         try:

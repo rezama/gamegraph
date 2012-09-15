@@ -36,6 +36,20 @@ EXP_OFFSET = 'offset'
 EXP_GRAPH = 'graph'
 
 POS_ATTR = 'pos'
+DIST_ATTR = 'd'
+BFS_COLOR_ATTR = 'bfscolor'
+VAL_ATTR = 'value'
+
+FOLDER_DATA = '../data'
+FOLDER_TRIALS = '../data/trials'
+FOLDER_AVG = '../data/avg'
+FOLDER_DOMAINSTATS = '../data/domainstats'
+FOLDER_GRAPH = '../graph'
+
+FILE_PREFIX_TD = 'td'
+FILE_PREFIX_HC = 'hc'
+FILE_PREFIX_HC_CHALLENGE = 'hc-challenge'
+FILE_PREFIX_RL = 'rl'
 
 class Game(object):
         
@@ -201,10 +215,10 @@ class ExpParams:
         self.graph_name = graph_name
         self.trial = trial
 
-    def get_file_suffix(self):
+    def get_filename_suffix(self):
         return self.get_file_suffix_no_trial() + ('-%d' % self.trial)
 
-    def get_file_suffix_no_trial(self):
+    def get_filename_suffix_no_trial(self):
         if self.exp == EXP_BASE:
             return EXP_BASE
         elif self.exp == EXP_P:
@@ -215,6 +229,16 @@ class ExpParams:
             return '%s-%s' % (self.exp, self.graph_name)
         else:
             return 'invalidexp'
+        
+    def get_trial_filename(self, file_prefix, domain_name):
+        filename = '%s/%s-%s-%s.txt' % (FOLDER_TRIALS, file_prefix, domain_name,
+                                        self.get_file_suffix())
+        return filename
+        
+    def get_graph_filename(self, file_prefix, domain_name):
+        filename = '%s/%s-%s-%s.txt' % (FOLDER_GRAPH, file_prefix, domain_name,
+                                        self.get_file_suffix_no_trial())
+        return filename
         
     def is_graph_based(self):
         return (self.graph_name is not None)

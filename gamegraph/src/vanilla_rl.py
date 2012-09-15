@@ -6,7 +6,7 @@ Created on Dec 10, 2011
 from nohitgammon import Domain
 
 import random
-from common import Experiment, Game, GameSet
+from common import Experiment, Game, GameSet, FILE_PREFIX_RL, FOLDER_TRIALS
 import pickle
 from params import RL_EPSILON, RL_LAMBDA, RL_ALPHA, RL_GAMMA,\
     RL_USE_ALPHA_ANNEALING, RL_MIN_ALPHA, RL_TRAIN_AGAINST_SELF,\
@@ -264,8 +264,9 @@ if __name__ == '__main__':
 #                                   p, reentry_offset,
 #                                   print_learning_progress = True)
     if RL_SAVE_TRIAL_DATA:
-        progress_filename = '../data/trials/rl-%s-%s.txt' % (Domain.name, 
-                                                exp_params.get_file_suffix())
+#        progress_filename = '../data/trials/rl-%s-%s.txt' % (Domain.name, 
+#                                                exp_params.get_file_suffix())
+        progress_filename = exp_params.get_trial_filename(FILE_PREFIX_RL, Domain.name)
     else:
         progress_filename = None
     print 'Opponent is: %s' % agent_opponent

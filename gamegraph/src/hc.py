@@ -6,7 +6,8 @@ Created on Dec 9, 2011
 from minigammon import Domain
 
 import random
-from common import Experiment, PLAYER_WHITE, PLAYER_BLACK, GameSet
+from common import Experiment, PLAYER_WHITE, PLAYER_BLACK, GameSet,\
+    FILE_PREFIX_HC, FOLDER_TRIALS, FILE_PREFIX_HC_CHALLENGE
 from params import HC_RATIO_KEEP_CHAMPION_WEIGHTS, HC_MUTATE_WEIGHT_SIGMA,\
     HC_NUM_GENERATIONS, HC_EVALUATE_EVERY_N_GENERATIONS, HC_NUM_EVAL_GAMES,\
     HC_NUM_CHALLENGE_GAMES, HC_CHALLENGER_NEEDS_TO_WIN
@@ -48,11 +49,13 @@ class AgentHC(Domain.AgentNeuralClass):
 if __name__ == '__main__':
     exp_params = Experiment.get_command_line_args()
    
-    eval_filename = '../data/trials/hc-%s-%s.txt' % (Domain.name, 
-                                                exp_params.get_file_suffix())
+#    eval_filename = '../data/trials/hc-%s-%s.txt' % (Domain.name, 
+#                                                     exp_params.get_file_suffix())
+    eval_filename = exp_params.get_trial_filename(FILE_PREFIX_HC, Domain.name)
     eval_f = open(eval_filename, 'w')
-    chal_filename = '../data/trials/hc-challenge-%s-%s.txt' % (Domain.name, 
-                                                exp_params.get_file_suffix())
+#    chal_filename = '../data/trials/hc-challenge-%s-%s.txt' % (Domain.name, 
+#                                                exp_params.get_file_suffix())
+    chal_filename = exp_params.get_trial_filename(FILE_PREFIX_HC_CHALLENGE, Domain.name)
     chal_f = open(chal_filename, 'w')
     
     agent_champion = AgentHC();

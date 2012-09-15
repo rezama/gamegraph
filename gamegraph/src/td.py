@@ -11,7 +11,7 @@ import random
 from pybrain.datasets.supervised import SupervisedDataSet
 from pybrain.supervised.trainers.backprop import BackpropTrainer
 from common import Experiment, PLAYER_WHITE, GameSet, other_player, REWARD_LOSE,\
-    REWARD_WIN
+    REWARD_WIN, FILE_PREFIX_TD, FOLDER_TRIALS
 from params import TD_LEARNING_RATE, TD_EPSILON, TD_LAMBDA, TD_ALPHA, TD_GAMMA,\
     TD_TRAIN_EPOCHS, TD_USE_ALPHA_ANNEALING, TD_NUM_ITERATIONS,\
     TD_NUM_EVAL_GAMES, TD_NUM_TRAINING_GAMES
@@ -250,7 +250,8 @@ class AgentTD(Domain.AgentNeuralClass):
 if __name__ == '__main__':
     exp_params = Experiment.get_command_line_args()
    
-    filename = '../data/trials/td-%s-%s.txt' % (Domain.name, exp_params.get_file_suffix())
+#    filename = '../data/trials/td-%s-%s.txt' % (Domain.name, exp_params.get_file_suffix())
+    filename = exp_params.get_trial_filename(FILE_PREFIX_TD, Domain.name)
     f = open(filename, 'w')
 
     agent_td1 = AgentTD()

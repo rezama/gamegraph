@@ -3,7 +3,8 @@ Created on Jun 25, 2012
 
 @author: reza
 '''
-from common import PLAYER_WHITE, PLAYER_BLACK, REWARD_WIN, REWARD_LOSE
+from common import PLAYER_WHITE, PLAYER_BLACK, REWARD_WIN, REWARD_LOSE,\
+    DIST_ATTR, BFS_COLOR_ATTR, VAL_ATTR
 import random
 import cPickle
 from Queue import Queue
@@ -121,7 +122,7 @@ class StateGraph(object):
             else:
                 break
             if self.node_colors[successor] == color and \
-                    self.node_attrs[successor]['d'] >= distance:
+                    self.node_attrs[successor][DIST_ATTR] >= distance:
                 result = successor
                 break
             else:
@@ -140,11 +141,11 @@ class StateGraph(object):
 
     def get_another_successor_check_distance(self, node_id, current_successor):
         result = None
-        node_distance = self.node_attrs[node_id]['d']
+        node_distance = self.node_attrs[node_id][DIST_ATTR]
         successors = self.get_all_successors(node_id)
         other_successors = [n_id for n_id in successors
                             if n_id != current_successor and
-                            self.node_attrs[n_id]['d'] >= node_distance] 
+                            self.node_attrs[n_id][DIST_ATTR] >= node_distance] 
         if len(other_successors) > 1:
             result = random.choice(other_successors)
         return result
@@ -162,41 +163,41 @@ class StateGraph(object):
     def compute_bfs(self):
         print 'Computing BFS...'
         for node_id in range(len(self.node_names)):
-            self.set_attr(node_id, 'bfscolor', 'w')
-            self.set_attr(node_id, 'd', -1)
+            self.set_attr(node_id, BFS_COLOR_ATTR, 'w')
+            self.set_attr(node_id, DIST_ATTR, -1)
         Q = Queue()
         for s in (self.sources[PLAYER_WHITE] + self.sources[PLAYER_BLACK]):
-            self.set_attr(s, 'bfscolor', 'g')
-            self.set_attr(s, 'd',  0)
+            self.set_attr(s, BFS_COLOR_ATTR, 'g')
+            self.set_attr(s, DIST_ATTR,  0)
             self.add_to_distance_bucket(s, 0)
             Q.put(s)
         while not Q.empty():
             u = Q.get()
 #            print 'Processing %s' % self.node_names[u]
-            u_d = self.get_attr(u, 'd')
+            u_d = self.get_attr(u, DIST_ATTR)
             for v in self.get_all_successors(u):
-                if self.get_attr(v, 'bfscolor') == 'w':
-                    self.set_attr(v, 'bfscolor', 'g')
+                if self.get_attr(v, BFS_COLOR_ATTR) == 'w':
+                    self.set_attr(v, BFS_COLOR_ATTR, 'g')
                     v_d = u_d + 1
-                    self.set_attr(v, 'd', v_d)
+                    self.set_attr(v, DIST_ATTR, v_d)
                     self.add_to_distance_bucket(v, v_d)
                     Q.put(v)
-            self.set_attr(u, 'bfscolor', 'b')
+            self.set_attr(u, BFS_COLOR_ATTR, 'b')
         print 'Done.'
     
     def print_all_edges(self):
         for node_id in range(len(self.node_names)):
-            node_dist = self.get_attr(node_id, 'd')
+            node_dist = self.get_attr(node_id, DIST_ATTR)
             for roll in self.all_rolls:
                 roll_index = roll - self.roll_offset
                 for action in self.all_actions:
                     successor = self.successors[node_id][roll_index][action]
                     if successor is not None:
-                        successor_dist = self.get_attr(successor, 'd')
+                        successor_dist = self.get_attr(successor, DIST_ATTR)
                         is_replaceable = False 
                         flags = ''
-                        if 'value' in self.node_attrs[node_id]:
-                            flags += '(value: %.2f -> %.2f)' % (self.node_attrs[node_id]['value'], self.node_attrs[successor]['value'])
+                        if VAL_ATTR in self.node_attrs[node_id]:
+                            flags += '(value: %.2f -> %.2f)' % (self.node_attrs[node_id][VAL_ATTR], self.node_attrs[successor][VAL_ATTR])
                         if '0' in self.node_names[successor][2:]:
                             flags += '-HIT'
                         if successor_dist < node_dist:
@@ -215,17 +216,17 @@ class StateGraph(object):
                             
     def print_back_edges(self):
         for node_id in range(len(self.node_names)):
-            node_dist = self.get_attr(node_id, 'd')
+            node_dist = self.get_attr(node_id, DIST_ATTR)
             for roll in self.all_rolls:
                 roll_index = roll - self.roll_offset
                 for action in self.all_actions:
                     successor = self.successors[node_id][roll_index][action]
                     if successor is not None:
-                        successor_dist = self.get_attr(successor, 'd')
+                        successor_dist = self.get_attr(successor, DIST_ATTR)
                         if successor_dist < node_dist:
                             flags = ''
-                            if 'value' in self.node_attrs[node_id]:
-                                flags += '(value: %.2f -> %.2f)' % (self.node_attrs[node_id]['value'], self.node_attrs[successor]['value'])
+                            if VAL_ATTR in self.node_attrs[node_id]:
+                                flags += '(value: %.2f -> %.2f)' % (self.node_attrs[node_id][VAL_ATTR], self.node_attrs[successor][VAL_ATTR])
                             is_replaceable = False 
                             new_successor = self.get_another_successor_check_distance(node_id, successor)
                             if new_successor is not None:
@@ -248,13 +249,13 @@ class StateGraph(object):
         count_replaceable = 0
         count_replaced = 0
         for node_id in range(len(self.node_names)):
-            node_dist = self.get_attr(node_id, 'd')
+            node_dist = self.get_attr(node_id, DIST_ATTR)
             for roll in self.all_rolls:
                 roll_index = roll - self.roll_offset
                 for action in self.all_actions:
                     successor = self.successors[node_id][roll_index][action]
                     if successor is not None:
-                        successor_dist = self.get_attr(successor, 'd')
+                        successor_dist = self.get_attr(successor, DIST_ATTR)
                         if successor_dist < node_dist:
                             count_back_edges += 1
 #                            print 'Found back edge %s -> %s' % (self.node_names[node_id], self.node_names[successor]) 
@@ -309,21 +310,21 @@ class StateGraph(object):
         for node_id in range(len(self.node_names)):
             node_name = self.node_names[node_id]
             if node_id in self.sinks[PLAYER_WHITE]:
-                self.node_attrs[node_id]['value'] = REWARD_WIN
+                self.node_attrs[node_id][VAL_ATTR] = REWARD_WIN
             elif node_id in self.sinks[PLAYER_BLACK]:
-                self.node_attrs[node_id]['value'] = REWARD_LOSE
+                self.node_attrs[node_id][VAL_ATTR] = REWARD_LOSE
             else:
                 value = agent.get_board_value(node_name)
                 if self.node_colors[node_id] == PLAYER_BLACK:
                     value = REWARD_WIN - REWARD_LOSE - value
-                self.node_attrs[node_id]['value'] = value
+                self.node_attrs[node_id][VAL_ATTR] = value
                                 
         print 'Done.'
 
     def cleanup_attrs(self):
         for node_id in range(len(self.node_names)):
-            del self.node_attrs[node_id]['d']
-            del self.node_attrs[node_id]['bfscolor']
+            del self.node_attrs[node_id][DIST_ATTR]
+            del self.node_attrs[node_id][BFS_COLOR_ATTR]
 
     def save_to_file(self, path_to_file):
         print 'Saving graph %s...' % path_to_file
