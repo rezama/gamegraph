@@ -282,11 +282,12 @@ if __name__ == '__main__':
     
 #    agent_rl.algorithm.print_values()
     if RL_SAVE_TABLES and exp_params.is_first_trial():
+        print 'Saving RL table...'
         agent_rl.algorithm.save_knowledge()
 
     if RL_SAVE_STATE_VALUES_IN_GRAPH and exp_params.is_graph_based() and \
                 exp_params.is_first_trial():
-        print 'Saving state values...'
+        print 'Saving state values in graph...'
         Domain.StateClass.copy_state_values_to_graph(exp_params, agent_rl)
     
     if RL_TRAIN_AGAINST_SELF:

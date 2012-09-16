@@ -234,12 +234,12 @@ class ExpParams:
         
     def get_custom_filename_no_trial(self, folder, file_prefix, domain_name):
         filename = '%s/%s-%s-%s.txt' % (folder, file_prefix, domain_name,
-                                        self.get_filename_suffix_no_trial()())
+                                        self.get_filename_suffix_no_trial())
         return filename
         
     def get_custom_filename_with_trial(self, folder, file_prefix, domain_name):
         filename = '%s/%s-%s-%s.txt' % (folder, file_prefix, domain_name,
-                                        self.get_filename_suffix_with_trial()())
+                                        self.get_filename_suffix_with_trial())
         return filename
         
     def get_trial_filename(self, file_prefix, domain_name):
