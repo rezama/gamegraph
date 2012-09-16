@@ -10,8 +10,9 @@ from common import Experiment, PLAYER_WHITE, PLAYER_BLACK, GameSet,\
     FILE_PREFIX_HC, FILE_PREFIX_HC_CHALLENGE
 from params import HC_RATIO_KEEP_CHAMPION_WEIGHTS, HC_MUTATE_WEIGHT_SIGMA,\
     HC_NUM_GENERATIONS, HC_EVALUATE_EVERY_N_GENERATIONS, HC_NUM_EVAL_GAMES,\
-    HC_NUM_CHALLENGE_GAMES, HC_CHALLENGER_NEEDS_TO_WIN
-#from vanilla_rl import AgentVanillaRL
+    HC_NUM_CHALLENGE_GAMES, HC_CHALLENGER_NEEDS_TO_WIN, EVAL_OPPONENT,\
+    EVAL_OPPONENT_RL
+from vanilla_rl import AgentVanillaRL
 
 class AgentHC(Domain.AgentNeuralClass):
     
@@ -60,8 +61,10 @@ if __name__ == '__main__':
     
     agent_champion = AgentHC();
     agent_challenger = AgentHC();
-    agent_opponent = Domain.AgentRandomClass() 
-#    agent_opponent = AgentVanillaRL(load_knowledge = True)
+    if EVAL_OPPONENT == EVAL_OPPONENT_RL:
+        agent_opponent = AgentVanillaRL(load_knowledge = True)
+    else:
+        agent_opponent = Domain.AgentRandomClass() 
     print 'Opponent is: %s' % agent_opponent
 
     for generation_number in range(HC_NUM_GENERATIONS):

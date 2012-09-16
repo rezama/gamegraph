@@ -14,8 +14,8 @@ from common import Experiment, PLAYER_WHITE, GameSet, other_player, REWARD_LOSE,
     REWARD_WIN, FILE_PREFIX_TD
 from params import TD_LEARNING_RATE, TD_EPSILON, TD_LAMBDA, TD_ALPHA, TD_GAMMA,\
     TD_TRAIN_EPOCHS, TD_USE_ALPHA_ANNEALING, TD_NUM_ITERATIONS,\
-    TD_NUM_EVAL_GAMES, TD_NUM_TRAINING_GAMES
-#from vanilla_rl import AgentVanillaRL
+    TD_NUM_EVAL_GAMES, TD_NUM_TRAINING_GAMES, EVAL_OPPONENT, EVAL_OPPONENT_RL
+from vanilla_rl import AgentVanillaRL
 
 class AgentTD(Domain.AgentNeuralClass):
     
@@ -255,9 +255,11 @@ if __name__ == '__main__':
     f = open(filename, 'w')
 
     agent_td1 = AgentTD()
-    agent_td2 = AgentTD()
-    agent_opponent = Domain.AgentRandomClass() 
-#    agent_opponent = AgentVanillaRL(load_knowledge = True)
+#    agent_td2 = AgentTD()
+    if EVAL_OPPONENT == EVAL_OPPONENT_RL:
+        agent_opponent = AgentVanillaRL(load_knowledge = True)
+    else:
+        agent_opponent = Domain.AgentRandomClass() 
     print 'Opponent is: %s' % agent_opponent
 
     for i in range(TD_NUM_ITERATIONS):
