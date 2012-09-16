@@ -325,8 +325,8 @@ class MidGammonState(object):
         return g
 
     @classmethod
-    def copy_state_values_to_graph(cls, exp_params, agent_rl):
-        cls.GAME_GRAPH.transfer_state_values(agent_rl)
+    def copy_state_values_to_graph(cls, exp_params, agent_q_learning):
+        cls.GAME_GRAPH.transfer_state_values(agent_q_learning)
         new_graph_filename = exp_params.get_graph_filename(Domain.name) + \
                 '-' + VAL_ATTR
         cls.GAME_GRAPH.save_to_file(new_graph_filename)

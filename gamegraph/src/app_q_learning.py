@@ -6,18 +6,18 @@ Created on Dec 10, 2011
 from minigammon import Domain
 
 import random
-from common import Experiment, Game, GameSet, FILE_PREFIX_RL, \
-    FOLDER_RLTABLE_VS_SELF, FOLDER_RLTABLE_VS_RANDOM
+from common import Experiment, Game, GameSet, FILE_PREFIX_Q_LEARNING, \
+    FOLDER_QTABLE_VS_SELF, FOLDER_QTABLE_VS_RANDOM
 import pickle
-from params import RL_EPSILON, RL_LAMBDA, RL_ALPHA, RL_GAMMA,\
-    RL_USE_ALPHA_ANNEALING, RL_MIN_ALPHA, RL_TRAIN_AGAINST_SELF,\
-    RL_SAVE_TRIAL_DATA, RL_NUM_ITERATIONS, RL_SAVE_TABLES,\
-    RL_SAVE_STATE_VALUES_IN_GRAPH, RL_NUM_FINAL_EVAL
+from params import Q_EPSILON, Q_LAMBDA, Q_ALPHA, Q_GAMMA,\
+    Q_LEARNING_USE_ALPHA_ANNEALING, Q_LEARNING_MIN_ALPHA, Q_LEARNING_TRAIN_AGAINST_SELF,\
+    Q_LEARNING_SAVE_TRIAL_DATA, Q_LEARNING_NUM_ITERATIONS, Q_LEARNING_SAVE_TABLES,\
+    Q_LEARNING_SAVE_STATE_VALUES_IN_GRAPH, Q_LEARNING_NUM_FINAL_EVAL
 
-class AgentVanillaRL(Domain.AgentClass):
+class AgentQLearning(Domain.AgentClass):
 
     def __init__(self, load_knowledge = False):
-        super(AgentVanillaRL, self).__init__()
+        super(AgentQLearning, self).__init__()
         self.algorithm = SarsaLambda()
 
         if load_knowledge:
@@ -57,10 +57,10 @@ class AgentVanillaRL(Domain.AgentClass):
 class SarsaLambda(object):
 
     def __init__(self):
-        self.epsilon = RL_EPSILON
-        self.lamda = RL_LAMBDA
-        self.alpha = RL_ALPHA
-        self.gamma = RL_GAMMA
+        self.epsilon = Q_EPSILON
+        self.lamda = Q_LAMBDA
+        self.alpha = Q_ALPHA
+        self.gamma = Q_GAMMA
         
         self.state_str = None
         self.last_state_str = None
@@ -176,21 +176,21 @@ class SarsaLambda(object):
     def update_values(self, delta):
         alpha = self.alpha
         for (si, ai) in self.e.iterkeys():
-            if RL_USE_ALPHA_ANNEALING:
+            if Q_LEARNING_USE_ALPHA_ANNEALING:
                 alpha = 1.0 / self.visit_count.get((si, ai), 1)
-                alpha = max(alpha, RL_MIN_ALPHA)
+                alpha = max(alpha, Q_LEARNING_MIN_ALPHA)
             if self.e[(si, ai)] != 0.0:
                 change = alpha * delta * self.e[(si, ai)]
                 self.Q[(si, ai)] = self.Q.get((si, ai), self.default_q) + change
                         
     
     def get_knowledge_filename(self):
-        if RL_TRAIN_AGAINST_SELF:
-            table_folder = FOLDER_RLTABLE_VS_SELF
+        if Q_LEARNING_TRAIN_AGAINST_SELF:
+            table_folder = FOLDER_QTABLE_VS_SELF
         else:
-            table_folder = FOLDER_RLTABLE_VS_RANDOM
+            table_folder = FOLDER_QTABLE_VS_RANDOM
         filename = exp_params.get_custom_filename_no_trial(table_folder,
-                                                FILE_PREFIX_RL, Domain.name)
+                                                FILE_PREFIX_Q_LEARNING, Domain.name)
         return filename
     
     def save_knowledge(self):
@@ -251,54 +251,55 @@ if __name__ == '__main__':
     exp_params = Experiment.get_command_line_args()
    
 #    random.seed(0)
-    agent_rl = AgentVanillaRL()
-    if RL_TRAIN_AGAINST_SELF:
-        agent_opponent = AgentVanillaRL()
+    agent_q_learning = AgentQLearning()
+    if Q_LEARNING_TRAIN_AGAINST_SELF:
+        agent_opponent = AgentQLearning()
     else:
         agent_opponent = Domain.AgentRandomClass()
     # use this for evaluating against pre-trained version of self:
-#    agent_opponent = AgentVanillaRL(load_knowledge = True) 
+#    agent_opponent = AgentQLearning(load_knowledge = True) 
 
     # when training for benchmark, have the RL agent play as black
-#    game_set = Domain.GameSetClass(NUM_ITERATIONS, agent_opponent, agent_rl, 
+#    game_set = Domain.GameSetClass(NUM_ITERATIONS, agent_opponent, agent_q_learning, 
 #                                   p, reentry_offset,
 #                                   print_learning_progress = True)
-    if RL_SAVE_TRIAL_DATA:
+    if Q_LEARNING_SAVE_TRIAL_DATA:
 #        progress_filename = '../data/trials/rl-%s-%s.txt' % (Domain.name, 
 #                                                exp_params.get_filename_suffix_with_trial())
-        progress_filename = exp_params.get_trial_filename(FILE_PREFIX_RL, Domain.name)
+        progress_filename = exp_params.get_trial_filename(FILE_PREFIX_Q_LEARNING, 
+                                                          Domain.name)
     else:
         progress_filename = None
     print 'Opponent is: %s' % agent_opponent
-    game_set = GameSet(Domain, exp_params, RL_NUM_ITERATIONS,
-                       agent_rl, agent_opponent, 
+    game_set = GameSet(Domain, exp_params, Q_LEARNING_NUM_ITERATIONS,
+                       agent_q_learning, agent_opponent, 
                        print_learning_progress = True,
                        progress_filename = progress_filename)
     count_wins = game_set.run()
 #    print 'Won %d out of %d games against random agent.' % (
 #                    count_wins[1], NUM_ITERATIONS)
     print 'Win ratio: %.2f against the opponent.' % (float(count_wins[0]) / 
-                                                     RL_NUM_ITERATIONS)
+                                                     Q_LEARNING_NUM_ITERATIONS)
     
-#    agent_rl.algorithm.print_values()
-    if RL_SAVE_TABLES and exp_params.is_first_trial():
+#    agent_q_learning.algorithm.print_values()
+    if Q_LEARNING_SAVE_TABLES and exp_params.is_first_trial():
         print 'Saving RL table...'
-        agent_rl.algorithm.save_knowledge()
+        agent_q_learning.algorithm.save_knowledge()
 
-    if RL_SAVE_STATE_VALUES_IN_GRAPH and exp_params.is_graph_based() and \
+    if Q_LEARNING_SAVE_STATE_VALUES_IN_GRAPH and exp_params.is_graph_based() and \
                 exp_params.is_first_trial():
         print 'Saving state values in graph...'
-        Domain.StateClass.copy_state_values_to_graph(exp_params, agent_rl)
+        Domain.StateClass.copy_state_values_to_graph(exp_params, agent_q_learning)
     
-    if RL_TRAIN_AGAINST_SELF:
+    if Q_LEARNING_TRAIN_AGAINST_SELF:
         # evaluate against random
-        agent_rl.pause_learning()
+        agent_q_learning.pause_learning()
         agent_opponent = Domain.AgentRandomClass()
-        game_set = GameSet(Domain, exp_params, RL_NUM_FINAL_EVAL,
-                           agent_rl, agent_opponent)
+        game_set = GameSet(Domain, exp_params, Q_LEARNING_NUM_FINAL_EVAL,
+                           agent_q_learning, agent_opponent)
         count_wins = game_set.run()
     #    print 'Won %d out of %d games against random agent.' % (
     #                    count_wins[1], NUM_ITERATIONS)
         print 'Win ratio: %.2f against the opponent.' % (float(count_wins[0]) / 
-                                                         RL_NUM_FINAL_EVAL)
+                                                         Q_LEARNING_NUM_FINAL_EVAL)
 

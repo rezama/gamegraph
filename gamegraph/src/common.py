@@ -45,13 +45,13 @@ FOLDER_TRIALS = '../data/trials'
 FOLDER_AVG = '../data/avg'
 FOLDER_DOMAINSTATS = '../data/domainstats'
 FOLDER_GRAPH = '../graph'
-FOLDER_RLTABLE_VS_SELF = '../rl-table/vsself'
-FOLDER_RLTABLE_VS_RANDOM = '../rl-table/vsrandom'
+FOLDER_QTABLE_VS_SELF = '../q-table/vsself'
+FOLDER_QTABLE_VS_RANDOM = '../q-table/vsrandom'
 
 FILE_PREFIX_TD = 'td'
 FILE_PREFIX_HC = 'hc'
 FILE_PREFIX_HC_CHALLENGE = 'hc-challenge'
-FILE_PREFIX_RL = 'rl'
+FILE_PREFIX_Q_LEARNING = 'q'
 
 class Game(object):
         
