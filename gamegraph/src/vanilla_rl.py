@@ -3,7 +3,7 @@ Created on Dec 10, 2011
 
 @author: reza
 '''
-from nohitgammon import Domain
+from minigammon import Domain
 
 import random
 from common import Experiment, Game, GameSet, FILE_PREFIX_RL, \
@@ -189,8 +189,6 @@ class SarsaLambda(object):
             table_folder = FOLDER_RLTABLE_VS_SELF
         else:
             table_folder = FOLDER_RLTABLE_VS_RANDOM
-#        filename = '../rl-table/%s/%s-%s.txt' % (table_folder, Domain.name,
-#                                                 exp_params.get_file_suffix())
         filename = exp_params.get_custom_filename_no_trial(table_folder,
                                                 FILE_PREFIX_RL, Domain.name)
         return filename
@@ -267,7 +265,7 @@ if __name__ == '__main__':
 #                                   print_learning_progress = True)
     if RL_SAVE_TRIAL_DATA:
 #        progress_filename = '../data/trials/rl-%s-%s.txt' % (Domain.name, 
-#                                                exp_params.get_file_suffix())
+#                                                exp_params.get_filename_suffix_with_trial())
         progress_filename = exp_params.get_trial_filename(FILE_PREFIX_RL, Domain.name)
     else:
         progress_filename = None

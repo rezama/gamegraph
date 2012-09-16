@@ -218,7 +218,7 @@ class ExpParams:
         self.trial = trial
 
     def get_filename_suffix_with_trial(self):
-        return self.get_file_suffix_no_trial() + ('-%d' % self.trial)
+        return self.get_filename_suffix_no_trial() + ('-%d' % self.trial)
 
     def get_filename_suffix_no_trial(self):
         if self.exp == EXP_BASE:
@@ -318,7 +318,7 @@ class Experiment:
             record_graph.print_stats()
             record_graph.adjust_probs()
             filename = exp_params.get_graph_filename()
-            filename = '../graph/%s-%s' % (domain.name, Experiment.get_file_suffix_no_trial())
+            filename = '../graph/%s-%s' % (domain.name, Experiment.get_filename_suffix_no_trial())
             record_graph.save_to_file(filename)
         
         # printing overall stats
@@ -330,7 +330,7 @@ class Experiment:
         if SAVE_STATS:
             # general info
 #            filename = '../data/%s-%s-overall-stats.txt' % (domain.name, 
-#                                            cls.get_file_suffix_with_trial())
+#                                            cls.get_filename_suffix_with_trial())
             filename = exp_params.get_custom_filename_with_trial(FOLDER_DOMAINSTATS,
                                             'overall-stats', domain.name)
             f = open(filename, 'w')
@@ -390,7 +390,7 @@ class Experiment:
     #    f.close()
     
         # number of states discovered by game
-#        filename = '../data/%s-%s-games-discovered-states-count.txt' % (domain.name, cls.get_file_suffix_with_trial())
+#        filename = '../data/%s-%s-games-discovered-states-count.txt' % (domain.name, cls.get_filename_suffix_with_trial())
         filename = exp_params.get_custom_filename_with_trial(FOLDER_DOMAINSTATS, 
                     'games-discovered-states-count', domain.name)
         f = open(filename, 'w')
@@ -400,7 +400,7 @@ class Experiment:
         f.close()
     
         # number of states discovered by game over average number of plies per game      
-#        filename = '../data/%s-%s-games-discovered-states-count-over-avg-num-plies.txt' % (domain.name, cls.get_file_suffix_with_trial())
+#        filename = '../data/%s-%s-games-discovered-states-count-over-avg-num-plies.txt' % (domain.name, cls.get_filename_suffix_with_trial())
         filename = exp_params.get_custom_filename_with_trial(FOLDER_DOMAINSTATS, 
                     'games-discovered-states-count-over-avg-num-plies', domain.name)
         f = open(filename, 'w')
@@ -409,7 +409,7 @@ class Experiment:
                                  state_class.games_discovered_states_count_over_avg_num_plies[game_number])) 
         f.close()
     
-#        filename = '../data/%s-%s-games-new-discovered-states-count.txt' % (domain.name, cls.get_file_suffix_with_trial())
+#        filename = '../data/%s-%s-games-new-discovered-states-count.txt' % (domain.name, cls.get_filename_suffix_with_trial())
         filename = exp_params.get_custom_filename_with_trial(FOLDER_DOMAINSTATS, 
                     'games-new-discovered-states-count', domain.name)
         f = open(filename, 'w')
@@ -421,7 +421,7 @@ class Experiment:
         f.close()
     
         # number of visits to game states sorted by first ply of visit    
-#        filename = '../data/%s-%s-states-sorted-by-ply-visit-count.txt' % (domain.name, cls.get_file_suffix_with_trial())
+#        filename = '../data/%s-%s-states-sorted-by-ply-visit-count.txt' % (domain.name, cls.get_filename_suffix_with_trial())
         filename = exp_params.get_custom_filename_with_trial(FOLDER_DOMAINSTATS, 
                     'states-sorted-by-ply-visit-count', domain.name)
         f = open(filename, 'w')
@@ -431,7 +431,7 @@ class Experiment:
         f.close()        
     
         # same as above, over average num of plies per game   
-#        filename = '../data/%s-%s-states-sorted-by-ply-visit-count-over-avg-num-plies.txt' % (domain.name, cls.get_file_suffix_with_trial())
+#        filename = '../data/%s-%s-states-sorted-by-ply-visit-count-over-avg-num-plies.txt' % (domain.name, cls.get_filename_suffix_with_trial())
         filename = exp_params.get_custom_filename_with_trial(FOLDER_DOMAINSTATS, 
                     'states-sorted-by-ply-visit-count-over-avg-num-plies', domain.name)
         f = open(filename, 'w')

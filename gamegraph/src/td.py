@@ -3,7 +3,7 @@ Created on Dec 9, 2011
 
 @author: reza
 '''
-from nohitgammon import Domain
+from minigammon import Domain
 
 import pickle
 import random
@@ -250,7 +250,6 @@ class AgentTD(Domain.AgentNeuralClass):
 if __name__ == '__main__':
     exp_params = Experiment.get_command_line_args()
    
-#    filename = '../data/trials/td-%s-%s.txt' % (Domain.name, exp_params.get_file_suffix())
     filename = exp_params.get_trial_filename(FILE_PREFIX_TD, Domain.name)
     f = open(filename, 'w')
 

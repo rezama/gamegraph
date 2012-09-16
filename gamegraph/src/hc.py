@@ -50,12 +50,8 @@ class AgentHC(Domain.AgentNeuralClass):
 if __name__ == '__main__':
     exp_params = Experiment.get_command_line_args()
    
-#    eval_filename = '../data/trials/hc-%s-%s.txt' % (Domain.name, 
-#                                                     exp_params.get_file_suffix())
     eval_filename = exp_params.get_trial_filename(FILE_PREFIX_HC, Domain.name)
     eval_f = open(eval_filename, 'w')
-#    chal_filename = '../data/trials/hc-challenge-%s-%s.txt' % (Domain.name, 
-#                                                exp_params.get_file_suffix())
     chal_filename = exp_params.get_trial_filename(FILE_PREFIX_HC_CHALLENGE, Domain.name)
     chal_f = open(chal_filename, 'w')
     
