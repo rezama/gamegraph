@@ -77,7 +77,7 @@ class MidGammonState(object):
     CHECKER_NAME[CHECKER4] = 'fourth'
     CHECKER_NAME[FORFEIT_MOVE] = 'no'
 
-    BOARD_SIZE   = 8
+    BOARD_SIZE   = 6
     BOARD_MID    = BOARD_SIZE / 2 # 4
     
     BOARD_BAR    = 0              # 0

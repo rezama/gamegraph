@@ -3,7 +3,7 @@ Created on Aug 22, 2012
 
 @author: reza
 '''
-from minigammon import Domain
+from midgammon import Domain
 
 from common import Experiment
 from state_graph import StateGraph
