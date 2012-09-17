@@ -1,0 +1,9 @@
+Graph Stats:
+Number of nodes: 322620
+Number of sources: 1
+Number of sinks: 2464
+Number of edges: 2675124
+           Found 1295223 back edges
+                  456104 replaceable
+                 1251722 hit edges
+                  375520 replaceable

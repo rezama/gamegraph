@@ -1,0 +1,6 @@
+Number of nodes: 289164
+Number of sources: 1
+Number of sinks: 2352
+Number of edges: 1853782
+Found 758224 back edges
+      251565 replaceable

@@ -185,6 +185,7 @@ class SarsaLambda(object):
                         
     
     def get_knowledge_filename(self):
+        exp_params = Experiment.get_command_line_args()
         if Q_LEARNING_TRAIN_AGAINST_SELF:
             table_folder = FOLDER_QTABLE_VS_SELF
         else:
