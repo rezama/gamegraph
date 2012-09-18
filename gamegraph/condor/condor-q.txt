@@ -7,45 +7,45 @@ Executable = /usr/bin/python
 getenv = true
 transfer_executable = false
 
-Arguments = app_q_learning.py graph base 0
+Arguments = app_q_learning.py minigammon graph base 0
 Queue
-Arguments = app_q_learning.py graph base 1
+Arguments = app_q_learning.py minigammon graph base 1
 Queue
-Arguments = app_q_learning.py graph base 2
+Arguments = app_q_learning.py minigammon graph base 2
 Queue
-Arguments = app_q_learning.py graph base 3
+Arguments = app_q_learning.py minigammon graph base 3
 Queue
-Arguments = app_q_learning.py graph base 4
+Arguments = app_q_learning.py minigammon graph base 4
 Queue
-Arguments = app_q_learning.py graph base 5
+Arguments = app_q_learning.py minigammon graph base 5
 Queue
-Arguments = app_q_learning.py graph base 6
+Arguments = app_q_learning.py minigammon graph base 6
 Queue
-Arguments = app_q_learning.py graph base 7
+Arguments = app_q_learning.py minigammon graph base 7
 Queue
-Arguments = app_q_learning.py graph base 8
+Arguments = app_q_learning.py minigammon graph base 8
 Queue
-Arguments = app_q_learning.py graph base 9
+Arguments = app_q_learning.py minigammon graph base 9
 Queue
 
-Arguments = app_q_learning.py graph base-0back 0
+Arguments = app_q_learning.py minigammon graph base-0back 0
 Queue
-Arguments = app_q_learning.py graph base-0back 1
+Arguments = app_q_learning.py minigammon graph base-0back 1
 Queue
-Arguments = app_q_learning.py graph base-0back 2
+Arguments = app_q_learning.py minigammon graph base-0back 2
 Queue
-Arguments = app_q_learning.py graph base-0back 3
+Arguments = app_q_learning.py minigammon graph base-0back 3
 Queue
-Arguments = app_q_learning.py graph base-0back 4
+Arguments = app_q_learning.py minigammon graph base-0back 4
 Queue
-Arguments = app_q_learning.py graph base-0back 5
+Arguments = app_q_learning.py minigammon graph base-0back 5
 Queue
-Arguments = app_q_learning.py graph base-0back 6
+Arguments = app_q_learning.py minigammon graph base-0back 6
 Queue
-Arguments = app_q_learning.py graph base-0back 7
+Arguments = app_q_learning.py minigammon graph base-0back 7
 Queue
-Arguments = app_q_learning.py graph base-0back 8
+Arguments = app_q_learning.py minigammon graph base-0back 8
 Queue
-Arguments = app_q_learning.py graph base-0back 9
+Arguments = app_q_learning.py minigammon graph base-0back 9
 Queue
 
