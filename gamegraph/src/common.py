@@ -7,10 +7,12 @@ import sys
 import copy
 import random
 import gzip
+from pybrain.tools.shortcuts import buildNetwork
+from pybrain.structure.modules.sigmoidlayer import SigmoidLayer
 from params import RECORD_GRAPH, PRINT_GAME_DETAIL,\
     GAMESET_PROGRESS_REPORT_USE_GZIP, ALTERNATE_SEATS, USE_SEEDS,\
     GAMESET_RECENT_WINNERS_LIST_SIZE, PRINT_GAME_RESULTS,\
-    GAMESET_PROGRESS_REPORT_EVERY_N_GAMES, NUM_STATS_GAMES, SAVE_STATS, COLLECT_STATS
+    GAMESET_PROGRESS_REPORT_EVERY_N_GAMES, SAVE_STATS
 
 PLAYER_WHITE = 0
 PLAYER_BLACK = 1
@@ -53,20 +55,128 @@ FILE_PREFIX_HC = 'hc'
 FILE_PREFIX_HC_CHALLENGE = 'hc-challenge'
 FILE_PREFIX_Q_LEARNING = 'q'
 
+class Die(object):
+    
+    def __init__(self, num_sides):
+        self.num_sides = num_sides
+        self.sides = range(1, num_sides + 1)
+    
+    def roll(self):
+        return random.choice(self.sides)
+    
+    def get_all_sides(self):
+        return self.sides
+
+class Action(object):
+    
+    def __init__(self, num_checkers):
+        self.num_checkers = num_checkers
+        self.all_checkers = range(num_checkers)
+        self.action_forfeit_move = num_checkers
+        self.all_actions = self.all_checkers + [self.action_forfeit_move]
+    
+    def get_checker_name(self, i):
+        return 'Checker %d' % (i + 1)
+    
+    def random_action(self, state):
+        action = self.action_forfeit_move
+        checker = random.choice(self.all_checkers)
+        tries_left = self.num_checkers
+        while tries_left > 0:
+            move_outcome = state.get_move_outcome(checker)
+            if move_outcome is not None:
+                return checker
+            else:
+                checker = self.next_checker(checker)
+            tries_left -= 1
+            
+        return action
+
+    def next_checker(self, checker):
+        return (checker + 1) % (self.num_checkers)
+
+    def get_num_checkers(self):
+        return self.num_checkers
+
+    def get_all_checkers(self):
+        return self.all_checkers
+
+    def get_all_actions(self):
+        return self.all_actions
+
+class Agent(object):
+    
+    def __init__(self, state_class):
+        self.state_class = state_class
+        self.state = None
+
+    def set_state(self, state):
+        self.state = state
+    
+    def begin_episode(self):
+        pass
+    
+    def end_episode(self, reward):
+        pass
+
+    def select_action(self):
+        raise NotImplementedError
+
+class AgentRandom(Agent):
+    
+    def __init__(self, state_class):
+        super(AgentRandom, self).__init__(state_class)
+    
+    def select_action(self):
+        return self.state.action_object.random_action(self.state)
+    
+class AgentNeural(Agent):
+    
+    def __init__(self, state_class, outputdim, init_weights = None):
+        super(AgentNeural, self).__init__(state_class)
+#        self.inputdim = (MiniGammonState.BOARD_SIZE + 2) * 4   + 2
+#        #               10 points: |1w |2w |1b |2b             |white's turn |black's turn
+        self.inputdim = self.state_class.get_network_inputdim()
+        self.hiddendim = self.state_class.get_network_hiddendim()
+        self.outputdim = outputdim
+        self.network = buildNetwork(self.inputdim, self.hiddendim, self.outputdim,
+                                    hiddenclass = SigmoidLayer, bias = True)
+        if init_weights is not None:
+            self.network.params[:] = [init_weights] * len(self.network.params)
+                        
+    def select_action(self):
+        action_values = []
+        for action in self.state_class.ACTION_OBJECT.get_all_checkers():
+            move_outcome = self.state.get_move_outcome(action)
+            if move_outcome is not None:
+                move_value = self.get_state_value(move_outcome)
+                # insert a random number to break the ties
+                action_values.append(((move_value, random.random()), action))
+            
+        if len(action_values) > 0:
+            action_values_sorted = sorted(action_values, reverse=True)
+            action = action_values_sorted[0][1]
+        else:
+            action = self.state_class.ACTION_OBJECT.action_forfeit_move
+            
+        return action
+    
+    def __repr__(self):
+        return str(self.network.params)
+
 class Game(object):
         
-    def __init__(self, domain, exp_params, game_number, agent_white, agent_black,
+    def __init__(self, exp_params, game_number, agent_white, agent_black,
                  player_to_start_game):
-        self.domain = domain
         self.game_number = game_number
         self.agents = [None, None]
         self.agents[PLAYER_WHITE] = agent_white
         self.agents[PLAYER_BLACK] = agent_black
         self.exp_params = exp_params
-        self.state = domain.StateClass(exp_params, player_to_start_game)
+        self.state = exp_params.state_class(exp_params, player_to_start_game)
 
         # initial die roll
-        self.state.roll = domain.DieClass.roll()
+        self.state.roll = self.state.die_object.roll()
         if RECORD_GRAPH and not self.state.is_graph_based:
             record_graph = self.state.RECORD_GAME_GRAPH
             s = record_graph.add_node(self.state.board_config(), self.state.player_to_move)
@@ -89,7 +199,8 @@ class Game(object):
             if PRINT_GAME_DETAIL:
                 print '#  %s rolls %d, playing %s checker...' % \
                         (PLAYER_NAME[self.state.player_to_move], 
-                         self.state.roll, self.StateClass.CHECKER_NAME[action])
+                         self.state.roll,
+                         self.state.action_object.get_checker_name(action))
             self.state.move(action)
             if PRINT_GAME_DETAIL:
                 print '# '
@@ -109,7 +220,7 @@ class Game(object):
             winner = PLAYER_BLACK
             loser = PLAYER_WHITE
         else:
-            print 'Error: Game ended without winning player!'
+            print 'Error: Game ended without a winning player!'
         
         self.agents[winner].end_episode(REWARD_WIN)
         self.agents[loser].end_episode(REWARD_LOSE)
@@ -130,10 +241,9 @@ class Game(object):
         
 class GameSet(object):
     
-    def __init__(self, domain, exp_params, num_games, agent1, agent2,
+    def __init__(self, exp_params, num_games, agent1, agent2,
                  print_learning_progress = False, 
                  progress_filename = None):
-        self.domain = domain
         self.num_games = num_games
         self.agent1 = agent1
         self.agent2 = agent2
@@ -177,7 +287,7 @@ class GameSet(object):
             # setup game
             players[0].begin_episode()
             players[1].begin_episode()
-            game = Game(self.domain, self.exp_params, game_number, 
+            game = Game(self.exp_params, game_number, 
                         players[0], players[1], player_to_start_game)
             winner = game.play()
             if seats_reversed:
@@ -210,7 +320,10 @@ class GameSet(object):
 
 class ExpParams:
     
-    def __init__(self, exp, p, offset, graph_name, trial):
+    def __init__(self, domain_name, exp, p, offset, graph_name, trial):
+        self.domain_name = domain_name
+        from domain_proxy import DomainProxy
+        self.state_class = DomainProxy.load_domain_state_class_by_name(domain_name)
         self.exp = exp
         self.p = p
         self.offset = offset
@@ -232,23 +345,23 @@ class ExpParams:
         else:
             return 'invalidexp'
         
-    def get_custom_filename_no_trial(self, folder, file_prefix, domain_name):
-        filename = '%s/%s-%s-%s.txt' % (folder, file_prefix, domain_name,
+    def get_custom_filename_no_trial(self, folder, file_prefix):
+        filename = '%s/%s-%s-%s.txt' % (folder, file_prefix, self.domain_name,
                                         self.get_filename_suffix_no_trial())
         return filename
         
-    def get_custom_filename_with_trial(self, folder, file_prefix, domain_name):
-        filename = '%s/%s-%s-%s.txt' % (folder, file_prefix, domain_name,
+    def get_custom_filename_with_trial(self, folder, file_prefix):
+        filename = '%s/%s-%s-%s.txt' % (folder, file_prefix, self.domain_name,
                                         self.get_filename_suffix_with_trial())
         return filename
         
-    def get_trial_filename(self, file_prefix, domain_name):
-        filename = '%s/%s-%s-%s.txt' % (FOLDER_TRIALS, file_prefix, domain_name,
+    def get_trial_filename(self, file_prefix):
+        filename = '%s/%s-%s-%s.txt' % (FOLDER_TRIALS, file_prefix, self.domain_name,
                                         self.get_filename_suffix_with_trial())
         return filename
         
-    def get_graph_filename(self, domain_name):
-        filename = '%s/%s-%s' % (FOLDER_GRAPH, domain_name,
+    def get_graph_filename(self):
+        filename = '%s/%s-%s' % (FOLDER_GRAPH, self.domain_name,
                                  self.get_filename_suffix_no_trial())
         return filename
         
@@ -263,11 +376,15 @@ class Experiment:
     
     @classmethod
     def get_command_line_args(cls):
-        if len(sys.argv) < 3:
+        if len(sys.argv) < 2:
+            print 'Please specify the domain.'
+            sys.exit(-1)
+        elif len(sys.argv) < 4:
             print 'You can specify an experiment mode with:'
-            print 'python %s graph <name> [<trial>]' % sys.argv[0]
-            print 'python %s p <p> [<trial>]' % sys.argv[0]
-            print 'python %s offset <offset> [<trial>]' % sys.argv[0]
+            print 'python %s <domain> graph <name> [<trial>]' % sys.argv[0]
+            print 'python %s <domain> p <p> [<trial>]' % sys.argv[0]
+            print 'python %s <domain> offset <offset> [<trial>]' % sys.argv[0]
+            domain_name = sys.argv[1]
             exp = EXP_BASE
             p = DEFAULT_P
             offset = DEFAULT_OFFSET
@@ -279,16 +396,17 @@ class Experiment:
             graph_name = DEFAULT_GRAPH_NAME
             trial = DEFAULT_TRIAL
         
-            if len(sys.argv) == 4:
-                trial = int(sys.argv[3])
+            if len(sys.argv) == 5:
+                trial = int(sys.argv[4])
 
-            exp = sys.argv[1]
+            domain_name = sys.argv[1]
+            exp = sys.argv[2]
             if exp == EXP_P:
-                p = float(sys.argv[2])
+                p = float(sys.argv[3])
             elif exp == EXP_OFFSET:
-                offset = int(sys.argv[2])
+                offset = int(sys.argv[3])
             elif exp == EXP_GRAPH:
-                graph_name = sys.argv[2]
+                graph_name = sys.argv[3]
 
         if exp == EXP_P:
             print 'Using: p = %.2f, trial = %d' % (p, trial)
@@ -299,85 +417,10 @@ class Experiment:
         else:
             print 'Using: base, trial = %d' % trial
         print 
-        return ExpParams(exp, p, offset, graph_name, trial)
+        return ExpParams(domain_name, exp, p, offset, graph_name, trial)
 
     @classmethod
-    def run_random_games(cls, domain):
-        exp_params = cls.get_command_line_args()
-        
-        num_games = NUM_STATS_GAMES
-        agent_white = domain.AgentRandomClass()
-        agent_black = domain.AgentRandomClass()
-        game_set = GameSet(domain, exp_params, num_games, agent_white, agent_black)
-    
-        count_wins = game_set.run()
-        total_plies = game_set.get_sum_count_plies()
-        
-        if RECORD_GRAPH and (exp_params.graph_name is None):
-            record_graph = domain.StateClass.RECORD_GAME_GRAPH
-            record_graph.print_stats()
-            record_graph.adjust_probs()
-            filename = exp_params.get_graph_filename()
-            filename = '../graph/%s-%s' % (domain.name, Experiment.get_filename_suffix_no_trial())
-            record_graph.save_to_file(filename)
-        
-        # printing overall stats
-        print '----'
-        print 'P was: %.2f' % exp_params.p
-        print 'Re-entry offset was: %d' % exp_params.offset
-        print 'Graph name was: %s' % exp_params.graph_name
-            
-        if SAVE_STATS:
-            # general info
-#            filename = '../data/%s-%s-overall-stats.txt' % (domain.name, 
-#                                            cls.get_filename_suffix_with_trial())
-            filename = exp_params.get_custom_filename_with_trial(FOLDER_DOMAINSTATS,
-                                            'overall-stats', domain.name)
-            f = open(filename, 'w')
-            
-        avg_num_plies_per_game = float(total_plies) / num_games
-        print 'Games won by agent: %d, opponent: %d' % (count_wins[PLAYER_WHITE], 
-                                                        count_wins[PLAYER_BLACK])
-        print 'Average plies per game: %.2f' % avg_num_plies_per_game 
-        if SAVE_STATS:
-            f.write('Games won by agent: %d, opponent: %d' % (count_wins[PLAYER_WHITE],
-                                                              count_wins[PLAYER_BLACK]))
-            f.write('Average plies per game: %.2f' % avg_num_plies_per_game) 
-            
-        if COLLECT_STATS:
-            total_states_visited = len(domain.StateClass.states_visit_count)
-            print 'Total number of states encountered: %d' % total_states_visited
-            print 'per 1000 plies: %.2f' % (float(total_states_visited) / 
-                                            avg_num_plies_per_game)
-            if SAVE_STATS:
-                f.write('Total number of states encountered: %d' % total_states_visited)
-                f.write('per 1000 plies: %.2f' % (float(total_states_visited) / 
-                                                  avg_num_plies_per_game))
-            
-            avg_visit_count_to_states = sum(domain.StateClass.states_visit_count.itervalues()) / float(total_states_visited)
-            print 'Average number of visits to states: %.2f' % avg_visit_count_to_states
-            print 'per 1000 plies: %.2f' % (float(avg_visit_count_to_states) / 
-                                            avg_num_plies_per_game)
-            if SAVE_STATS:
-                f.write('Average number of visits to states: %.2f' % avg_visit_count_to_states)
-                f.write('per 1000 plies: %.2f' % (float(avg_visit_count_to_states) / 
-                                                  avg_num_plies_per_game))
-            
-            sum_squared_diffs = sum([(e - avg_visit_count_to_states) ** 2 
-                                     for e in domain.StateClass.states_visit_count.itervalues()])
-            var_visit_count_to_states =  sum_squared_diffs / float(total_states_visited) 
-            print 'Variance of number of visits to states: %.2f' % var_visit_count_to_states
-            if SAVE_STATS:
-                f.write('Variance of number of visits to states: %.2f' % var_visit_count_to_states)
-            
-            domain.StateClass.compute_overall_stats(avg_num_plies_per_game)
-            Experiment.save_stats(domain.StateClass, domain, exp_params)        
-    
-        if SAVE_STATS:
-            f.close()
-
-    @classmethod
-    def save_stats(cls, state_class, domain, exp_params):
+    def save_stats(cls, state_class, exp_params):
         if not SAVE_STATS:
             return
     #    # visit counts to individual states        
@@ -392,7 +435,7 @@ class Experiment:
         # number of states discovered by game
 #        filename = '../data/%s-%s-games-discovered-states-count.txt' % (domain.name, cls.get_filename_suffix_with_trial())
         filename = exp_params.get_custom_filename_with_trial(FOLDER_DOMAINSTATS, 
-                    'games-discovered-states-count', domain.name)
+                    'games-discovered-states-count')
         f = open(filename, 'w')
         for game_number in range(len(state_class.games_discovered_states_count)):
             f.write('%d %d\n' % (game_number, 
@@ -402,7 +445,7 @@ class Experiment:
         # number of states discovered by game over average number of plies per game      
 #        filename = '../data/%s-%s-games-discovered-states-count-over-avg-num-plies.txt' % (domain.name, cls.get_filename_suffix_with_trial())
         filename = exp_params.get_custom_filename_with_trial(FOLDER_DOMAINSTATS, 
-                    'games-discovered-states-count-over-avg-num-plies', domain.name)
+                    'games-discovered-states-count-over-avg-num-plies')
         f = open(filename, 'w')
         for game_number in range(len(state_class.games_discovered_states_count_over_avg_num_plies)):
             f.write('%d %f\n' % (game_number, 
@@ -411,7 +454,7 @@ class Experiment:
     
 #        filename = '../data/%s-%s-games-new-discovered-states-count.txt' % (domain.name, cls.get_filename_suffix_with_trial())
         filename = exp_params.get_custom_filename_with_trial(FOLDER_DOMAINSTATS, 
-                    'games-new-discovered-states-count', domain.name)
+                    'games-new-discovered-states-count')
         f = open(filename, 'w')
         for game_number in range(len(state_class.games_discovered_states_count)):
             newly_discovered_count = state_class.games_discovered_states_count[game_number]
@@ -423,7 +466,7 @@ class Experiment:
         # number of visits to game states sorted by first ply of visit    
 #        filename = '../data/%s-%s-states-sorted-by-ply-visit-count.txt' % (domain.name, cls.get_filename_suffix_with_trial())
         filename = exp_params.get_custom_filename_with_trial(FOLDER_DOMAINSTATS, 
-                    'states-sorted-by-ply-visit-count', domain.name)
+                    'states-sorted-by-ply-visit-count')
         f = open(filename, 'w')
         for i in range(len(state_class.states_sorted_by_ply_visit_count)):
             state_sorted_by_ply_visit_count = state_class.states_sorted_by_ply_visit_count[i]
@@ -433,7 +476,7 @@ class Experiment:
         # same as above, over average num of plies per game   
 #        filename = '../data/%s-%s-states-sorted-by-ply-visit-count-over-avg-num-plies.txt' % (domain.name, cls.get_filename_suffix_with_trial())
         filename = exp_params.get_custom_filename_with_trial(FOLDER_DOMAINSTATS, 
-                    'states-sorted-by-ply-visit-count-over-avg-num-plies', domain.name)
+                    'states-sorted-by-ply-visit-count-over-avg-num-plies')
         f = open(filename, 'w')
         for i in range(len(state_class.states_sorted_by_ply_visit_count_over_avg_num_plies)):
             state_sorted_by_ply_visit_count_over_avg_num_plies = state_class.states_sorted_by_ply_visit_count_over_avg_num_plies[i]

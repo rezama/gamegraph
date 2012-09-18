@@ -3,25 +3,23 @@ Created on Dec 9, 2011
 
 @author: reza
 '''
-from minigammon import Domain
-
-import pickle
+#import pickle
 import random
 
 from pybrain.datasets.supervised import SupervisedDataSet
 from pybrain.supervised.trainers.backprop import BackpropTrainer
 from common import Experiment, PLAYER_WHITE, GameSet, other_player, REWARD_LOSE,\
-    REWARD_WIN, FILE_PREFIX_TD
+    REWARD_WIN, FILE_PREFIX_TD, AgentNeural, AgentRandom
 from params import TD_LEARNING_RATE, TD_EPSILON, TD_LAMBDA, TD_ALPHA, TD_GAMMA,\
     TD_TRAIN_EPOCHS, TD_USE_ALPHA_ANNEALING, TD_NUM_ITERATIONS,\
     TD_NUM_EVAL_GAMES, TD_NUM_TRAINING_GAMES, EVAL_OPPONENT, EVAL_OPPONENT_Q_LEARNING
 from app_q_learning import AgentQLearning
 
-class AgentTD(Domain.AgentNeuralClass):
+class AgentTD(AgentNeural):
     
-    def __init__(self, load_knowledge = False):
+    def __init__(self, state_class, load_knowledge = False):
 #        super(AgentTD, self).__init__(2, init_weights = 0.15)
-        super(AgentTD, self).__init__(2)
+        super(AgentTD, self).__init__(state_class, 2)
 
         self.trainer = BackpropTrainer(self.network, 
                                        learningrate = TD_LEARNING_RATE, 
@@ -127,7 +125,7 @@ class AgentTD(Domain.AgentNeuralClass):
     def cache_network_values(self, state):
         state_str = str(state)[:-2]
         if state_str not in self.network_inputs:
-            self.network_inputs[state_str] = self.encode_network_input(state)
+            self.network_inputs[state_str] = state.encode_network_input()
         network_in = self.network_inputs[state_str]
         if state_str not in self.network_outputs:
             self.network_outputs[state_str] = self.network.activate(network_in)
@@ -144,10 +142,10 @@ class AgentTD(Domain.AgentNeuralClass):
 #        self.state_in = self.network_inputs[self.state_str]
         
         if self.is_learning and (random.random() < self.epsilon):
-            action = Domain.ActionClass.random_action(self.state)
+            action = self.state.action_object.random_action(self.state)
         else:
             action_values = []
-            for checker in Domain.ActionClass.ALL_CHECKERS:
+            for checker in self.state.action_object.get_all_checkers():
                 move_outcome = self.state.get_move_outcome(checker)
                 if move_outcome is not None:
                     move_value = self.get_state_value(move_outcome)
@@ -158,7 +156,7 @@ class AgentTD(Domain.AgentNeuralClass):
                 action_values_sorted = sorted(action_values, reverse=True)
                 action = action_values_sorted[0][1]
             else:
-                action = Domain.ActionClass.ACTION_FORFEIT_MOVE
+                action = self.state.action_object.action_forfeit_move
             
         # update values
         
@@ -209,17 +207,17 @@ class AgentTD(Domain.AgentNeuralClass):
                 
         return action
 
-    def save_knowledge(self):
-        filename = './td-network.txt' % Domain.name
-        f = open(filename, 'w')
-        pickle.dump(self.network, f)
-        f.close()
-
-    def load_knowledge(self):
-        filename = './td-network-%s.txt' % Domain.name
-        f = open(filename, 'r')
-        self.network = pickle.load(f)
-        f.close()
+#    def save_knowledge(self):
+#        filename = './td-network.txt' % Domain.name
+#        f = open(filename, 'w')
+#        pickle.dump(self.network, f)
+#        f.close()
+#
+#    def load_knowledge(self):
+#        filename = './td-network-%s.txt' % Domain.name
+#        f = open(filename, 'r')
+#        self.network = pickle.load(f)
+#        f.close()
         
     def pause_learning(self):
         self.is_learning = False
@@ -250,25 +248,25 @@ class AgentTD(Domain.AgentNeuralClass):
 if __name__ == '__main__':
     exp_params = Experiment.get_command_line_args()
    
-    filename = exp_params.get_trial_filename(FILE_PREFIX_TD, Domain.name)
+    filename = exp_params.get_trial_filename(FILE_PREFIX_TD)
     f = open(filename, 'w')
 
-    agent_td1 = AgentTD()
+    agent_td1 = AgentTD(exp_params.state_class)
 #    agent_td2 = AgentTD()
     if EVAL_OPPONENT == EVAL_OPPONENT_Q_LEARNING:
-        agent_opponent = AgentQLearning(load_knowledge = True)
+        agent_opponent = AgentQLearning(exp_params.state_class, load_knowledge = True)
     else:
-        agent_opponent = Domain.AgentRandomClass() 
+        agent_opponent = AgentRandom(exp_params.state_class)
     print 'Opponent is: %s' % agent_opponent
 
     for i in range(TD_NUM_ITERATIONS):
         print 'Iteration %d' % i
         print 'Evaluating against opponent...'
 
-        agent_td1.pause_learning()        
+        agent_td1.pause_learning()
 #        agent_td2.pause_learning()
         for agent in [agent_td1]:
-            game_set = GameSet(Domain, exp_params, TD_NUM_EVAL_GAMES,
+            game_set = GameSet(exp_params, TD_NUM_EVAL_GAMES,
                                agent, agent_opponent)
             count_wins = game_set.run()
             win_ratio = float(count_wins[0]) / TD_NUM_EVAL_GAMES
@@ -280,7 +278,7 @@ if __name__ == '__main__':
         print 'Training against self...'
 #        game_set = Domain.GameSetClass(NUM_TRAINING_GAMES, agent_td1, agent_td1,
 #                                       p, reentry_offset)
-        game_set = GameSet(Domain, exp_params, TD_NUM_TRAINING_GAMES,
+        game_set = GameSet(exp_params, TD_NUM_TRAINING_GAMES,
                            agent_td1, agent_td1)
         count_wins = game_set.run()
 

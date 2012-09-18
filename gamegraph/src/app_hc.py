@@ -3,18 +3,17 @@ Created on Dec 9, 2011
 
 @author: reza
 '''
-from minigammon import Domain
 
 import random
 from common import Experiment, PLAYER_WHITE, PLAYER_BLACK, GameSet,\
-    FILE_PREFIX_HC, FILE_PREFIX_HC_CHALLENGE
+    FILE_PREFIX_HC, FILE_PREFIX_HC_CHALLENGE, AgentNeural, AgentRandom
 from params import HC_RATIO_KEEP_CHAMPION_WEIGHTS, HC_MUTATE_WEIGHT_SIGMA,\
     HC_NUM_GENERATIONS, HC_EVALUATE_EVERY_N_GENERATIONS, HC_NUM_EVAL_GAMES,\
     HC_NUM_CHALLENGE_GAMES, HC_CHALLENGER_NEEDS_TO_WIN, EVAL_OPPONENT,\
     EVAL_OPPONENT_Q_LEARNING
 from app_q_learning import AgentQLearning
 
-class AgentHC(Domain.AgentNeuralClass):
+class AgentHC(AgentNeural):
     
     def __init__(self):
         super(AgentHC, self).__init__(1, init_weights = 0.0)
@@ -50,17 +49,17 @@ class AgentHC(Domain.AgentNeuralClass):
 if __name__ == '__main__':
     exp_params = Experiment.get_command_line_args()
    
-    eval_filename = exp_params.get_trial_filename(FILE_PREFIX_HC, Domain.name)
+    eval_filename = exp_params.get_trial_filename(FILE_PREFIX_HC)
     eval_f = open(eval_filename, 'w')
-    chal_filename = exp_params.get_trial_filename(FILE_PREFIX_HC_CHALLENGE, Domain.name)
+    chal_filename = exp_params.get_trial_filename(FILE_PREFIX_HC_CHALLENGE)
     chal_f = open(chal_filename, 'w')
     
     agent_champion = AgentHC();
     agent_challenger = AgentHC();
     if EVAL_OPPONENT == EVAL_OPPONENT_Q_LEARNING:
-        agent_opponent = AgentQLearning(load_knowledge = True)
+        agent_opponent = AgentQLearning(exp_params.state_class, load_knowledge = True)
     else:
-        agent_opponent = Domain.AgentRandomClass() 
+        agent_opponent = AgentRandom(exp_params.state_class)
     print 'Opponent is: %s' % agent_opponent
 
     for generation_number in range(HC_NUM_GENERATIONS):
@@ -68,7 +67,7 @@ if __name__ == '__main__':
         
         if generation_number % HC_EVALUATE_EVERY_N_GENERATIONS == 0: 
             print 'Evaluating against the opponent...'
-            game_set = GameSet(Domain, exp_params, HC_NUM_EVAL_GAMES,
+            game_set = GameSet(exp_params, HC_NUM_EVAL_GAMES,
                                agent_champion, agent_opponent)
             count_wins = game_set.run()
             ratio_win = float(count_wins[0]) / HC_NUM_EVAL_GAMES
@@ -84,7 +83,7 @@ if __name__ == '__main__':
             # update challenger to have Gaussian distribution around champion
 #            print 'Mutating challenger...'
             agent_champion.mutate_challenger(agent_challenger)
-            game_set = GameSet(Domain, exp_params, HC_NUM_CHALLENGE_GAMES,
+            game_set = GameSet(exp_params, HC_NUM_CHALLENGE_GAMES,
                                agent_champion, agent_challenger)
             count_wins = game_set.run()
 #            print 'Challenger won %d out of %d games.' % (count_wins[1], NUM_CHALLENGE_GAMES)

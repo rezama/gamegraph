@@ -3,22 +3,21 @@ Created on Dec 10, 2011
 
 @author: reza
 '''
-from minigammon import Domain
 
 import random
 from common import Experiment, Game, GameSet, FILE_PREFIX_Q_LEARNING, \
-    FOLDER_QTABLE_VS_SELF, FOLDER_QTABLE_VS_RANDOM
+    FOLDER_QTABLE_VS_SELF, FOLDER_QTABLE_VS_RANDOM, AgentRandom, Agent
 import pickle
 from params import Q_EPSILON, Q_LAMBDA, Q_ALPHA, Q_GAMMA,\
     Q_LEARNING_USE_ALPHA_ANNEALING, Q_LEARNING_MIN_ALPHA, Q_LEARNING_TRAIN_AGAINST_SELF,\
     Q_LEARNING_SAVE_TRIAL_DATA, Q_LEARNING_NUM_ITERATIONS, Q_LEARNING_SAVE_TABLES,\
     Q_LEARNING_SAVE_STATE_VALUES_IN_GRAPH, Q_LEARNING_NUM_FINAL_EVAL
 
-class AgentQLearning(Domain.AgentClass):
+class AgentQLearning(Agent):
 
-    def __init__(self, load_knowledge = False):
-        super(AgentQLearning, self).__init__()
-        self.algorithm = SarsaLambda()
+    def __init__(self, state_class, load_knowledge = False):
+        super(AgentQLearning, self).__init__(state_class)
+        self.algorithm = SarsaLambda(state_class)
 
         if load_knowledge:
             self.algorithm.load_knowledge()
@@ -56,7 +55,9 @@ class AgentQLearning(Domain.AgentClass):
 
 class SarsaLambda(object):
 
-    def __init__(self):
+    def __init__(self, state_class):
+        self.state_class = state_class
+        
         self.epsilon = Q_EPSILON
         self.lamda = Q_LAMBDA
         self.alpha = Q_ALPHA
@@ -93,10 +94,10 @@ class SarsaLambda(object):
         self.state_str = str(state)
         
         if self.is_learning and (random.random() < self.epsilon):
-            action = Domain.ActionClass.random_action(state)
+            action = state.action_object.random_action(state)
         else:
             action_values = []
-            for checker in Domain.ActionClass.ALL_CHECKERS:
+            for checker in state.action_object.get_all_checkers():
                 move_outcome = state.get_move_outcome(checker)
                 if move_outcome is not None:
                     move_value = self.Q.get((self.state_str, checker), self.default_q)
@@ -107,7 +108,7 @@ class SarsaLambda(object):
                 action_values_sorted = sorted(action_values, reverse=True)
                 action = action_values_sorted[0][1]
             else:
-                action = Domain.ActionClass.ACTION_FORFEIT_MOVE
+                action = state.action_object.action_forfeit_move
             
         # update values
         
@@ -127,7 +128,7 @@ class SarsaLambda(object):
                 # replacing traces
                 self.e[(s, a)] = 1.0
                 # set the trace for the other actions to 0
-                for other_action in Domain.ActionClass.ALL_ACTIONS:
+                for other_action in state.action_object.get_all_actions():
                     if other_action != a:
                         self.e[(s, other_action)] = 0
                 
@@ -148,14 +149,14 @@ class SarsaLambda(object):
                 
         return action
 
-    def get_board_value(self, board_str):
+    def get_board_value(self, board_str, all_rolls, all_actions):
         INVALID_ACTION_VALUE = -2
         sum_values = 0.0
         count = 0
-        for roll in Domain.DieClass.SIDES:
+        for roll in all_rolls:
             state_str = board_str + ('-%d' % roll)
             action_values = []
-            for action in Domain.ActionClass.ALL_ACTIONS:
+            for action in all_actions:
                 action_value = self.Q.get((state_str, action), INVALID_ACTION_VALUE)
                 # insert a random number to break the ties
                 action_values.append(((action_value, random.random()), action))
@@ -171,7 +172,6 @@ class SarsaLambda(object):
             return INVALID_ACTION_VALUE
         else:
             return sum_values / count    
-        
     
     def update_values(self, delta):
         alpha = self.alpha
@@ -191,7 +191,7 @@ class SarsaLambda(object):
         else:
             table_folder = FOLDER_QTABLE_VS_RANDOM
         filename = exp_params.get_custom_filename_no_trial(table_folder,
-                                                FILE_PREFIX_Q_LEARNING, Domain.name)
+                                                FILE_PREFIX_Q_LEARNING)
         return filename
     
     def save_knowledge(self):
@@ -252,11 +252,11 @@ if __name__ == '__main__':
     exp_params = Experiment.get_command_line_args()
    
 #    random.seed(0)
-    agent_q_learning = AgentQLearning()
+    agent_q_learning = AgentQLearning(exp_params.state_class)
     if Q_LEARNING_TRAIN_AGAINST_SELF:
-        agent_opponent = AgentQLearning()
+        agent_opponent = AgentQLearning(exp_params.state_class)
     else:
-        agent_opponent = Domain.AgentRandomClass()
+        agent_opponent = AgentRandom(exp_params.state_class)
     # use this for evaluating against pre-trained version of self:
 #    agent_opponent = AgentQLearning(load_knowledge = True) 
 
@@ -267,12 +267,11 @@ if __name__ == '__main__':
     if Q_LEARNING_SAVE_TRIAL_DATA:
 #        progress_filename = '../data/trials/rl-%s-%s.txt' % (Domain.name, 
 #                                                exp_params.get_filename_suffix_with_trial())
-        progress_filename = exp_params.get_trial_filename(FILE_PREFIX_Q_LEARNING, 
-                                                          Domain.name)
+        progress_filename = exp_params.get_trial_filename(FILE_PREFIX_Q_LEARNING)
     else:
         progress_filename = None
     print 'Opponent is: %s' % agent_opponent
-    game_set = GameSet(Domain, exp_params, Q_LEARNING_NUM_ITERATIONS,
+    game_set = GameSet(exp_params, Q_LEARNING_NUM_ITERATIONS,
                        agent_q_learning, agent_opponent, 
                        print_learning_progress = True,
                        progress_filename = progress_filename)
@@ -290,13 +289,13 @@ if __name__ == '__main__':
     if Q_LEARNING_SAVE_STATE_VALUES_IN_GRAPH and exp_params.is_graph_based() and \
                 exp_params.is_first_trial():
         print 'Saving state values in graph...'
-        Domain.StateClass.copy_state_values_to_graph(exp_params, agent_q_learning)
+        exp_params.domain.StateClass.copy_state_values_to_graph(exp_params, agent_q_learning)
     
     if Q_LEARNING_TRAIN_AGAINST_SELF:
         # evaluate against random
         agent_q_learning.pause_learning()
-        agent_opponent = Domain.AgentRandomClass()
-        game_set = GameSet(Domain, exp_params, Q_LEARNING_NUM_FINAL_EVAL,
+        agent_opponent = AgentRandom(exp_params.state_class)
+        game_set = GameSet(exp_params, Q_LEARNING_NUM_FINAL_EVAL,
                            agent_q_learning, agent_opponent)
         count_wins = game_set.run()
     #    print 'Won %d out of %d games against random agent.' % (
