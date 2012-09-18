@@ -374,8 +374,13 @@ class ExpParams:
         
 class Experiment:
     
+    exp_param_cached = None
+    
     @classmethod
     def get_command_line_args(cls):
+        if cls.exp_param_cached is not None:
+            return cls.exp_param_cached
+        
         if len(sys.argv) < 2:
             print 'Please specify the domain.'
             sys.exit(-1)
@@ -416,8 +421,9 @@ class Experiment:
             print 'Using: graph = %s, trial = %d' % (graph_name, trial)
         else:
             print 'Using: base, trial = %d' % trial
-        print 
-        return ExpParams(domain_name, exp, p, offset, graph_name, trial)
+        print
+        cls.exp_param_cached = ExpParams(domain_name, exp, p, offset, graph_name, trial)
+        return cls.exp_param_cached
 
     @classmethod
     def save_stats(cls, state_class, exp_params):

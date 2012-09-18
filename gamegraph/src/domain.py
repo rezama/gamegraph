@@ -7,9 +7,10 @@ import random
 import copy
 from Queue import Queue
 
-from common import COLLECT_STATS, POS_ATTR, PLAYER_BLACK, \
-    PLAYER_WHITE, PLAYER_NAME, other_player, VAL_ATTR, Die, Action
-from params import GENERATE_GRAPH_REPORT_EVERY_N_STATES, RECORD_GRAPH
+from common import POS_ATTR, PLAYER_BLACK, PLAYER_WHITE, PLAYER_NAME,\
+    other_player, VAL_ATTR, Die, Action
+from params import GENERATE_GRAPH_REPORT_EVERY_N_STATES, RECORD_GRAPH,\
+    COLLECT_STATS
 from state_graph import StateGraph
 
 class State(object):
