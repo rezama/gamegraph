@@ -277,15 +277,6 @@ class MiniGammonState(State):
         target_pos[1][0] = source_pos[1][0]
         target_pos[1][1] = source_pos[1][1]
 
-    @classmethod
-    def get_network_inputdim(cls):
-        return (cls.BOARD_SIZE + 2) * 4   + 2
-        # 10 points: |1w |2w |1b |2b             |white's turn |black's turn
-        
-    @classmethod
-    def get_network_hiddendim(cls):
-        return cls.NUM_HIDDEN_UNITS
-    
     def move(self, checker):
         success = False
         if RECORD_GRAPH and not self.is_graph_based:
@@ -372,6 +363,15 @@ class MiniGammonState(State):
                                                 checker, node_to_id)
         return success
 
+    @classmethod
+    def get_network_inputdim(cls):
+        return (cls.BOARD_SIZE + 2) * 4   + 2
+        # 10 points: |1w |2w |1b |2b             |white's turn |black's turn
+        
+    @classmethod
+    def get_network_hiddendim(cls):
+        return cls.NUM_HIDDEN_UNITS
+    
     def encode_network_input(self):
         inputdim = self.get_network_inputdim()
         network_in = [0] * inputdim
@@ -474,15 +474,6 @@ class NannonState(State):
         target_pos[1][1] = source_pos[1][1]
         target_pos[1][2] = source_pos[1][2]
 
-    @classmethod
-    def get_network_inputdim(cls):
-        return (cls.BOARD_SIZE) * 2 + (6 * 2)       + 2
-        # 6 points: |1w |1b / 0-3 checkers on bar and off / |white's turn |black's turn
-        
-    @classmethod
-    def get_network_hiddendim(cls):
-        return cls.NUM_HIDDEN_UNITS
-    
     def move(self, checker):
         success = False
         if RECORD_GRAPH and not self.is_graph_based:
@@ -581,6 +572,15 @@ class NannonState(State):
                                                 checker, node_to_id)
         return success
     
+    @classmethod
+    def get_network_inputdim(cls):
+        return (cls.BOARD_SIZE) * 2 + (6 * 2)       + 2
+        # 6 points: |1w |1b / 0-3 checkers on bar and off / |white's turn |black's turn
+        
+    @classmethod
+    def get_network_hiddendim(cls):
+        return cls.NUM_HIDDEN_UNITS
+    
     def encode_network_input(self):
         inputdim = self.get_network_inputdim()
         network_in = [0] * inputdim
@@ -675,7 +675,7 @@ class MidGammonState(State):
     NUM_HIDDEN_UNITS = 20
 
     def __init__(self, exp_params, player_to_move):
-        super(MiniGammonState, self).__init__(exp_params, self.BOARD_SIZE, 
+        super(MidGammonState, self).__init__(exp_params, self.BOARD_SIZE, 
                             self.NUM_DIE_SIDES, self.NUM_CHECKERS,
                             self.NUM_HIDDEN_UNITS, player_to_move)
                 
@@ -694,15 +694,6 @@ class MidGammonState(State):
         target_pos[1][2] = source_pos[1][2]
         target_pos[1][3] = source_pos[1][3]
 
-    @classmethod
-    def get_network_inputdim(cls):
-        return (cls.BOARD_SIZE + 2) * 4   + 2
-        # 10 points: |1w |2w |1b |2b             |white's turn |black's turn
-        
-    @classmethod
-    def get_network_hiddendim(cls):
-        return cls.NUM_HIDDEN_UNITS
-    
     def move(self, checker):
         success = False
         if RECORD_GRAPH and not self.is_graph_based:
@@ -794,6 +785,15 @@ class MidGammonState(State):
                                                 checker, node_to_id)
         return success
 
+    @classmethod
+    def get_network_inputdim(cls):
+        return (cls.BOARD_SIZE + 2) * 8   + 2
+        # 10 points: |1w |2w |1b |2b             |white's turn |black's turn
+        
+    @classmethod
+    def get_network_hiddendim(cls):
+        return cls.NUM_HIDDEN_UNITS
+    
     def encode_network_input(self):
         inputdim = self.get_network_inputdim()
         network_in = [0] * inputdim
@@ -872,7 +872,7 @@ class NohitGammonState(State):
     NUM_HIDDEN_UNITS = 20
 
     def __init__(self, exp_params, player_to_move):
-        super(MiniGammonState, self).__init__(exp_params, self.BOARD_SIZE, 
+        super(NohitGammonState, self).__init__(exp_params, self.BOARD_SIZE, 
                             self.NUM_DIE_SIDES, self.NUM_CHECKERS,
                             self.NUM_HIDDEN_UNITS, player_to_move)
                 
@@ -891,15 +891,6 @@ class NohitGammonState(State):
         target_pos[1][2] = source_pos[1][2]
         target_pos[1][3] = source_pos[1][3]
 
-    @classmethod
-    def get_network_inputdim(cls):
-        return (cls.BOARD_SIZE + 2) * 4   + 2
-        # 10 points: |1w |2w |1b |2b             |white's turn |black's turn
-        
-    @classmethod
-    def get_network_hiddendim(cls):
-        return cls.NUM_HIDDEN_UNITS
-    
     def move(self, checker):
         success = False
         if RECORD_GRAPH and not self.is_graph_based:
@@ -979,6 +970,15 @@ class NohitGammonState(State):
                                                 checker, node_to_id)
         return success
 
+    @classmethod
+    def get_network_inputdim(cls):
+        return (cls.BOARD_SIZE + 2) * 8   + 2
+        # 10 points: |1w |2w |1b |2b             |white's turn |black's turn
+        
+    @classmethod
+    def get_network_hiddendim(cls):
+        return cls.NUM_HIDDEN_UNITS
+    
     def encode_network_input(self):
         inputdim = self.get_network_inputdim()
         network_in = [0] * inputdim
