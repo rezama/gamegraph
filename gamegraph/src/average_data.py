@@ -32,7 +32,7 @@ def compute_average(basename):
     for t in range(NUM_TRIALS):
         datafile = '%s/%s-%d.txt' % (FOLDER_TRIALS, basename, t)
         datafile_gz = datafile + '.gz'
-        print 'Reading values from %s' % datafile
+#        print 'Reading values from %s' % datafile
         try:
             if os.path.isfile(datafile_gz):
                 f = gzip.open(datafile_gz, 'r')
