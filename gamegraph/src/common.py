@@ -7,6 +7,8 @@ import sys
 import copy
 import random
 import gzip
+import getopt
+
 from pybrain.tools.shortcuts import buildNetwork
 from pybrain.structure.modules.sigmoidlayer import SigmoidLayer
 from params import RECORD_GRAPH, PRINT_GAME_DETAIL,\
@@ -27,15 +29,17 @@ def other_player(player):
 REWARD_WIN = 1.0
 REWARD_LOSE = 0.0
 
-DEFAULT_P = 1.0
-DEFAULT_OFFSET = 0
-DEFAULT_GRAPH_NAME = None
-DEFAULT_TRIAL = 0
-
 EXP_BASE = 'base'
 EXP_P = 'p'
 EXP_OFFSET = 'offset'
 EXP_GRAPH = 'graph'
+
+DEFAULT_DOMAIN_NAME = None
+DEFAULT_EXP = EXP_BASE
+DEFAULT_P = 1.0
+DEFAULT_OFFSET = 0
+DEFAULT_GRAPH_NAME = None
+DEFAULT_TRIAL = 0
 
 POS_ATTR = 'pos'
 DIST_ATTR = 'd'
@@ -381,49 +385,45 @@ class Experiment:
         if cls.exp_param_cached is not None:
             return cls.exp_param_cached
         
-        if len(sys.argv) < 2:
-            print 'Please specify the domain.'
-            sys.exit(-1)
-        elif len(sys.argv) < 4:
-            print 'You can specify an experiment mode with:'
-            print 'python %s <domain> graph <name> [<trial>]' % sys.argv[0]
-            print 'python %s <domain> p <p> [<trial>]' % sys.argv[0]
-            print 'python %s <domain> offset <offset> [<trial>]' % sys.argv[0]
-            domain_name = sys.argv[1]
-            exp = EXP_BASE
-            p = DEFAULT_P
-            offset = DEFAULT_OFFSET
-            graph_name = DEFAULT_GRAPH_NAME
-            trial = DEFAULT_TRIAL
-        else:
-            p = DEFAULT_P
-            offset = DEFAULT_OFFSET
-            graph_name = DEFAULT_GRAPH_NAME
-            trial = DEFAULT_TRIAL
+        domain_name = DEFAULT_DOMAIN_NAME
+        exp = DEFAULT_EXP
+        p = DEFAULT_P
+        offset = DEFAULT_OFFSET
+        graph_name = DEFAULT_GRAPH_NAME
+        trial = DEFAULT_TRIAL
+
+        options, remainder = getopt.getopt(sys.argv[1:], #@UnusedVariable
+                    'd:g:o:p:t:',
+                    ['domain=', 'graph=', 'offset=', 'p=', 'trial='])        
         
-            if len(sys.argv) == 5:
-                trial = int(sys.argv[4])
-
-            domain_name = sys.argv[1]
-            exp = sys.argv[2]
-            if exp == EXP_P:
-                p = float(sys.argv[3])
-            elif exp == EXP_OFFSET:
-                offset = int(sys.argv[3])
-            elif exp == EXP_GRAPH:
-                graph_name = sys.argv[3]
-
-        if exp == EXP_P:
-            print 'Using: p = %.2f, trial = %d' % (p, trial)
-        elif exp == EXP_OFFSET:
-            print 'Using: offset = %d, trial = %d' % (offset, trial)
-        elif exp == EXP_GRAPH:
-            print 'Using: graph = %s, trial = %d' % (graph_name, trial)
+        for opt, arg in options:
+            if opt in ('-d', '--domain'):
+                print 'Setting domain to: %s' % arg
+                domain_name = arg
+            elif opt in ('-g', '--graph'):
+                print 'Setting graph name to: %s' % arg
+                graph_name = arg
+            elif opt in ('-o', '--offset'):
+                print 'Setting offset to: %s' % arg
+                offset = int(arg)
+            elif opt in ('-p', '--p'):
+                print 'Setting p to: %s' % arg
+                p = float(arg)
+            elif opt in ('-t', '--trial'):
+                print 'Setting trial to: %s' % arg
+                trial = int(arg)
+        
+        if domain_name is None:
+            print 'Please specify an experiment using:'
+            print ''
+            print 'python %s --domain=<domain> --graph=<name> [--trial=<trial>]' % sys.argv[0]
+            print 'python %s --domain=<domain> --p=<p> [--trial=<trial>]' % sys.argv[0]
+            print 'python %s --domain=<domain> --offset=<offset> [--trial=<trial>]' % sys.argv[0]
+            sys.exit(-1)
         else:
-            print 'Using: base, trial = %d' % trial
-        print
-        cls.exp_param_cached = ExpParams(domain_name, exp, p, offset, graph_name, trial)
-        return cls.exp_param_cached
+            cls.exp_param_cached = ExpParams(domain_name, exp, p, offset,
+                                             graph_name, trial)
+            return cls.exp_param_cached
 
     @classmethod
     def save_stats(cls, state_class, exp_params):
