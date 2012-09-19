@@ -9,8 +9,8 @@ import random
 import gzip
 import getopt
 
-from pybrain.tools.shortcuts import buildNetwork
-from pybrain.structure.modules.sigmoidlayer import SigmoidLayer
+#from pybrain.tools.shortcuts import buildNetwork
+#from pybrain.structure.modules.sigmoidlayer import SigmoidLayer
 from params import RECORD_GRAPH, PRINT_GAME_DETAIL,\
     GAMESET_PROGRESS_REPORT_USE_GZIP, ALTERNATE_SEATS, USE_SEEDS,\
     GAMESET_RECENT_WINNERS_LIST_SIZE, PRINT_GAME_RESULTS,\
@@ -39,6 +39,7 @@ DEFAULT_EXP = EXP_BASE
 DEFAULT_P = 1.0
 DEFAULT_OFFSET = 0
 DEFAULT_GRAPH_NAME = None
+DEFAULT_CHOOSE_ROLL = 0.0
 DEFAULT_TRIAL = 0
 
 POS_ATTR = 'pos'
@@ -58,115 +59,6 @@ FILE_PREFIX_TD = 'td'
 FILE_PREFIX_HC = 'hc'
 FILE_PREFIX_HC_CHALLENGE = 'hc-challenge'
 FILE_PREFIX_Q_LEARNING = 'q'
-
-class Die(object):
-    
-    def __init__(self, num_sides):
-        self.num_sides = num_sides
-        self.sides = range(1, num_sides + 1)
-    
-    def roll(self):
-        return random.choice(self.sides)
-    
-    def get_all_sides(self):
-        return self.sides
-
-class Action(object):
-    
-    def __init__(self, num_checkers):
-        self.num_checkers = num_checkers
-        self.all_checkers = range(num_checkers)
-        self.action_forfeit_move = num_checkers
-        self.all_actions = self.all_checkers + [self.action_forfeit_move]
-    
-    def get_checker_name(self, i):
-        return 'Checker %d' % (i + 1)
-    
-    def random_action(self, state):
-        action = self.action_forfeit_move
-        checker = random.choice(self.all_checkers)
-        tries_left = self.num_checkers
-        while tries_left > 0:
-            move_outcome = state.get_move_outcome(checker)
-            if move_outcome is not None:
-                return checker
-            else:
-                checker = self.next_checker(checker)
-            tries_left -= 1
-            
-        return action
-
-    def next_checker(self, checker):
-        return (checker + 1) % (self.num_checkers)
-
-    def get_num_checkers(self):
-        return self.num_checkers
-
-    def get_all_checkers(self):
-        return self.all_checkers
-
-    def get_all_actions(self):
-        return self.all_actions
-
-class Agent(object):
-    
-    def __init__(self, state_class):
-        self.state_class = state_class
-        self.state = None
-
-    def set_state(self, state):
-        self.state = state
-    
-    def begin_episode(self):
-        pass
-    
-    def end_episode(self, reward):
-        pass
-
-    def select_action(self):
-        raise NotImplementedError
-
-class AgentRandom(Agent):
-    
-    def __init__(self, state_class):
-        super(AgentRandom, self).__init__(state_class)
-    
-    def select_action(self):
-        return self.state.action_object.random_action(self.state)
-    
-class AgentNeural(Agent):
-    
-    def __init__(self, state_class, outputdim, init_weights = None):
-        super(AgentNeural, self).__init__(state_class)
-#        self.inputdim = (MiniGammonState.BOARD_SIZE + 2) * 4   + 2
-#        #               10 points: |1w |2w |1b |2b             |white's turn |black's turn
-        self.inputdim = self.state_class.get_network_inputdim()
-        self.hiddendim = self.state_class.get_network_hiddendim()
-        self.outputdim = outputdim
-        self.network = buildNetwork(self.inputdim, self.hiddendim, self.outputdim,
-                                    hiddenclass = SigmoidLayer, bias = True)
-        if init_weights is not None:
-            self.network.params[:] = [init_weights] * len(self.network.params)
-                        
-    def select_action(self):
-        action_values = []
-        for action in self.state_class.ACTION_OBJECT.get_all_checkers():
-            move_outcome = self.state.get_move_outcome(action)
-            if move_outcome is not None:
-                move_value = self.get_state_value(move_outcome)
-                # insert a random number to break the ties
-                action_values.append(((move_value, random.random()), action))
-            
-        if len(action_values) > 0:
-            action_values_sorted = sorted(action_values, reverse=True)
-            action = action_values_sorted[0][1]
-        else:
-            action = self.state_class.ACTION_OBJECT.action_forfeit_move
-            
-        return action
-    
-    def __repr__(self):
-        return str(self.network.params)
 
 class Game(object):
         
@@ -322,16 +214,18 @@ class GameSet(object):
     def get_sum_count_plies(self):
         return self.sum_count_plies
 
-class ExpParams:
+class ExpParams(object):
     
-    def __init__(self, domain_name, exp, p, offset, graph_name, trial):
+    def __init__(self, domain_name, exp, graph_name, p, offset, choose_roll,
+                 trial):
         self.domain_name = domain_name
         from domain_proxy import DomainProxy
         self.state_class = DomainProxy.load_domain_state_class_by_name(domain_name)
         self.exp = exp
+        self.graph_name = graph_name
         self.p = p
         self.offset = offset
-        self.graph_name = graph_name
+        self.choose_roll = choose_roll
         self.trial = trial
 
     def get_filename_suffix_with_trial(self):
@@ -375,8 +269,8 @@ class ExpParams:
     def is_first_trial(self):
         return self.trial == 0
 
-        
-class Experiment:
+
+class Experiment(object):
     
     exp_param_cached = None
     
@@ -387,14 +281,16 @@ class Experiment:
         
         domain_name = DEFAULT_DOMAIN_NAME
         exp = DEFAULT_EXP
+        graph_name = DEFAULT_GRAPH_NAME
         p = DEFAULT_P
         offset = DEFAULT_OFFSET
-        graph_name = DEFAULT_GRAPH_NAME
+        choose_roll = DEFAULT_CHOOSE_ROLL
         trial = DEFAULT_TRIAL
 
         options, remainder = getopt.getopt(sys.argv[1:], #@UnusedVariable
-                    'd:g:o:p:t:',
-                    ['domain=', 'graph=', 'offset=', 'p=', 'trial='])        
+                    'd:g:o:p:c:t:',
+                    ['domain=', 'graph=', 'offset=', 'p=', 'choose-roll=',
+                     'trial='])        
         
         for opt, arg in options:
             if opt in ('-d', '--domain'):
@@ -403,12 +299,15 @@ class Experiment:
             elif opt in ('-g', '--graph'):
                 print 'Setting graph name to: %s' % arg
                 graph_name = arg
-            elif opt in ('-o', '--offset'):
-                print 'Setting offset to: %s' % arg
-                offset = int(arg)
             elif opt in ('-p', '--p'):
                 print 'Setting p to: %s' % arg
                 p = float(arg)
+            elif opt in ('-o', '--offset'):
+                print 'Setting offset to: %s' % arg
+                offset = int(arg)
+            elif opt in ('-c', '--choose-roll'):
+                print 'Setting choose-roll to: %s' % arg
+                choose_roll = float(arg)
             elif opt in ('-t', '--trial'):
                 print 'Setting trial to: %s' % arg
                 trial = int(arg)
@@ -416,13 +315,13 @@ class Experiment:
         if domain_name is None:
             print 'Please specify an experiment using:'
             print ''
-            print 'python %s --domain=<domain> --graph=<name> [--trial=<trial>]' % sys.argv[0]
-            print 'python %s --domain=<domain> --p=<p> [--trial=<trial>]' % sys.argv[0]
-            print 'python %s --domain=<domain> --offset=<offset> [--trial=<trial>]' % sys.argv[0]
+            print 'python %s --domain=<name> --graph=<name> [--choose-roll=<frac>] [--trial=<trial>]' % sys.argv[0]
+            print 'python %s --domain=<name> --p=<frac> [--choose-roll=<frac>] [--trial=<trial>]' % sys.argv[0]
+            print 'python %s --domain=<name> --offset=<int> [--choose-roll=<frac>] [--trial=<trial>]' % sys.argv[0]
             sys.exit(-1)
         else:
-            cls.exp_param_cached = ExpParams(domain_name, exp, p, offset,
-                                             graph_name, trial)
+            cls.exp_param_cached = ExpParams(domain_name, exp, graph_name, 
+                                             p, offset, choose_roll, trial)
             return cls.exp_param_cached
 
     @classmethod

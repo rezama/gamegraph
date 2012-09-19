@@ -6,12 +6,123 @@ Created on Sep 17, 2012
 import random
 import copy
 from Queue import Queue
+from pybrain.tools.shortcuts import buildNetwork
+from pybrain.structure.modules.sigmoidlayer import SigmoidLayer
 
 from common import POS_ATTR, PLAYER_BLACK, PLAYER_WHITE, PLAYER_NAME,\
-    other_player, VAL_ATTR, Die, Action
+    other_player, VAL_ATTR
 from params import GENERATE_GRAPH_REPORT_EVERY_N_STATES, RECORD_GRAPH,\
     COLLECT_STATS
 from state_graph import StateGraph
+
+class Die(object):
+    
+    def __init__(self, num_sides):
+        self.num_sides = num_sides
+        self.sides = range(1, num_sides + 1)
+    
+    def roll(self):
+        return random.choice(self.sides)
+    
+    def get_all_sides(self):
+        return self.sides
+
+class Action(object):
+    
+    def __init__(self, num_checkers):
+        self.num_checkers = num_checkers
+        self.all_checkers = range(num_checkers)
+        self.action_forfeit_move = num_checkers
+        self.all_actions = self.all_checkers + [self.action_forfeit_move]
+    
+    def get_checker_name(self, i):
+        return 'Checker %d' % (i + 1)
+    
+    def random_action(self, state):
+        action = self.action_forfeit_move
+        checker = random.choice(self.all_checkers)
+        tries_left = self.num_checkers
+        while tries_left > 0:
+            move_outcome = state.get_move_outcome(checker)
+            if move_outcome is not None:
+                return checker
+            else:
+                checker = self.next_checker(checker)
+            tries_left -= 1
+            
+        return action
+
+    def next_checker(self, checker):
+        return (checker + 1) % (self.num_checkers)
+
+    def get_num_checkers(self):
+        return self.num_checkers
+
+    def get_all_checkers(self):
+        return self.all_checkers
+
+    def get_all_actions(self):
+        return self.all_actions
+
+class Agent(object):
+    
+    def __init__(self, state_class):
+        self.state_class = state_class
+        self.state = None
+
+    def set_state(self, state):
+        self.state = state
+    
+    def begin_episode(self):
+        pass
+    
+    def end_episode(self, reward):
+        pass
+
+    def select_action(self):
+        raise NotImplementedError
+
+class AgentRandom(Agent):
+    
+    def __init__(self, state_class):
+        super(AgentRandom, self).__init__(state_class)
+    
+    def select_action(self):
+        return self.state.action_object.random_action(self.state)
+    
+class AgentNeural(Agent):
+    
+    def __init__(self, state_class, outputdim, init_weights = None):
+        super(AgentNeural, self).__init__(state_class)
+#        self.inputdim = (MiniGammonState.BOARD_SIZE + 2) * 4   + 2
+#        #               10 points: |1w |2w |1b |2b             |white's turn |black's turn
+        self.inputdim = self.state_class.get_network_inputdim()
+        self.hiddendim = self.state_class.get_network_hiddendim()
+        self.outputdim = outputdim
+        self.network = buildNetwork(self.inputdim, self.hiddendim, self.outputdim,
+                                    hiddenclass = SigmoidLayer, bias = True)
+        if init_weights is not None:
+            self.network.params[:] = [init_weights] * len(self.network.params)
+                        
+    def select_action(self):
+        action_values = []
+        for action in self.state.action_object.get_all_checkers():
+            move_outcome = self.state.get_move_outcome(action)
+            if move_outcome is not None:
+                move_value = self.get_state_value(move_outcome)
+                # insert a random number to break the ties
+                action_values.append(((move_value, random.random()), action))
+            
+        if len(action_values) > 0:
+            action_values_sorted = sorted(action_values, reverse=True)
+            action = action_values_sorted[0][1]
+        else:
+            action = self.state.action_object.action_forfeit_move
+            
+        return action
+    
+    def __repr__(self):
+        return str(self.network.params)
 
 class State(object):
     
