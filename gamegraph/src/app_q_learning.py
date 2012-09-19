@@ -98,20 +98,20 @@ class SarsaLambda(object):
         if self.is_learning and (random.random() < self.epsilon):
             action = state.action_object.random_action(state)
         else:
-#            action = state.select_greedy_action(self)
-            action_values = []
-            for checker in state.action_object.get_all_checkers():
-                move_outcome = state.get_move_outcome(checker)
-                if move_outcome is not None:
-                    move_value = self.Q.get((self.state_str, checker), self.default_q)
-                    # insert a random number to break the ties
-                    action_values.append(((move_value, random.random()), checker))
-                
-            if len(action_values) > 0:
-                action_values_sorted = sorted(action_values, reverse=True)
-                action = action_values_sorted[0][1]
-            else:
-                action = state.action_object.action_forfeit_move
+            action = state.select_greedy_action(self)
+#            action_values = []
+#            for checker in state.action_object.get_all_checkers():
+#                move_outcome = state.get_move_outcome(checker)
+#                if move_outcome is not None:
+#                    move_value = self.Q.get((self.state_str, checker), self.default_q)
+#                    # insert a random number to break the ties
+#                    action_values.append(((move_value, random.random()), checker))
+#                
+#            if len(action_values) > 0:
+#                action_values_sorted = sorted(action_values, reverse=True)
+#                action = action_values_sorted[0][1]
+#            else:
+#                action = state.action_object.action_forfeit_move
             
         # update values
         
@@ -152,10 +152,20 @@ class SarsaLambda(object):
                 
         return action
 
-#    def get_state_value(self, state):
-#        state_str = str(state)
-#        return self.Q.get((self.state_str, checker), self.default_q)
-#    
+    def get_state_value(self, state):
+        state_str = str(state)
+        is_value_set = False
+        highest_q = None
+        for checker in state.action_object.get_all_checkers():
+            move_outcome = state.get_move_outcome(checker)
+            if move_outcome is not None:
+                move_value = self.Q.get((state_str, checker), self.default_q)
+                if (not is_value_set) or (move_value > highest_q):
+                    highest_q = move_value
+                    is_value_set = True
+
+        return highest_q
+    
 
     def get_board_value(self, board_str, all_rolls, all_actions):
         INVALID_ACTION_VALUE = -2
