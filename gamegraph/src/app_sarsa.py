@@ -15,10 +15,10 @@ from params import Q_EPSILON, Q_LAMBDA, Q_ALPHA, Q_GAMMA,\
     Q_LEARNING_SAVE_STATE_VALUES_IN_GRAPH, Q_LEARNING_NUM_FINAL_EVAL
 from domain import Agent, AgentRandom
 
-class AgentQLearning(Agent):
+class AgentTabular(Agent):
 
     def __init__(self, state_class, load_knowledge = False):
-        super(AgentQLearning, self).__init__(state_class)
+        super(AgentTabular, self).__init__(state_class)
         self.algorithm = SarsaLambda(state_class)
 
         if load_knowledge:
@@ -271,13 +271,13 @@ if __name__ == '__main__':
     exp_params = Experiment.get_command_line_args()
    
 #    random.seed(0)
-    agent_q_learning = AgentQLearning(exp_params.state_class)
+    agent_q_learning = AgentTabular(exp_params.state_class)
     if Q_LEARNING_TRAIN_AGAINST_SELF:
-        agent_opponent = AgentQLearning(exp_params.state_class)
+        agent_opponent = AgentTabular(exp_params.state_class)
     else:
         agent_opponent = AgentRandom(exp_params.state_class)
     # use this for evaluating against pre-trained version of self:
-#    agent_opponent = AgentQLearning(load_knowledge = True) 
+#    agent_opponent = AgentTabular(load_knowledge = True) 
 
     # when training for benchmark, have the RL agent play as black
 #    game_set = Domain.GameSetClass(NUM_ITERATIONS, agent_opponent, agent_q_learning, 

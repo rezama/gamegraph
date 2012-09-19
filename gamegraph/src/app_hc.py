@@ -12,7 +12,7 @@ from params import HC_RATIO_KEEP_CHAMPION_WEIGHTS, HC_MUTATE_WEIGHT_SIGMA,\
     HC_NUM_GENERATIONS, HC_EVALUATE_EVERY_N_GENERATIONS, HC_NUM_EVAL_GAMES,\
     HC_NUM_CHALLENGE_GAMES, HC_CHALLENGER_NEEDS_TO_WIN, EVAL_OPPONENT,\
     EVAL_OPPONENT_Q_LEARNING
-from app_q_learning import AgentQLearning
+from app_q_learning import AgentTabular
 from domain import AgentNeural, AgentRandom
 
 class AgentHC(AgentNeural):
@@ -59,7 +59,7 @@ if __name__ == '__main__':
     agent_champion = AgentHC();
     agent_challenger = AgentHC();
     if EVAL_OPPONENT == EVAL_OPPONENT_Q_LEARNING:
-        agent_opponent = AgentQLearning(exp_params.state_class, load_knowledge = True)
+        agent_opponent = AgentTabular(exp_params.state_class, load_knowledge = True)
     else:
         agent_opponent = AgentRandom(exp_params.state_class)
     print 'Opponent is: %s' % agent_opponent

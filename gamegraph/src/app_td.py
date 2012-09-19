@@ -13,7 +13,7 @@ from params import TD_LEARNING_RATE, TD_EPSILON, TD_LAMBDA, TD_ALPHA, TD_GAMMA,\
     TD_TRAIN_EPOCHS, TD_USE_ALPHA_ANNEALING, TD_NUM_ITERATIONS,\
     TD_NUM_EVAL_GAMES, TD_NUM_TRAINING_GAMES, EVAL_OPPONENT, EVAL_OPPONENT_Q_LEARNING,\
     TD_NETWORK_INIT_WEIGHTS
-from app_q_learning import AgentQLearning
+from app_q_learning import AgentTabular
 from domain import AgentNeural, AgentRandom
 
 class AgentTD(AgentNeural):
@@ -257,7 +257,7 @@ if __name__ == '__main__':
     agent_td1 = AgentTD(exp_params.state_class)
 #    agent_td2 = AgentTD()
     if EVAL_OPPONENT == EVAL_OPPONENT_Q_LEARNING:
-        agent_opponent = AgentQLearning(exp_params.state_class, load_knowledge = True)
+        agent_opponent = AgentTabular(exp_params.state_class, load_knowledge = True)
     else:
         agent_opponent = AgentRandom(exp_params.state_class)
     print 'Opponent is: %s' % agent_opponent
