@@ -81,6 +81,26 @@ class Agent(object):
 
     def select_action(self):
         raise NotImplementedError
+    
+    def select_action_freeroll(self):
+#        if self.exp_params.choose_roll > 0.0:
+#            r = random.random()
+#            if r < self.exp_params.choose_roll:
+#        (action, action_value) = self.select_greedy_action_fixed_roll(evaluator) #@UnusedVariable
+#        return action
+        roll_values = []
+        for replace_roll in self.state.die_object.get_all_sides():
+            self.state.roll = replace_roll
+            roll_action = self.select_action()
+            roll_value = self.last_selected_action_value
+            roll_values.append(((roll_value, random.random()), (replace_roll, roll_action)))
+        
+        roll_values_sorted = sorted(roll_values, reverse=True)
+        best_roll = roll_values_sorted[0][1][0]
+        best_action = roll_values_sorted[0][1][1]
+        self.roll = best_roll
+        return best_action
+        
 
 class AgentRandom(Agent):
     
@@ -105,22 +125,36 @@ class AgentNeural(Agent):
             self.network.params[:] = [init_weights] * len(self.network.params)
                         
     def select_action(self):
-        return self.state.select_greedy_action(self)
-#        action_values = []
-#        for action in self.state.action_object.get_all_checkers():
-#            move_outcome = self.state.get_move_outcome(action)
-#            if move_outcome is not None:
-#                move_value = self.get_state_value(move_outcome)
-#                # insert a random number to break the ties
-#                action_values.append(((move_value, random.random()), action))
-#            
-#        if len(action_values) > 0:
-#            action_values_sorted = sorted(action_values, reverse=True)
-#            action = action_values_sorted[0][1]
-#        else:
-#            action = self.state.action_object.action_forfeit_move
-#            
-#        return action
+        do_choose_roll = False
+        if self.state.exp_params.choose_roll > 0.0:
+            r = random.random()
+            if r < self.state.exp_params.choose_roll:
+                do_choose_roll = True
+        roll_range = [self.state.roll]
+        if do_choose_roll:
+            roll_range = self.state.die_object.get_all_sides()
+        
+        action_values = []
+        
+        for replace_roll in roll_range:
+            self.state.roll = replace_roll
+            for action in self.state.action_object.get_all_checkers():
+                move_outcome = self.state.get_move_outcome(action)
+                if move_outcome is not None:
+                    move_value = self.get_state_value(move_outcome)
+                    # insert a random number to break the ties
+                    action_values.append(((move_value, random.random()), (replace_roll, action)))
+            
+        if len(action_values) > 0:
+            action_values_sorted = sorted(action_values, reverse=True)
+            best_roll = action_values_sorted[0][1][0]
+            # set the best roll there
+            self.state.roll = best_roll
+            action = action_values_sorted[0][1][1]
+        else:
+            action = self.state.action_object.action_forfeit_move
+            
+        return action
     
     def __repr__(self):
         return str(self.network.params)
@@ -128,8 +162,8 @@ class AgentNeural(Agent):
 class State(object):
     
     GAME_GRAPH = None
-#    RECORD_GAME_GRAPH = StateGraph(DIE_OBJECT.get_all_sides(), 1,
-#                                   ACTION_OBJECT.get_all_actions())    
+#    RECORD_GAME_GRAPH = StateGraph(self.die_object.get_all_sides(), 1,
+#                                   self.action_object.get_all_actions())    
     
     # stats updated per move
     states_visit_count = {}
@@ -218,44 +252,6 @@ class State(object):
             return self.shadow
         else:
             return None
-    
-    def select_greedy_action(self, evaluator):
-        if self.exp_params.choose_roll > 0.0:
-            r = random.random()
-            if r < self.exp_params.choose_roll:
-                roll_values = []
-                for replace_roll in self.die_object.get_all_sides():
-                    self.roll = replace_roll
-                    (roll_action, roll_value) = self.select_greedy_action_fixed_roll(evaluator)
-                    roll_values.append(((roll_value, random.random()), (replace_roll, roll_action)))
-                
-                roll_values_sorted = sorted(roll_values, reverse=True)
-                best_roll = roll_values_sorted[0][1][0]
-                best_action = roll_values_sorted[0][1][1]
-                self.roll = best_roll
-                return best_action
-            
-        (action, action_value) = self.select_greedy_action_fixed_roll(evaluator) #@UnusedVariable
-        return action
-
-    def select_greedy_action_fixed_roll(self, evaluator):
-        action_values = []
-        for action in self.action_object.get_all_checkers():
-            move_outcome = self.get_move_outcome(action)
-            if move_outcome is not None:
-                move_value = evaluator.get_state_value(move_outcome)
-                # insert a random number to break the ties
-                action_values.append(((move_value, random.random()), action))
-            
-        if len(action_values) > 0:
-            action_values_sorted = sorted(action_values, reverse=True)
-            action = action_values_sorted[0][1]
-            action_value = action_values_sorted[0][0][0]
-        else:
-            action = self.action_object.action_forfeit_move
-            action_value = - REWARD_WIN
-            
-        return (action, action_value)
     
     def switch_turn(self):
         self.player_to_move = other_player(self.player_to_move)
@@ -739,9 +735,9 @@ class NannonState(State):
                 pos = self.pos[player][checker]
                 if pos == self.board_bar:
                     offset = player * 3
-                elif self.board_bar < pos < NannonState.board_off:
+                elif self.board_bar < pos < self.board_off:
                     offset = 6 + (pos - 1) * 2 + player
-                elif pos == NannonState.board_off:
+                elif pos == self.board_off:
                     offset = 6 + self.board_size * 2 + player * 3
                 else:
                     print 'Invalid checker position when encoding network input!'

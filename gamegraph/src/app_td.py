@@ -146,7 +146,7 @@ class AgentTD(AgentNeural):
         if self.is_learning and (random.random() < self.epsilon):
             action = self.state.action_object.random_action(self.state)
         else:
-            action = self.state.select_greedy_action(self)
+            action = super(AgentTD, self).select_action()
 #            action_values = []
 #            for checker in self.state.action_object.get_all_checkers():
 #                move_outcome = self.state.get_move_outcome(checker)

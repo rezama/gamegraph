@@ -93,7 +93,7 @@ class Game(object):
                 self.state.print_state()
             action = self.agents[self.state.player_to_move].select_action()
             if PRINT_GAME_DETAIL:
-                print '#  %s rolls %d, playing %s checker...' % \
+                print '#  %s rolls %d, playing %s...' % \
                         (PLAYER_NAME[self.state.player_to_move], 
                          self.state.roll,
                          self.state.action_object.get_checker_name(action))
