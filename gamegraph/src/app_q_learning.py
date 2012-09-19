@@ -98,6 +98,7 @@ class SarsaLambda(object):
         if self.is_learning and (random.random() < self.epsilon):
             action = state.action_object.random_action(state)
         else:
+#            action = state.select_greedy_action(self)
             action_values = []
             for checker in state.action_object.get_all_checkers():
                 move_outcome = state.get_move_outcome(checker)
@@ -150,6 +151,11 @@ class SarsaLambda(object):
             self.visit_count[key] = self.visit_count.get(key, 0) + 1
                 
         return action
+
+#    def get_state_value(self, state):
+#        state_str = str(state)
+#        return self.Q.get((self.state_str, checker), self.default_q)
+#    
 
     def get_board_value(self, board_str, all_rolls, all_actions):
         INVALID_ACTION_VALUE = -2

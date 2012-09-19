@@ -14,7 +14,8 @@ def compute_all():
         for filename in filenames:
             filename = filename.replace('.gz', '') # remove .gz extension
             filename = filename.replace('.txt', '') # remove .txt extension
-            filename = filename[:filename.rfind('-')] # remove trial
+            if filename.rfind('-') >= 0:
+                filename = filename[:filename.rfind('-')] # remove trial
             basename = filename
             if basename not in processed_bases:
                 processed_bases.append(basename)

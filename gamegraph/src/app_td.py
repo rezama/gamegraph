@@ -264,7 +264,7 @@ if __name__ == '__main__':
 
     for i in range(TD_NUM_ITERATIONS):
         print 'Iteration %d' % i
-        print 'Evaluating against opponent...'
+        print 'Evaluating against opponent (%d games)...' % TD_NUM_EVAL_GAMES
 
         agent_td1.pause_learning()
 #        agent_td2.pause_learning()
@@ -278,7 +278,7 @@ if __name__ == '__main__':
         agent_td1.resume_learning()        
 #        agent_td2.resume_learning()
 
-        print 'Training against self...'
+        print 'Training against self (%d games)...' % TD_NUM_TRAINING_GAMES
 #        game_set = Domain.GameSetClass(NUM_TRAINING_GAMES, agent_td1, agent_td1,
 #                                       p, reentry_offset)
         game_set = GameSet(exp_params, TD_NUM_TRAINING_GAMES,

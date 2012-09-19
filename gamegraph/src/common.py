@@ -29,13 +29,13 @@ def other_player(player):
 REWARD_WIN = 1.0
 REWARD_LOSE = 0.0
 
-EXP_BASE = 'base'
+#EXP_BASE = 'base'
 EXP_P = 'p'
 EXP_OFFSET = 'offset'
 EXP_GRAPH = 'graph'
 
 DEFAULT_DOMAIN_NAME = None
-DEFAULT_EXP = EXP_BASE
+DEFAULT_EXP = None
 DEFAULT_P = 1.0
 DEFAULT_OFFSET = 0
 DEFAULT_GRAPH_NAME = None
@@ -217,7 +217,7 @@ class GameSet(object):
 class ExpParams(object):
     
     def __init__(self, domain_name, exp, graph_name, p, offset, choose_roll,
-                 trial):
+                 trial, signature):
         self.domain_name = domain_name
         from domain_proxy import DomainProxy
         self.state_class = DomainProxy.load_domain_state_class_by_name(domain_name)
@@ -227,34 +227,36 @@ class ExpParams(object):
         self.offset = offset
         self.choose_roll = choose_roll
         self.trial = trial
+        self.signature = signature 
 
     def get_filename_suffix_with_trial(self):
         return self.get_filename_suffix_no_trial() + ('-%d' % self.trial)
 
     def get_filename_suffix_no_trial(self):
-        if self.exp == EXP_BASE:
-            return EXP_BASE
-        elif self.exp == EXP_P:
-            return '%s-%1.2f' % (self.exp, self.p)
-        elif self.exp == EXP_OFFSET:
-            return '%s-%d' % (self.exp, self.offset)
-        elif self.exp == EXP_GRAPH:
-            return '%s-%s' % (self.exp, self.graph_name)
-        else:
-            return 'invalidexp'
+        return self.signature
+#        if self.exp == EXP_BASE:
+#            return EXP_BASE
+#        if self.exp == EXP_P:
+#            return '%s-%1.2f' % (self.exp, self.p)
+#        elif self.exp == EXP_OFFSET:
+#            return '%s-%d' % (self.exp, self.offset)
+#        elif self.exp == EXP_GRAPH:
+#            return '%s-%s' % (self.exp, self.graph_name)
+#        else:
+#            return 'invalidexp'
         
     def get_custom_filename_no_trial(self, folder, file_prefix):
-        filename = '%s/%s-%s-%s.txt' % (folder, file_prefix, self.domain_name,
+        filename = '%s/%s-%s.txt' % (folder, file_prefix,
                                         self.get_filename_suffix_no_trial())
         return filename
         
     def get_custom_filename_with_trial(self, folder, file_prefix):
-        filename = '%s/%s-%s-%s.txt' % (folder, file_prefix, self.domain_name,
+        filename = '%s/%s-%s.txt' % (folder, file_prefix,
                                         self.get_filename_suffix_with_trial())
         return filename
         
     def get_trial_filename(self, file_prefix):
-        filename = '%s/%s-%s-%s.txt' % (FOLDER_TRIALS, file_prefix, self.domain_name,
+        filename = '%s/%s-%s.txt' % (FOLDER_TRIALS, file_prefix,
                                         self.get_filename_suffix_with_trial())
         return filename
         
@@ -289,29 +291,41 @@ class Experiment(object):
 
         options, remainder = getopt.getopt(sys.argv[1:], #@UnusedVariable
                     'd:g:o:p:c:t:',
-                    ['domain=', 'graph=', 'offset=', 'p=', 'choose-roll=',
+                    ['domain=', 'graph=', 'offset=', 'p=', 'chooseroll=',
                      'trial='])        
+        
+        signature = ''
         
         for opt, arg in options:
             if opt in ('-d', '--domain'):
                 print 'Setting domain to: %s' % arg
                 domain_name = arg
+                signature += arg + '-'
             elif opt in ('-g', '--graph'):
                 print 'Setting graph name to: %s' % arg
                 graph_name = arg
+                signature += 'graph-%s-' % arg
             elif opt in ('-p', '--p'):
                 print 'Setting p to: %s' % arg
                 p = float(arg)
+                signature += 'p-%s-' % arg
             elif opt in ('-o', '--offset'):
                 print 'Setting offset to: %s' % arg
                 offset = int(arg)
-            elif opt in ('-c', '--choose-roll'):
-                print 'Setting choose-roll to: %s' % arg
+                signature += 'offset-%s-' % arg
+            elif opt in ('-c', '--chooseroll'):
+                print 'Setting choose_roll to: %s' % arg
                 choose_roll = float(arg)
+                signature += 'chooseroll-%s-' % arg
             elif opt in ('-t', '--trial'):
                 print 'Setting trial to: %s' % arg
                 trial = int(arg)
-        
+#                signature += 'trial-%s' % arg
+
+        if signature.rfind('-') >= 0:
+            signature = signature[:signature.rfind('-')] # remove last hyphen        
+        print 'Run signature is: %s' % signature
+
         if domain_name is None:
             print 'Please specify an experiment using:'
             print ''
@@ -321,7 +335,8 @@ class Experiment(object):
             sys.exit(-1)
         else:
             cls.exp_param_cached = ExpParams(domain_name, exp, graph_name, 
-                                             p, offset, choose_roll, trial)
+                                             p, offset, choose_roll, trial,
+                                             signature)
             return cls.exp_param_cached
 
     @classmethod

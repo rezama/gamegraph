@@ -68,7 +68,7 @@ if __name__ == '__main__':
         print 'Generation %d' % generation_number
         
         if generation_number % HC_EVALUATE_EVERY_N_GENERATIONS == 0: 
-            print 'Evaluating against the opponent...'
+            print 'Evaluating against the opponent (%d games)...' % HC_NUM_EVAL_GAMES
             game_set = GameSet(exp_params, HC_NUM_EVAL_GAMES,
                                agent_champion, agent_opponent)
             count_wins = game_set.run()

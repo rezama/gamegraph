@@ -10,7 +10,7 @@ from pybrain.tools.shortcuts import buildNetwork
 from pybrain.structure.modules.sigmoidlayer import SigmoidLayer
 
 from common import POS_ATTR, PLAYER_BLACK, PLAYER_WHITE, PLAYER_NAME,\
-    other_player, VAL_ATTR
+    other_player, VAL_ATTR, REWARD_WIN
 from params import GENERATE_GRAPH_REPORT_EVERY_N_STATES, RECORD_GRAPH,\
     COLLECT_STATS
 from state_graph import StateGraph
@@ -220,6 +220,25 @@ class State(object):
             return None
     
     def select_greedy_action(self, evaluator):
+        if self.exp_params.choose_roll > 0.0:
+            r = random.random()
+            if r < self.exp_params.choose_roll:
+                roll_values = []
+                for replace_roll in self.die_object.get_all_sides():
+                    self.roll = replace_roll
+                    (roll_action, roll_value) = self.select_greedy_action_fixed_roll(evaluator)
+                    roll_values.append(((roll_value, random.random()), (replace_roll, roll_action)))
+                
+                roll_values_sorted = sorted(roll_values, reverse=True)
+                best_roll = roll_values_sorted[0][1][0]
+                best_action = roll_values_sorted[0][1][1]
+                self.roll = best_roll
+                return best_action
+            
+        (action, action_value) = self.select_greedy_action_fixed_roll(evaluator) #@UnusedVariable
+        return action
+
+    def select_greedy_action_fixed_roll(self, evaluator):
         action_values = []
         for action in self.action_object.get_all_checkers():
             move_outcome = self.get_move_outcome(action)
@@ -231,10 +250,12 @@ class State(object):
         if len(action_values) > 0:
             action_values_sorted = sorted(action_values, reverse=True)
             action = action_values_sorted[0][1]
+            action_value = action_values_sorted[0][0][0]
         else:
             action = self.action_object.action_forfeit_move
+            action_value = - REWARD_WIN
             
-        return action
+        return (action, action_value)
     
     def switch_turn(self):
         self.player_to_move = other_player(self.player_to_move)
@@ -313,7 +334,7 @@ class State(object):
     @classmethod
     def copy_state_values_to_graph(cls, exp_params, agent_q_learning):
         cls.GAME_GRAPH.transfer_state_values(agent_q_learning)
-        new_graph_filename = exp_params.get_graph_filename(exp_params.domain_name) + \
+        new_graph_filename = exp_params.get_graph_filename() + \
                 '-' + VAL_ATTR
         cls.GAME_GRAPH.save_to_file(new_graph_filename)
             
