@@ -716,12 +716,12 @@ class NannonState(State):
         for player in [PLAYER_WHITE, PLAYER_BLACK]:
             for checker in self.action_object.get_all_checkers():
                 pos = self.pos[player][checker]
-                if pos == NannonState.board_bar:
+                if pos == self.board_bar:
                     offset = player * 3
-                elif NannonState.board_bar < pos < NannonState.board_off:
+                elif self.board_bar < pos < NannonState.board_off:
                     offset = 6 + (pos - 1) * 2 + player
                 elif pos == NannonState.board_off:
-                    offset = 6 + NannonState.BOARD_SIZE * 2 + player * 3
+                    offset = 6 + self.board_size * 2 + player * 3
                 else:
                     print 'Invalid checker position when encoding network input!'
                 
@@ -1046,21 +1046,21 @@ class NohitGammonState(State):
                 player = self.player_to_move
                 checker_pos = self.pos[player][checker]
                 opponent = other_player(player)
-                opponent_actual_checker_pos = [self.BOARD_OFF - x for x in self.pos[opponent]]
+                opponent_actual_checker_pos = [self.board_off - x for x in self.pos[opponent]]
                 
                 checker_target = checker_pos + self.roll
         
                 # if playing checker from bar, select entry position based on p 
-                if checker_pos == self.BOARD_BAR:
-                    offset = self.BOARD_REENTRY_POS1
+                if checker_pos == self.board_bar:
+                    offset = self.board_reentry_pos1
                     r = random.random()
                     if r >= self.exp_params.p:
-                        offset = self.BOARD_REENTRY_POS2
+                        offset = self.board_reentry_pos2
                     checker_target += offset
                 
                 # if playing a 2 from the last point
-                if checker_target > self.BOARD_OFF:
-                    checker_target = self.BOARD_OFF
+                if checker_target > self.board_off:
+                    checker_target = self.board_off
                     
                 # if both checkers from opponent sit together
 #                opponent_has_block = (opponent_actual_checker1_pos == opponent_actual_checker2_pos) and\
@@ -1068,13 +1068,13 @@ class NohitGammonState(State):
 #                
 #                hitting_opponent = (opponent_actual_checker1_pos == checker_target) or \
 #                                   (opponent_actual_checker2_pos == checker_target)
-                hitting_opponent = (checker_target != self.BOARD_OFF) and \
+                hitting_opponent = (checker_target != self.board_off) and \
                         (opponent_actual_checker_pos.count(checker_target) >= 1)
                 
                 # illegal move conditions
-                moving_bourne_off_checker = (checker_pos == self.BOARD_OFF)
-                premature_bear_off = (checker_target > self.BOARD_END) and \
-                        (min(self.pos[player]) <= self.BOARD_MID)
+                moving_bourne_off_checker = (checker_pos == self.board_off)
+                premature_bear_off = (checker_target > self.board_end) and \
+                        (min(self.pos[player]) <= self.board_mid)
                 
                 is_illegal_move = (moving_bourne_off_checker or
                                    premature_bear_off or
@@ -1135,7 +1135,7 @@ class NohitGammonState(State):
     def encode(self):
         if self.is_graph_based:
             return self.GAME_GRAPH.get_node_name(self.current_g_id)[2:]
-        cell_content = [''] * (self.BOARD_OFF + 1)
+        cell_content = [''] * (self.board_off + 1)
         for player in [PLAYER_WHITE, PLAYER_BLACK]:
             for checker in self.CHECKERS:
                 pos = self.pos[player][checker]
@@ -1144,7 +1144,7 @@ class NohitGammonState(State):
                 letter = PLAYER_NAME[player].lower()[0]
                 cell_content[pos] += letter
                 
-        for pos in range(self.BOARD_OFF + 1):
+        for pos in range(self.board_off + 1):
             cell_content[pos] = cell_content[pos].center(4)
 
 #        encoding = '|%s|  |%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|  |%s|' % (cell_content[0], cell_content[1], cell_content[2], cell_content[3], cell_content[4], cell_content[5], cell_content[6], cell_content[7], cell_content[8], cell_content[9], cell_content[10], cell_content[11], cell_content[12], cell_content[13])
