@@ -105,21 +105,22 @@ class AgentNeural(Agent):
             self.network.params[:] = [init_weights] * len(self.network.params)
                         
     def select_action(self):
-        action_values = []
-        for action in self.state.action_object.get_all_checkers():
-            move_outcome = self.state.get_move_outcome(action)
-            if move_outcome is not None:
-                move_value = self.get_state_value(move_outcome)
-                # insert a random number to break the ties
-                action_values.append(((move_value, random.random()), action))
-            
-        if len(action_values) > 0:
-            action_values_sorted = sorted(action_values, reverse=True)
-            action = action_values_sorted[0][1]
-        else:
-            action = self.state.action_object.action_forfeit_move
-            
-        return action
+        return self.state.select_greedy_action(self)
+#        action_values = []
+#        for action in self.state.action_object.get_all_checkers():
+#            move_outcome = self.state.get_move_outcome(action)
+#            if move_outcome is not None:
+#                move_value = self.get_state_value(move_outcome)
+#                # insert a random number to break the ties
+#                action_values.append(((move_value, random.random()), action))
+#            
+#        if len(action_values) > 0:
+#            action_values_sorted = sorted(action_values, reverse=True)
+#            action = action_values_sorted[0][1]
+#        else:
+#            action = self.state.action_object.action_forfeit_move
+#            
+#        return action
     
     def __repr__(self):
         return str(self.network.params)
@@ -217,6 +218,23 @@ class State(object):
             return self.shadow
         else:
             return None
+    
+    def select_greedy_action(self, evaluator):
+        action_values = []
+        for action in self.state.action_object.get_all_checkers():
+            move_outcome = self.state.get_move_outcome(action)
+            if move_outcome is not None:
+                move_value = evaluator.get_state_value(move_outcome)
+                # insert a random number to break the ties
+                action_values.append(((move_value, random.random()), action))
+            
+        if len(action_values) > 0:
+            action_values_sorted = sorted(action_values, reverse=True)
+            action = action_values_sorted[0][1]
+        else:
+            action = self.state.action_object.action_forfeit_move
+            
+        return action
     
     def switch_turn(self):
         self.player_to_move = other_player(self.player_to_move)

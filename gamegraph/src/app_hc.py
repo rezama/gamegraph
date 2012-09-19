@@ -6,12 +6,13 @@ Created on Dec 9, 2011
 
 import random
 from common import Experiment, PLAYER_WHITE, PLAYER_BLACK, GameSet,\
-    FILE_PREFIX_HC, FILE_PREFIX_HC_CHALLENGE, AgentNeural, AgentRandom
+    FILE_PREFIX_HC, FILE_PREFIX_HC_CHALLENGE
 from params import HC_RATIO_KEEP_CHAMPION_WEIGHTS, HC_MUTATE_WEIGHT_SIGMA,\
     HC_NUM_GENERATIONS, HC_EVALUATE_EVERY_N_GENERATIONS, HC_NUM_EVAL_GAMES,\
     HC_NUM_CHALLENGE_GAMES, HC_CHALLENGER_NEEDS_TO_WIN, EVAL_OPPONENT,\
     EVAL_OPPONENT_Q_LEARNING
 from app_q_learning import AgentQLearning
+from domain import AgentNeural, AgentRandom
 
 class AgentHC(AgentNeural):
     

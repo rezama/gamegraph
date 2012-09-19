@@ -9,11 +9,12 @@ import random
 from pybrain.datasets.supervised import SupervisedDataSet
 from pybrain.supervised.trainers.backprop import BackpropTrainer
 from common import Experiment, PLAYER_WHITE, GameSet, other_player, REWARD_LOSE,\
-    REWARD_WIN, FILE_PREFIX_TD, AgentNeural, AgentRandom
+    REWARD_WIN, FILE_PREFIX_TD
 from params import TD_LEARNING_RATE, TD_EPSILON, TD_LAMBDA, TD_ALPHA, TD_GAMMA,\
     TD_TRAIN_EPOCHS, TD_USE_ALPHA_ANNEALING, TD_NUM_ITERATIONS,\
     TD_NUM_EVAL_GAMES, TD_NUM_TRAINING_GAMES, EVAL_OPPONENT, EVAL_OPPONENT_Q_LEARNING
 from app_q_learning import AgentQLearning
+from domain import AgentNeural, AgentRandom
 
 class AgentTD(AgentNeural):
     
@@ -144,19 +145,20 @@ class AgentTD(AgentNeural):
         if self.is_learning and (random.random() < self.epsilon):
             action = self.state.action_object.random_action(self.state)
         else:
-            action_values = []
-            for checker in self.state.action_object.get_all_checkers():
-                move_outcome = self.state.get_move_outcome(checker)
-                if move_outcome is not None:
-                    move_value = self.get_state_value(move_outcome)
-                    # insert a random number to break the ties
-                    action_values.append(((move_value, random.random()), checker))
-                
-            if len(action_values) > 0:
-                action_values_sorted = sorted(action_values, reverse=True)
-                action = action_values_sorted[0][1]
-            else:
-                action = self.state.action_object.action_forfeit_move
+            action = self.state.select_greedy_action(self)
+#            action_values = []
+#            for checker in self.state.action_object.get_all_checkers():
+#                move_outcome = self.state.get_move_outcome(checker)
+#                if move_outcome is not None:
+#                    move_value = self.get_state_value(move_outcome)
+#                    # insert a random number to break the ties
+#                    action_values.append(((move_value, random.random()), checker))
+#                
+#            if len(action_values) > 0:
+#                action_values_sorted = sorted(action_values, reverse=True)
+#                action = action_values_sorted[0][1]
+#            else:
+#                action = self.state.action_object.action_forfeit_move
             
         # update values
         
