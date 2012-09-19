@@ -5,6 +5,7 @@ Created on Dec 10, 2011
 '''
 
 import random
+
 from common import Experiment, Game, GameSet, FILE_PREFIX_Q_LEARNING, \
     FOLDER_QTABLE_VS_SELF, FOLDER_QTABLE_VS_RANDOM
 import pickle

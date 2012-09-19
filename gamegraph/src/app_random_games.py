@@ -3,6 +3,7 @@ Created on Sep 17, 2012
 
 @author: reza
 '''
+
 from common import Experiment, PLAYER_WHITE, GameSet, PLAYER_BLACK,\
     FOLDER_DOMAINSTATS
 from params import NUM_STATS_GAMES, RECORD_GRAPH, SAVE_STATS, COLLECT_STATS

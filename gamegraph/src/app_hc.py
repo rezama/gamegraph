@@ -5,6 +5,7 @@ Created on Dec 9, 2011
 '''
 
 import random
+
 from common import Experiment, PLAYER_WHITE, PLAYER_BLACK, GameSet,\
     FILE_PREFIX_HC, FILE_PREFIX_HC_CHALLENGE
 from params import HC_RATIO_KEEP_CHAMPION_WEIGHTS, HC_MUTATE_WEIGHT_SIGMA,\

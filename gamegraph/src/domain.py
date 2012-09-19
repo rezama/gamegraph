@@ -221,8 +221,8 @@ class State(object):
     
     def select_greedy_action(self, evaluator):
         action_values = []
-        for action in self.state.action_object.get_all_checkers():
-            move_outcome = self.state.get_move_outcome(action)
+        for action in self.action_object.get_all_checkers():
+            move_outcome = self.get_move_outcome(action)
             if move_outcome is not None:
                 move_value = evaluator.get_state_value(move_outcome)
                 # insert a random number to break the ties
@@ -232,7 +232,7 @@ class State(object):
             action_values_sorted = sorted(action_values, reverse=True)
             action = action_values_sorted[0][1]
         else:
-            action = self.state.action_object.action_forfeit_move
+            action = self.action_object.action_forfeit_move
             
         return action
     

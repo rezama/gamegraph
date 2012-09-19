@@ -3,16 +3,16 @@ Created on Dec 9, 2011
 
 @author: reza
 '''
-#import pickle
 import random
-
 from pybrain.datasets.supervised import SupervisedDataSet
 from pybrain.supervised.trainers.backprop import BackpropTrainer
+
 from common import Experiment, PLAYER_WHITE, GameSet, other_player, REWARD_LOSE,\
     REWARD_WIN, FILE_PREFIX_TD
 from params import TD_LEARNING_RATE, TD_EPSILON, TD_LAMBDA, TD_ALPHA, TD_GAMMA,\
     TD_TRAIN_EPOCHS, TD_USE_ALPHA_ANNEALING, TD_NUM_ITERATIONS,\
-    TD_NUM_EVAL_GAMES, TD_NUM_TRAINING_GAMES, EVAL_OPPONENT, EVAL_OPPONENT_Q_LEARNING
+    TD_NUM_EVAL_GAMES, TD_NUM_TRAINING_GAMES, EVAL_OPPONENT, EVAL_OPPONENT_Q_LEARNING,\
+    TD_NETWORK_INIT_WEIGHTS
 from app_q_learning import AgentQLearning
 from domain import AgentNeural, AgentRandom
 
@@ -20,7 +20,8 @@ class AgentTD(AgentNeural):
     
     def __init__(self, state_class, load_knowledge = False):
 #        super(AgentTD, self).__init__(2, init_weights = 0.15)
-        super(AgentTD, self).__init__(state_class, 2)
+        super(AgentTD, self).__init__(state_class, 2, 
+                                      init_weights = TD_NETWORK_INIT_WEIGHTS)
 
         self.trainer = BackpropTrainer(self.network, 
                                        learningrate = TD_LEARNING_RATE, 
