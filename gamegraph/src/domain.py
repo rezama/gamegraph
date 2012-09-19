@@ -900,7 +900,7 @@ class MidGammonState(State):
                     if hitting_opponent:
                         hit_checker = opponent_actual_checker_pos.index(checker_target)
                         self.pos[opponent][hit_checker] = self.board_bar
-                    self.__fix_checker_orders()
+                    self.fix_checker_orders()
             
         if success:
             self.switch_turn()
@@ -1085,7 +1085,7 @@ class NohitGammonState(State):
                     # move checker
                     self.pos[player][checker] = checker_target
                     # hit if checker from opponent is there
-                    self.__fix_checker_orders()
+                    self.fix_checker_orders()
             
         if success:
             self.switch_turn()
