@@ -13,7 +13,7 @@ from params import TD_LEARNING_RATE, TD_EPSILON, TD_LAMBDA, TD_ALPHA, TD_GAMMA,\
     TD_TRAIN_EPOCHS, TD_USE_ALPHA_ANNEALING, TD_NUM_ITERATIONS,\
     TD_NUM_EVAL_GAMES, TD_NUM_TRAINING_GAMES, EVAL_OPPONENT, EVAL_OPPONENT_Q_LEARNING,\
     TD_NETWORK_INIT_WEIGHTS
-from app_q_learning import AgentTabular
+from app_sarsa import AgentTabular
 from domain import AgentNeural, AgentRandom
 
 class AgentTD(AgentNeural):

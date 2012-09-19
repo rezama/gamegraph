@@ -12,7 +12,7 @@ from params import HC_RATIO_KEEP_CHAMPION_WEIGHTS, HC_MUTATE_WEIGHT_SIGMA,\
     HC_NUM_GENERATIONS, HC_EVALUATE_EVERY_N_GENERATIONS, HC_NUM_EVAL_GAMES,\
     HC_NUM_CHALLENGE_GAMES, HC_CHALLENGER_NEEDS_TO_WIN, EVAL_OPPONENT,\
     EVAL_OPPONENT_Q_LEARNING
-from app_q_learning import AgentTabular
+from app_sarsa import AgentTabular
 from domain import AgentNeural, AgentRandom
 
 class AgentHC(AgentNeural):
