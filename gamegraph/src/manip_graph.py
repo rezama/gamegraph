@@ -70,6 +70,10 @@ if __name__ == '__main__':
     exp_params = Experiment.get_command_line_args()
 
     g = StateGraph.load(exp_params)
+    g.compute_bfs()
+    g.value_iteration(exp_params)
+#    g.print_all_edges()
+    
 #    GraphManipulator.create_back_range(exp_params, g)
 
 #    g = GraphManipulator.generate_graph(exp_params)

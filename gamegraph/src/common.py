@@ -164,7 +164,6 @@ class Experiment(object):
 
         if signature.rfind('-') >= 0:
             signature = signature[:signature.rfind('-')] # remove last hyphen        
-        print 'Run signature is: %s' % signature
 
         if domain_name is None:
             print 'Please specify an experiment using:'
@@ -174,6 +173,7 @@ class Experiment(object):
             print 'python %s --domain=<name> --offset=<int> [--choose-roll=<frac>] [--trial=<trial>]' % sys.argv[0]
             sys.exit(-1)
         else:
+            print 'Run signature is: %s' % signature
             cls.exp_param_cached = ExpParams(domain_name, exp, graph_name, 
                                              p, offset, choose_roll, trial,
                                              signature)

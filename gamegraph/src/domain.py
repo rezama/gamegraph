@@ -213,8 +213,7 @@ class State(object):
         
         if self.is_graph_based:
             if self.GAME_GRAPH is None:
-                filename = exp_params.get_graph_filename()
-                self.__class__.GAME_GRAPH = StateGraph.load_from_file(filename)
+                self.__class__.GAME_GRAPH = StateGraph.load(exp_params)
             self.current_g_id = self.GAME_GRAPH.get_random_source(self.player_to_move)
     
         self.shadow = None        

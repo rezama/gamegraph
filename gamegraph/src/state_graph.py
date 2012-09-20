@@ -11,6 +11,7 @@ from Queue import Queue
 import gzip
 import os
 import time
+from params import VALUE_ITER_MIN_RESIDUAL
 
 USE_GZIP = True
 
@@ -30,6 +31,9 @@ class StateGraph(object):
         
         self.distance_buckets = [[], []]
 
+    def get_num_nodes(self):
+        return len(self.node_names)
+    
     @classmethod
     def load(cls, exp_params):
         print 'Loading graph for signature: %s...' % exp_params.signature
@@ -118,7 +122,7 @@ class StateGraph(object):
     def add_node(self, node_name, node_color):
 #        if node_name not in self.node_names:
         if not self.node_ids.has_key(node_name):
-            node_id = len(self.node_names)
+            node_id = self.get_num_nodes()
             self.node_names.append(node_name)
             self.node_attrs.append({})
             self.node_ids[node_name] = node_id
@@ -223,7 +227,7 @@ class StateGraph(object):
     
     def compute_bfs(self):
         print 'Computing BFS...'
-        for node_id in range(len(self.node_names)):
+        for node_id in range(self.get_num_nodes()):
             self.set_attr(node_id, BFS_COLOR_ATTR, 'w')
             self.set_attr(node_id, DIST_ATTR, -1)
         Q = Queue()
@@ -246,8 +250,51 @@ class StateGraph(object):
             self.set_attr(u, BFS_COLOR_ATTR, 'b')
         print 'Done.'
     
+    def value_iteration(self, exp_params):
+        print 'Doing value iteration...'
+        init_val = float(REWARD_WIN - REWARD_LOSE) / 2
+        for node_id in range(self.get_num_nodes()):
+            self.set_attr(node_id, VAL_ATTR, init_val)
+        for node_id in self.sinks[PLAYER_WHITE]:
+            self.set_attr(node_id, VAL_ATTR, REWARD_WIN)
+        for node_id in self.sinks[PLAYER_BLACK]:
+            self.set_attr(node_id, VAL_ATTR, REWARD_LOSE)
+        num_rolls = len(self.all_rolls)
+        cont = True
+        iteration = 0
+        while cont:
+            iteration += 1
+            print 'Iteration %d...' % iteration
+            max_residual = 0
+            for node_id in reversed(range(self.get_num_nodes())):
+                if (node_id not in self.sinks[PLAYER_WHITE]) and (node_id not in self.sinks[PLAYER_BLACK]):
+                    multiplier = 1
+                    if self.node_colors[node_id] == PLAYER_BLACK:
+                        multiplier = -1
+                    roll_values = [-multiplier * REWARD_WIN] * len(self.all_rolls) 
+                    for roll in self.all_rolls:
+                        roll_index = roll - self.roll_offset
+                        for action in self.all_actions:
+                            successor = self.successors[node_id][roll_index][action]
+                            if successor is not None:
+                                successor_value = self.node_attrs[successor][VAL_ATTR]
+                                if (multiplier * successor_value) > (multiplier * roll_values[roll_index]):
+                                    roll_values[roll_index] = successor_value
+                    new_state_value = float(sum(roll_values)) / num_rolls
+                    residual = abs(self.node_attrs[node_id][VAL_ATTR] - new_state_value)
+#                    if residual > 0:
+#                        print 'Updating state %s value from %.4f to %.4f' % (
+#                                self.node_names[node_id], self.node_attrs[node_id][VAL_ATTR], new_state_value)
+                    if residual > max_residual:
+                        max_residual = residual
+                    self.node_attrs[node_id][VAL_ATTR] = new_state_value
+            print 'Maximum residual: %.2f' % max_residual
+            if max_residual < VALUE_ITER_MIN_RESIDUAL:
+                cont = False
+        print 'Done.'
+    
     def print_all_edges(self):
-        for node_id in range(len(self.node_names)):
+        for node_id in range(self.get_num_nodes()):
             node_dist = self.get_attr(node_id, DIST_ATTR)
             for roll in self.all_rolls:
                 roll_index = roll - self.roll_offset
@@ -276,7 +323,7 @@ class StateGraph(object):
                             print ''  
                             
     def print_back_edges(self):
-        for node_id in range(len(self.node_names)):
+        for node_id in range(self.get_num_nodes()):
             node_dist = self.get_attr(node_id, DIST_ATTR)
             for roll in self.all_rolls:
                 roll_index = roll - self.roll_offset
@@ -309,7 +356,7 @@ class StateGraph(object):
         count_back_edges = 0
         count_replaceable = 0
         count_replaced = 0
-        for node_id in range(len(self.node_names)):
+        for node_id in range(self.get_num_nodes()):
             node_dist = self.get_attr(node_id, DIST_ATTR)
             for roll in self.all_rolls:
                 roll_index = roll - self.roll_offset
@@ -347,7 +394,7 @@ class StateGraph(object):
         count_hit_edges = 0
         count_replaceable = 0
         count_replaced = 0
-        for node_id in range(len(self.node_names)):
+        for node_id in range(self.get_num_nodes()):
             for roll in self.all_rolls:
                 roll_index = roll - self.roll_offset
                 for action in self.all_actions:
@@ -368,7 +415,7 @@ class StateGraph(object):
 
     def transfer_state_values(self, agent):
         print 'Transferring state values...'
-        for node_id in range(len(self.node_names)):
+        for node_id in range(self.get_num_nodes()):
             node_name = self.node_names[node_id]
             if node_id in self.sinks[PLAYER_WHITE]:
                 self.node_attrs[node_id][VAL_ATTR] = REWARD_WIN
@@ -383,17 +430,17 @@ class StateGraph(object):
         print 'Done.'
 
     def cleanup_attrs(self):
-        for node_id in range(len(self.node_names)):
+        for node_id in range(self.get_num_nodes()):
             del self.node_attrs[node_id][DIST_ATTR]
             del self.node_attrs[node_id][BFS_COLOR_ATTR]
 
     def print_stats(self):
         print 'Graph Stats:'
-        print 'Number of nodes: %d' % len(self.node_names)
+        print 'Number of nodes: %d' % self.get_num_nodes()
         print 'Number of sources: %d' % (len(self.sources[PLAYER_WHITE]) + len(self.sources[PLAYER_BLACK]))
         print 'Number of sinks: %d' % (len(self.sinks[PLAYER_WHITE]) + len(self.sinks[PLAYER_BLACK]))
         total_edges = 0
-        for node_id in range(len(self.node_names)):
+        for node_id in range(self.get_num_nodes()):
             for roll in self.all_rolls:
                 roll_index = roll - self.roll_offset
                 for action in self.all_actions:
