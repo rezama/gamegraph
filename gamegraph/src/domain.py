@@ -753,7 +753,7 @@ class NannonState(State):
         else:
             cell_content = [''] * (self.board_off + 1)
             for player in [PLAYER_WHITE, PLAYER_BLACK]:
-                for checker in range(self.NUM_CHECKERS):
+                for checker in self.action_object.get_all_checkers():
                     pos = self.pos[player][checker]
                     if (player == PLAYER_BLACK):
                         pos = self.flip_pos(pos)
@@ -954,7 +954,7 @@ class MidGammonState(State):
             return self.GAME_GRAPH.get_node_name(self.current_g_id)[2:]
         cell_content = [''] * (self.board_off + 1)
         for player in [PLAYER_WHITE, PLAYER_BLACK]:
-            for checker in self.CHECKERS:
+            for checker in self.action_object.get_all_checkers():
                 pos = self.pos[player][checker]
                 if (player == PLAYER_BLACK):
                     pos = self.flip_pos(pos)
@@ -1140,7 +1140,7 @@ class NohitGammonState(State):
             return self.GAME_GRAPH.get_node_name(self.current_g_id)[2:]
         cell_content = [''] * (self.board_off + 1)
         for player in [PLAYER_WHITE, PLAYER_BLACK]:
-            for checker in self.CHECKERS:
+            for checker in self.action_object.get_all_checkers():
                 pos = self.pos[player][checker]
                 if (player == PLAYER_BLACK):
                     pos = self.flip_pos(pos)
