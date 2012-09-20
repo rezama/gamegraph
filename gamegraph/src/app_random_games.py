@@ -4,10 +4,9 @@ Created on Sep 17, 2012
 @author: reza
 '''
 
-from common import Experiment, PLAYER_WHITE, GameSet, PLAYER_BLACK,\
-    FOLDER_DOMAINSTATS
+from common import Experiment, PLAYER_WHITE, PLAYER_BLACK, FOLDER_DOMAINSTATS
 from params import NUM_STATS_GAMES, RECORD_GRAPH, SAVE_STATS, COLLECT_STATS
-from domain import AgentRandom
+from domain import AgentRandom, GameSet
 
 if __name__ == '__main__':
     exp_params = Experiment.get_command_line_args()

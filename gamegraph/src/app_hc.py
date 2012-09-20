@@ -6,14 +6,14 @@ Created on Dec 9, 2011
 
 import random
 
-from common import Experiment, PLAYER_WHITE, PLAYER_BLACK, GameSet,\
-    FILE_PREFIX_HC, FILE_PREFIX_HC_CHALLENGE
+from common import Experiment, PLAYER_WHITE, PLAYER_BLACK, FILE_PREFIX_HC,\
+    FILE_PREFIX_HC_CHALLENGE
 from params import HC_RATIO_KEEP_CHAMPION_WEIGHTS, HC_MUTATE_WEIGHT_SIGMA,\
     HC_NUM_GENERATIONS, HC_EVALUATE_EVERY_N_GENERATIONS, HC_NUM_EVAL_GAMES,\
     HC_NUM_CHALLENGE_GAMES, HC_CHALLENGER_NEEDS_TO_WIN, EVAL_OPPONENT,\
-    EVAL_OPPONENT_Q_LEARNING
-from app_sarsa import AgentTabular
-from domain import AgentNeural, AgentRandom
+    EVAL_OPPONENT_SARSA
+from app_sarsa import AgentSarsa
+from domain import AgentNeural, AgentRandom, GameSet
 
 class AgentHC(AgentNeural):
     
@@ -58,8 +58,8 @@ if __name__ == '__main__':
     
     agent_champion = AgentHC();
     agent_challenger = AgentHC();
-    if EVAL_OPPONENT == EVAL_OPPONENT_Q_LEARNING:
-        agent_opponent = AgentTabular(exp_params.state_class, load_knowledge = True)
+    if EVAL_OPPONENT == EVAL_OPPONENT_SARSA:
+        agent_opponent = AgentSarsa(exp_params.state_class, load_knowledge = True)
     else:
         agent_opponent = AgentRandom(exp_params.state_class)
     print 'Opponent is: %s' % agent_opponent

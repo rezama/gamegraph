@@ -10,10 +10,13 @@ from pybrain.tools.shortcuts import buildNetwork
 from pybrain.structure.modules.sigmoidlayer import SigmoidLayer
 
 from common import POS_ATTR, PLAYER_BLACK, PLAYER_WHITE, PLAYER_NAME,\
-    other_player, VAL_ATTR, REWARD_WIN
+    other_player, VAL_ATTR, REWARD_WIN, REWARD_LOSE
 from params import GENERATE_GRAPH_REPORT_EVERY_N_STATES, RECORD_GRAPH,\
-    COLLECT_STATS
+    COLLECT_STATS, PRINT_GAME_DETAIL, GAMESET_PROGRESS_REPORT_USE_GZIP,\
+    ALTERNATE_SEATS, USE_SEEDS, GAMESET_RECENT_WINNERS_LIST_SIZE,\
+    PRINT_GAME_RESULTS, GAMESET_PROGRESS_REPORT_EVERY_N_GAMES
 from state_graph import StateGraph
+import gzip
 
 class Die(object):
     
@@ -328,8 +331,8 @@ class State(object):
         return g
                 
     @classmethod
-    def copy_state_values_to_graph(cls, exp_params, agent_q_learning):
-        cls.GAME_GRAPH.transfer_state_values(agent_q_learning)
+    def copy_state_values_to_graph(cls, exp_params, agent_sarsa):
+        cls.GAME_GRAPH.transfer_state_values(agent_sarsa)
         new_graph_filename = exp_params.get_graph_filename() + \
                 '-' + VAL_ATTR
         cls.GAME_GRAPH.save_to_file(new_graph_filename)
@@ -1185,6 +1188,160 @@ class NohitGammonState(State):
                 self.pos[0][0], self.pos[0][1], self.pos[0][2], self.pos[0][3], 
                 self.pos[1][0], self.pos[1][1], self.pos[1][2], self.pos[1][3],
                 self.roll)
+
+class Game(object):
+        
+    def __init__(self, exp_params, game_number, agent_white, agent_black,
+                 player_to_start_game):
+        self.game_number = game_number
+        self.agents = [None, None]
+        self.agents[PLAYER_WHITE] = agent_white
+        self.agents[PLAYER_BLACK] = agent_black
+        self.exp_params = exp_params
+        self.state = exp_params.state_class(exp_params, player_to_start_game)
+
+        # initial die roll
+        self.state.roll = self.state.die_object.roll()
+        if RECORD_GRAPH and not self.state.is_graph_based:
+            record_graph = self.state.RECORD_GAME_GRAPH
+            s = record_graph.add_node(self.state.board_config(), self.state.player_to_move)
+            if not record_graph.has_attr(s, POS_ATTR):
+                record_graph.set_attr(s, POS_ATTR, copy.deepcopy(self.state.pos))
+                record_graph.set_as_source(s, player_to_start_game)
+        
+        agent_white.set_state(self.state)
+        agent_black.set_state(self.state)
+        self.count_plies = 0
+        
+    def play(self):
+        while not self.state.is_final():
+#            if self.player_to_play == PLAYER_WHITE:
+#                self.state.compute_per_ply_stats(self.count_plies)
+            self.state.compute_per_ply_stats(self.count_plies)
+            if PRINT_GAME_DETAIL:
+                self.state.print_state()
+            action = self.agents[self.state.player_to_move].select_action()
+            if PRINT_GAME_DETAIL:
+                print '#  %s rolls %d, playing %s...' % \
+                        (PLAYER_NAME[self.state.player_to_move], 
+                         self.state.roll,
+                         self.state.action_object.get_checker_name(action))
+            self.state.move(action)
+            if PRINT_GAME_DETAIL:
+                print '# '
+            self.count_plies += 1
+        
+        if PRINT_GAME_DETAIL:
+            self.state.print_state()
+
+        self.state.compute_per_game_stats(self.game_number)
+        
+        winner = None
+        loser = None
+        if self.state.has_player_won(PLAYER_WHITE):
+            winner = PLAYER_WHITE
+            loser = PLAYER_BLACK
+        elif self.state.has_player_won(PLAYER_BLACK):
+            winner = PLAYER_BLACK
+            loser = PLAYER_WHITE
+        else:
+            print 'Error: Game ended without a winning player!'
+        
+        self.agents[winner].end_episode(REWARD_WIN)
+        self.agents[loser].end_episode(REWARD_LOSE)
+        
+        if RECORD_GRAPH and not self.state.is_graph_based:
+            sink_name = self.state.board_config()
+            sink_id = self.state.RECORD_GAME_GRAPH.get_node_id(sink_name)
+            self.state.RECORD_GAME_GRAPH.set_as_sink(sink_id, winner)
+        
+        return winner
+        
+    def get_count_plies(self):
+        return self.count_plies
+    
+    @classmethod
+    def get_max_episode_reward(cls):
+        return REWARD_WIN
+        
+class GameSet(object):
+    
+    def __init__(self, exp_params, num_games, agent1, agent2,
+                 print_learning_progress = False, 
+                 progress_filename = None):
+        self.num_games = num_games
+        self.agent1 = agent1
+        self.agent2 = agent2
+        self.exp_params = exp_params
+        self.print_learning_progress = print_learning_progress
+        self.progress_filename = progress_filename
+
+        self.sum_count_plies = 0 
+    
+    def run(self):
+        if self.progress_filename is not None:
+            if GAMESET_PROGRESS_REPORT_USE_GZIP:
+                f = gzip.open(self.progress_filename + '.gz', 'w')
+            else:
+                f = open(self.progress_filename, 'w')
+
+        game_series_size = 1
+        if ALTERNATE_SEATS:
+            game_series_size *= 2
+        
+        if USE_SEEDS:
+            random_seeds = []
+            for i in range(self.num_games / game_series_size): #@UnusedVariable
+                random_seeds.append(random.random())
+            
+        # agent1, agent2
+        players = [self.agent1, self.agent2]
+        seats_reversed = False
+        count_wins = [0, 0]
+        recent_winners = [] # 0 for agent1, 1 for agent2
+        
+        player_to_start_game = PLAYER_WHITE
+        for game_number in range(self.num_games):
+            if ALTERNATE_SEATS:
+#                if game_number % game_series_size == 0:
+                    players[:] = [players[1], players[0]]
+                    seats_reversed = not seats_reversed
+            # load random seed
+            if USE_SEEDS:
+                random.seed(random_seeds[game_number / game_series_size])
+            # setup game
+            players[0].begin_episode()
+            players[1].begin_episode()
+            game = Game(self.exp_params, game_number, 
+                        players[0], players[1], player_to_start_game)
+            winner = game.play()
+            if seats_reversed:
+                winner = other_player(winner)
+            count_wins[winner] += 1
+            if self.print_learning_progress:
+                if len(recent_winners) > GAMESET_RECENT_WINNERS_LIST_SIZE - 1:
+                    recent_winners.pop(0)
+                recent_winners.append(winner)
+            if PRINT_GAME_RESULTS:
+                print 'Game %2d won by %s in %2d plies' % (game_number, 
+                                        PLAYER_NAME[winner], game.count_plies)
+            if self.print_learning_progress:
+                if game_number % GAMESET_PROGRESS_REPORT_EVERY_N_GAMES == 0:
+                    win_ratio = float(recent_winners.count(0)) / len(recent_winners)
+                    print 'Played game %2d, recent win ratio: %.2f' % (
+                                                    game_number, win_ratio) 
+                    if self.progress_filename is not None:
+                        f.write('%d %f\n' % (game_number, win_ratio))
+            self.sum_count_plies += game.get_count_plies()
+#            player_to_start_game = other_player(player_to_start_game)
+            
+        if self.progress_filename is not None:
+            f.close()
+            
+        return count_wins
+    
+    def get_sum_count_plies(self):
+        return self.sum_count_plies
 
 if __name__ == '__main__':
     pass

@@ -6,20 +6,20 @@ Created on Dec 10, 2011
 
 import random
 
-from common import Experiment, Game, GameSet, FILE_PREFIX_Q_LEARNING, \
-    FOLDER_QTABLE_VS_SELF, FOLDER_QTABLE_VS_RANDOM
+from common import Experiment, FILE_PREFIX_SARSA, FOLDER_QTABLE_VS_SELF,\
+    FOLDER_QTABLE_VS_RANDOM
 import pickle
-from params import Q_EPSILON, Q_LAMBDA, Q_ALPHA, Q_GAMMA,\
-    Q_LEARNING_USE_ALPHA_ANNEALING, Q_LEARNING_MIN_ALPHA, Q_LEARNING_TRAIN_AGAINST_SELF,\
-    Q_LEARNING_SAVE_TRIAL_DATA, Q_LEARNING_NUM_ITERATIONS, Q_LEARNING_SAVE_TABLES,\
-    Q_LEARNING_SAVE_STATE_VALUES_IN_GRAPH, Q_LEARNING_NUM_FINAL_EVAL
-from domain import Agent, AgentRandom
+from params import SARSA_EPSILON, SARSA_LAMBDA, SARSA_ALPHA, SARSA_GAMMA,\
+    SARSA_USE_ALPHA_ANNEALING, SARSA_MIN_ALPHA, SARSA_TRAIN_AGAINST_SELF,\
+    SARSA_SAVE_TRIAL_DATA, SARSA_NUM_ITERATIONS, SARSA_SAVE_TABLES,\
+    SARSA_SAVE_STATE_VALUES_IN_GRAPH, SARSA_NUM_FINAL_EVAL
+from domain import Agent, AgentRandom, Game, GameSet
 
-class AgentTabular(Agent):
+class AgentSarsa(Agent):
 
     def __init__(self, state_class, load_knowledge = False):
-        super(AgentTabular, self).__init__(state_class)
-        self.algorithm = SarsaLambda(state_class)
+        super(AgentSarsa, self).__init__(state_class)
+        self.algorithm = SarsaLambdaAlg(state_class)
 
         if load_knowledge:
             self.algorithm.load_knowledge()
@@ -55,15 +55,15 @@ class AgentTabular(Agent):
 #        if self.algorithm is not None:
 #            self.algorithm.reset_learning()
 
-class SarsaLambda(object):
+class SarsaLambdaAlg(object):
 
     def __init__(self, state_class):
         self.state_class = state_class
         
-        self.epsilon = Q_EPSILON
-        self.lamda = Q_LAMBDA
-        self.alpha = Q_ALPHA
-        self.gamma = Q_GAMMA
+        self.epsilon = SARSA_EPSILON
+        self.lamda = SARSA_LAMBDA
+        self.alpha = SARSA_ALPHA
+        self.gamma = SARSA_GAMMA
         
         self.state_str = None
         self.last_state_str = None
@@ -195,9 +195,9 @@ class SarsaLambda(object):
     def update_values(self, delta):
         alpha = self.alpha
         for (si, ai) in self.e.iterkeys():
-            if Q_LEARNING_USE_ALPHA_ANNEALING:
+            if SARSA_USE_ALPHA_ANNEALING:
                 alpha = 1.0 / self.visit_count.get((si, ai), 1)
-                alpha = max(alpha, Q_LEARNING_MIN_ALPHA)
+                alpha = max(alpha, SARSA_MIN_ALPHA)
             if self.e[(si, ai)] != 0.0:
                 change = alpha * delta * self.e[(si, ai)]
                 self.Q[(si, ai)] = self.Q.get((si, ai), self.default_q) + change
@@ -205,12 +205,12 @@ class SarsaLambda(object):
     
     def get_knowledge_filename(self):
         exp_params = Experiment.get_command_line_args()
-        if Q_LEARNING_TRAIN_AGAINST_SELF:
+        if SARSA_TRAIN_AGAINST_SELF:
             table_folder = FOLDER_QTABLE_VS_SELF
         else:
             table_folder = FOLDER_QTABLE_VS_RANDOM
         filename = exp_params.get_custom_filename_no_trial(table_folder,
-                                                FILE_PREFIX_Q_LEARNING)
+                                                FILE_PREFIX_SARSA)
         return filename
     
     def save_knowledge(self):
@@ -271,54 +271,54 @@ if __name__ == '__main__':
     exp_params = Experiment.get_command_line_args()
    
 #    random.seed(0)
-    agent_q_learning = AgentTabular(exp_params.state_class)
-    if Q_LEARNING_TRAIN_AGAINST_SELF:
-        agent_opponent = AgentTabular(exp_params.state_class)
+    agent_sarsa = AgentSarsa(exp_params.state_class)
+    if SARSA_TRAIN_AGAINST_SELF:
+        agent_opponent = AgentSarsa(exp_params.state_class)
     else:
         agent_opponent = AgentRandom(exp_params.state_class)
     # use this for evaluating against pre-trained version of self:
-#    agent_opponent = AgentTabular(load_knowledge = True) 
+#    agent_opponent = AgentSarsa(load_knowledge = True) 
 
     # when training for benchmark, have the RL agent play as black
-#    game_set = Domain.GameSetClass(NUM_ITERATIONS, agent_opponent, agent_q_learning, 
+#    game_set = Domain.GameSetClass(NUM_ITERATIONS, agent_opponent, agent_sarsa, 
 #                                   p, reentry_offset,
 #                                   print_learning_progress = True)
-    if Q_LEARNING_SAVE_TRIAL_DATA:
+    if SARSA_SAVE_TRIAL_DATA:
 #        progress_filename = '../data/trials/rl-%s-%s.txt' % (Domain.name, 
 #                                                exp_params.get_filename_suffix_with_trial())
-        progress_filename = exp_params.get_trial_filename(FILE_PREFIX_Q_LEARNING)
+        progress_filename = exp_params.get_trial_filename(FILE_PREFIX_SARSA)
     else:
         progress_filename = None
     print 'Opponent is: %s' % agent_opponent
-    game_set = GameSet(exp_params, Q_LEARNING_NUM_ITERATIONS,
-                       agent_q_learning, agent_opponent, 
+    game_set = GameSet(exp_params, SARSA_NUM_ITERATIONS,
+                       agent_sarsa, agent_opponent, 
                        print_learning_progress = True,
                        progress_filename = progress_filename)
     count_wins = game_set.run()
 #    print 'Won %d out of %d games against random agent.' % (
 #                    count_wins[1], NUM_ITERATIONS)
     print 'Win ratio: %.2f against the opponent.' % (float(count_wins[0]) / 
-                                                     Q_LEARNING_NUM_ITERATIONS)
+                                                     SARSA_NUM_ITERATIONS)
     
-#    agent_q_learning.algorithm.print_values()
-    if Q_LEARNING_SAVE_TABLES and exp_params.is_first_trial():
+#    agent_sarsa.algorithm.print_values()
+    if SARSA_SAVE_TABLES and exp_params.is_first_trial():
         print 'Saving RL table...'
-        agent_q_learning.algorithm.save_knowledge()
+        agent_sarsa.algorithm.save_knowledge()
 
-    if Q_LEARNING_SAVE_STATE_VALUES_IN_GRAPH and exp_params.is_graph_based() and \
+    if SARSA_SAVE_STATE_VALUES_IN_GRAPH and exp_params.is_graph_based() and \
                 exp_params.is_first_trial():
         print 'Saving state values in graph...'
-        exp_params.domain.StateClass.copy_state_values_to_graph(exp_params, agent_q_learning)
+        exp_params.domain.StateClass.copy_state_values_to_graph(exp_params, agent_sarsa)
     
-    if Q_LEARNING_TRAIN_AGAINST_SELF:
+    if SARSA_TRAIN_AGAINST_SELF:
         # evaluate against random
-        agent_q_learning.pause_learning()
+        agent_sarsa.pause_learning()
         agent_opponent = AgentRandom(exp_params.state_class)
-        game_set = GameSet(exp_params, Q_LEARNING_NUM_FINAL_EVAL,
-                           agent_q_learning, agent_opponent)
+        game_set = GameSet(exp_params, SARSA_NUM_FINAL_EVAL,
+                           agent_sarsa, agent_opponent)
         count_wins = game_set.run()
     #    print 'Won %d out of %d games against random agent.' % (
     #                    count_wins[1], NUM_ITERATIONS)
         print 'Win ratio: %.2f against the opponent.' % (float(count_wins[0]) / 
-                                                         Q_LEARNING_NUM_FINAL_EVAL)
+                                                         SARSA_NUM_FINAL_EVAL)
 

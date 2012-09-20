@@ -7,30 +7,30 @@ import random
 from pybrain.datasets.supervised import SupervisedDataSet
 from pybrain.supervised.trainers.backprop import BackpropTrainer
 
-from common import Experiment, PLAYER_WHITE, GameSet, other_player, REWARD_LOSE,\
-    REWARD_WIN, FILE_PREFIX_TD
-from params import TD_LEARNING_RATE, TD_EPSILON, TD_LAMBDA, TD_ALPHA, TD_GAMMA,\
-    TD_TRAIN_EPOCHS, TD_USE_ALPHA_ANNEALING, TD_NUM_ITERATIONS,\
-    TD_NUM_EVAL_GAMES, TD_NUM_TRAINING_GAMES, EVAL_OPPONENT, EVAL_OPPONENT_Q_LEARNING,\
-    TD_NETWORK_INIT_WEIGHTS
-from app_sarsa import AgentTabular
-from domain import AgentNeural, AgentRandom
+from common import Experiment, PLAYER_WHITE, other_player, REWARD_LOSE,\
+    REWARD_WIN, FILE_PREFIX_NTD
+from params import NTD_LEARNING_RATE, NTD_EPSILON, NTD_LAMBDA, NTD_ALPHA,\
+    NTD_GAMMA, NTD_TRAIN_EPOCHS, NTD_USE_ALPHA_ANNEALING, NTD_NUM_ITERATIONS,\
+    NTD_NUM_EVAL_GAMES, NTD_NUM_TRAINING_GAMES, EVAL_OPPONENT,\
+    EVAL_OPPONENT_SARSA, NTD_NETWORK_INIT_WEIGHTS
+from app_sarsa import AgentSarsa
+from domain import AgentNeural, AgentRandom, GameSet
 
-class AgentTD(AgentNeural):
+class AgentNTD(AgentNeural):
     
     def __init__(self, state_class, load_knowledge = False):
-#        super(AgentTD, self).__init__(2, init_weights = 0.15)
-        super(AgentTD, self).__init__(state_class, 2, 
-                                      init_weights = TD_NETWORK_INIT_WEIGHTS)
+#        super(AgentNTD, self).__init__(2, init_weights = 0.15)
+        super(AgentNTD, self).__init__(state_class, 2, 
+                                      init_weights = NTD_NETWORK_INIT_WEIGHTS)
 
         self.trainer = BackpropTrainer(self.network, 
-                                       learningrate = TD_LEARNING_RATE, 
+                                       learningrate = NTD_LEARNING_RATE, 
                                        momentum = 0.0, verbose = False)
         
-        self.epsilon = TD_EPSILON
-        self.lamda = TD_LAMBDA
-        self.alpha = TD_ALPHA
-        self.gamma = TD_GAMMA
+        self.epsilon = NTD_EPSILON
+        self.lamda = NTD_LAMBDA
+        self.alpha = NTD_ALPHA
+        self.gamma = NTD_GAMMA
         
         self.state_str = None
         self.state_in = None
@@ -86,7 +86,7 @@ class AgentTD(AgentNeural):
             return
         alpha = self.alpha
         for si in self.e.iterkeys():
-            if TD_USE_ALPHA_ANNEALING:
+            if NTD_USE_ALPHA_ANNEALING:
                 alpha = 1.0 / self.visit_count.get(si, 1)
             if self.e[si] != 0.0:
                 change = [alpha * e * self.e[si] for e in delta]
@@ -105,7 +105,7 @@ class AgentTD(AgentNeural):
 #                current_value[0], current_value[1], new_value[0], new_value[1])
         if len(dataset) > 0:
             self.trainer.setData(dataset)
-            self.trainer.trainEpochs(TD_TRAIN_EPOCHS)
+            self.trainer.trainEpochs(NTD_TRAIN_EPOCHS)
 #        print '----'
         
     def get_state_value(self, state):
@@ -146,7 +146,7 @@ class AgentTD(AgentNeural):
         if self.is_learning and (random.random() < self.epsilon):
             action = self.state.action_object.random_action(self.state)
         else:
-            action = super(AgentTD, self).select_action()
+            action = super(AgentNTD, self).select_action()
 #            action_values = []
 #            for checker in self.state.action_object.get_all_checkers():
 #                move_outcome = self.state.get_move_outcome(checker)
@@ -251,38 +251,36 @@ class AgentTD(AgentNeural):
 if __name__ == '__main__':
     exp_params = Experiment.get_command_line_args()
    
-    filename = exp_params.get_trial_filename(FILE_PREFIX_TD)
+    filename = exp_params.get_trial_filename(FILE_PREFIX_NTD)
     f = open(filename, 'w')
 
-    agent_td1 = AgentTD(exp_params.state_class)
-#    agent_td2 = AgentTD()
-    if EVAL_OPPONENT == EVAL_OPPONENT_Q_LEARNING:
-        agent_opponent = AgentTabular(exp_params.state_class, load_knowledge = True)
+    agent_ntd1 = AgentNTD(exp_params.state_class)
+#    agent_ntd2 = AgentNTD()
+    if EVAL_OPPONENT == EVAL_OPPONENT_SARSA:
+        agent_opponent = AgentSarsa(exp_params.state_class, load_knowledge = True)
     else:
         agent_opponent = AgentRandom(exp_params.state_class)
     print 'Opponent is: %s' % agent_opponent
 
-    for i in range(TD_NUM_ITERATIONS):
+    for i in range(NTD_NUM_ITERATIONS):
         print 'Iteration %d' % i
-        print 'Evaluating against opponent (%d games)...' % TD_NUM_EVAL_GAMES
+        print 'Evaluating against opponent (%d games)...' % NTD_NUM_EVAL_GAMES
 
-        agent_td1.pause_learning()
-#        agent_td2.pause_learning()
-        for agent in [agent_td1]:
-            game_set = GameSet(exp_params, TD_NUM_EVAL_GAMES,
+        agent_ntd1.pause_learning()
+#        agent_ntd2.pause_learning()
+        for agent in [agent_ntd1]:
+            game_set = GameSet(exp_params, NTD_NUM_EVAL_GAMES,
                                agent, agent_opponent)
             count_wins = game_set.run()
-            win_ratio = float(count_wins[0]) / TD_NUM_EVAL_GAMES
+            win_ratio = float(count_wins[0]) / NTD_NUM_EVAL_GAMES
             print 'Win ratio against the opponent: %.2f' % win_ratio
             f.write('%d %f\n' % (i, win_ratio))
-        agent_td1.resume_learning()        
+        agent_ntd1.resume_learning()        
 #        agent_td2.resume_learning()
 
-        print 'Training against self (%d games)...' % TD_NUM_TRAINING_GAMES
-#        game_set = Domain.GameSetClass(NUM_TRAINING_GAMES, agent_td1, agent_td1,
-#                                       p, reentry_offset)
-        game_set = GameSet(exp_params, TD_NUM_TRAINING_GAMES,
-                           agent_td1, agent_td1)
+        print 'Training against self (%d games)...' % NTD_NUM_TRAINING_GAMES
+        game_set = GameSet(exp_params, NTD_NUM_TRAINING_GAMES,
+                           agent_ntd1, agent_ntd1)
         count_wins = game_set.run()
 
     f.close()
