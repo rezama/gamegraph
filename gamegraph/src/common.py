@@ -46,8 +46,9 @@ FOLDER_DOMAINSTATS = '../data/domainstats'
 FOLDER_GRAPH = '../graph'
 FOLDER_QTABLE_VS_SELF = '../q-table/vsself'
 FOLDER_QTABLE_VS_RANDOM = '../q-table/vsrandom'
+SUFFIX_GRAPH_OK = '-ok'
 
-FILE_PREFIX_NTD = 'td'
+FILE_PREFIX_NTD = 'ntd'
 FILE_PREFIX_HC = 'hc'
 FILE_PREFIX_HC_CHALLENGE = 'hc-challenge'
 FILE_PREFIX_SARSA = 'sarsa'
@@ -99,8 +100,10 @@ class ExpParams(object):
         return filename
         
     def get_graph_filename(self):
-        filename = '%s/%s-%s' % (FOLDER_GRAPH, self.domain_name,
-                                 self.get_filename_suffix_no_trial())
+        if self.graph_name is not None:
+            filename = '%s/%s' % (FOLDER_GRAPH, self.graph_name)
+        else:
+            filename = '%s/%s' % (FOLDER_GRAPH, self.get_filename_suffix_no_trial())
         return filename
         
     def is_graph_based(self):

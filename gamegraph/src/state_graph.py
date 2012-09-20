@@ -4,11 +4,13 @@ Created on Jun 25, 2012
 @author: reza
 '''
 from common import PLAYER_WHITE, PLAYER_BLACK, REWARD_WIN, REWARD_LOSE,\
-    DIST_ATTR, BFS_COLOR_ATTR, VAL_ATTR
+    DIST_ATTR, BFS_COLOR_ATTR, VAL_ATTR, SUFFIX_GRAPH_OK
 import random
 import cPickle
 from Queue import Queue
 import gzip
+import os
+import time
 
 USE_GZIP = True
 
@@ -27,7 +29,66 @@ class StateGraph(object):
         self.all_actions = all_actions
         
         self.distance_buckets = [[], []]
+
+    @classmethod
+    def load(cls, exp_params):
+        print 'Loading graph for signature: %s...' % exp_params.signature
+        g = None
+        graph_filename = exp_params.get_graph_filename()
+        graph_ok_filename = graph_filename + SUFFIX_GRAPH_OK
+        if os.path.isfile(graph_ok_filename):
+            print 'Graph file exists.'
+            g = cls.__load_from_file(graph_filename)
+        else:
+            print 'Graph file does not exist.'
+            if exp_params.is_first_trial():
+                print 'Going to generate...'
+                g = exp_params.state_class.generate_graph(exp_params)
+                g.save(exp_params)
+            else:
+                print 'Waiting for graph file to appear...'
+                while not os.path.isfile(graph_ok_filename):
+                    time.sleep(5)
+                g = cls.__load_from_file(graph_filename)
+        return g
                 
+    def save(self, exp_params, filename_suffix=None):
+        print 'Saving graph for signature: %s, suffix: %s...' % (exp_params.signature,
+                                                                 filename_suffix)
+        graph_filename = exp_params.get_graph_filename()
+        if filename_suffix is not None:
+            graph_filename += filename_suffix
+        graph_ok_filename = graph_filename + SUFFIX_GRAPH_OK
+        if os.path.isfile(graph_ok_filename):
+            os.remove(graph_ok_filename)
+        self.__save_to_file(graph_filename)
+        f = open(graph_ok_filename, 'w')
+        f.close()
+
+    @classmethod 
+    def __load_from_file(cls, path_to_file):
+        print 'Loading graph from file: %s...' % path_to_file
+        if USE_GZIP:
+            f = gzip.open(path_to_file + '.gz', 'r')
+        else:
+            f = open(path_to_file, 'r')
+        g = cPickle.load(f)
+#        g = marshal.load(f)
+        f.close()
+        print 'Done.'
+        return g
+
+    def __save_to_file(self, path_to_file):
+        print 'Saving graph to file: %s...' % path_to_file
+        if USE_GZIP:
+            f = gzip.open(path_to_file + '.gz', 'w')
+        else:
+            f = open(path_to_file, 'w')
+        cPickle.dump(self, f)
+#        marshal.dump(self, f)
+        f.close()
+        print 'Done.'
+           
     def get_random_source(self, player_to_start):
         return random.choice(self.sources[player_to_start])
         
@@ -326,30 +387,6 @@ class StateGraph(object):
             del self.node_attrs[node_id][DIST_ATTR]
             del self.node_attrs[node_id][BFS_COLOR_ATTR]
 
-    def save_to_file(self, path_to_file):
-        print 'Saving graph %s...' % path_to_file
-        if USE_GZIP:
-            f = gzip.open(path_to_file + '.gz', 'w')
-        else:
-            f = open(path_to_file, 'w')
-        cPickle.dump(self, f)
-#        marshal.dump(self, f)
-        f.close()
-        print 'Done.'
-       
-    @classmethod 
-    def load_from_file(cls, path_to_file):
-        print 'Loading graph %s...' % path_to_file
-        if USE_GZIP:
-            f = gzip.open(path_to_file + '.gz', 'r')
-        else:
-            f = open(path_to_file, 'r')
-        g = cPickle.load(f)
-#        g = marshal.load(f)
-        f.close()
-        print 'Done.'
-        return g
-    
     def print_stats(self):
         print 'Graph Stats:'
         print 'Number of nodes: %d' % len(self.node_names)
