@@ -10,10 +10,8 @@ from common import Experiment, PLAYER_WHITE, PLAYER_BLACK, FILE_PREFIX_HC,\
     FILE_PREFIX_HC_CHALLENGE
 from params import HC_RATIO_KEEP_CHAMPION_WEIGHTS, HC_MUTATE_WEIGHT_SIGMA,\
     HC_NUM_GENERATIONS, HC_EVALUATE_EVERY_N_GENERATIONS, HC_NUM_EVAL_GAMES,\
-    HC_NUM_CHALLENGE_GAMES, HC_CHALLENGER_NEEDS_TO_WIN, EVAL_OPPONENT,\
-    EVAL_OPPONENT_SARSA
-from app_sarsa import AgentSarsa
-from domain import AgentNeural, AgentRandom, GameSet
+    HC_NUM_CHALLENGE_GAMES, HC_CHALLENGER_NEEDS_TO_WIN
+from domain import AgentNeural, GameSet
 
 class AgentHC(AgentNeural):
     
@@ -58,11 +56,9 @@ if __name__ == '__main__':
     
     agent_champion = AgentHC();
     agent_challenger = AgentHC();
-    if EVAL_OPPONENT == EVAL_OPPONENT_SARSA:
-        agent_opponent = AgentSarsa(exp_params.state_class, load_knowledge = True)
-    else:
-        agent_opponent = AgentRandom(exp_params.state_class)
-    print 'Opponent is: %s' % agent_opponent
+    
+    agent_eval = Experiment.create_eval_opponent_agent(exp_params)
+    print 'Evaluation opponent is: %s' % agent_eval
 
     for generation_number in range(HC_NUM_GENERATIONS):
         print 'Generation %d' % generation_number
@@ -70,7 +66,7 @@ if __name__ == '__main__':
         if generation_number % HC_EVALUATE_EVERY_N_GENERATIONS == 0: 
             print 'Evaluating against the opponent (%d games)...' % HC_NUM_EVAL_GAMES
             game_set = GameSet(exp_params, HC_NUM_EVAL_GAMES,
-                               agent_champion, agent_opponent)
+                               agent_champion, agent_eval)
             count_wins = game_set.run()
             ratio_win = float(count_wins[0]) / HC_NUM_EVAL_GAMES
             print 'Win ratio: %.2f against opponent (out of %d games)' % (

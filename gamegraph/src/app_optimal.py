@@ -1,32 +1,84 @@
 '''
-Created on Sep 17, 2012
+Created on Sep 20, 2012
 
 @author: reza
 '''
+from domain import Agent, AgentRandom, GameSet
+from common import VAL_ATTR, PLAYER_BLACK, Experiment, FOLDER_DOMAINSTATS,\
+    PLAYER_WHITE
+import random
+from params import NUM_STATS_GAMES, SAVE_STATS, COLLECT_STATS
 
-from common import Experiment, PLAYER_WHITE, PLAYER_BLACK, FOLDER_DOMAINSTATS
-from params import NUM_STATS_GAMES, RECORD_GRAPH, SAVE_STATS, COLLECT_STATS
-from domain import AgentRandom, GameSet
+class AgentOptimal(Agent):
 
+    def __init__(self, state_class):
+        super(AgentOptimal, self).__init__(state_class)
+        self.graph = None
+        self.attempt_graph_init = True
+
+    def select_action(self):
+        node_label = self.state.board_config()
+        node_color = self.state.player_to_move
+        if self.attempt_graph_init:
+            print 'AgentOptimal trying to load the game graph...'
+            self.state.load_own_graph()
+            self.graph = self.state.GAME_GRAPH
+            node_id = self.graph.get_node_id(node_label)
+            print 'Checking for value attributes...'
+            if self.graph.has_attr(node_id, VAL_ATTR):
+                print 'Present.'
+            else:
+                print 'Not present.'
+                self.graph.value_iteration(self.state.exp_params)
+                print 'AgentOptimal trying to save state values in graph...'
+                self.graph.save(self.state.exp_params)
+            self.attempt_graph_init = False
+            
+        node_id = self.graph.get_node_id(node_label)
+        multiplier = 1
+        if node_color == PLAYER_BLACK:
+            multiplier = -1
+
+        do_choose_roll = False
+        if self.state.exp_params.choose_roll > 0.0:
+            r = random.random()
+            if r < self.state.exp_params.choose_roll:
+                do_choose_roll = True
+        roll_range = [self.state.roll]
+        if do_choose_roll:
+            roll_range = self.state.die_object.get_all_sides()
+        
+        action_values = []
+
+        for replace_roll in roll_range:
+            self.state.roll = replace_roll
+            for action in self.state.action_object.get_all_checkers():
+                succ_id = self.graph.get_successor(node_id, replace_roll, action)
+                if succ_id is not None:
+                    succ_value = self.graph.get_attr(succ_id, VAL_ATTR)
+                    action_values.append(((multiplier * succ_value, random.random()), (replace_roll, action)))
+            
+        if len(action_values) > 0:
+            action_values_sorted = sorted(action_values, reverse=True)
+            best_roll = action_values_sorted[0][1][0]
+            # set the best roll there
+            self.state.roll = best_roll
+            action = action_values_sorted[0][1][1]
+        else:
+            action = self.state.action_object.action_forfeit_move
+        
+        return action
+    
 if __name__ == '__main__':
     exp_params = Experiment.get_command_line_args()
    
     num_games = NUM_STATS_GAMES
-    agent_white = AgentRandom(exp_params.state_class)
+    agent_white = AgentOptimal(exp_params.state_class)
     agent_black = AgentRandom(exp_params.state_class)
     game_set = GameSet(exp_params, num_games, agent_white, agent_black)
 
     count_wins = game_set.run()
     total_plies = game_set.get_sum_count_plies()
-    
-    if RECORD_GRAPH and (exp_params.graph_name is None):
-        record_graph = exp_params.state_class.RECORD_GAME_GRAPH
-        record_graph.print_stats()
-        record_graph.adjust_probs()
-        filename = exp_params.get_graph_filename()
-#            filename = '../graph/%s-%s' % (exp_params.domain_name, 
-#                                           Experiment.get_filename_suffix_no_trial())
-        record_graph.save_to_file(filename)
     
     # printing overall stats
     print '----'

@@ -5,18 +5,19 @@ Created on Sep 17, 2012
 '''
 import random
 import copy
+import gzip
 from Queue import Queue
+
 from pybrain.tools.shortcuts import buildNetwork
 from pybrain.structure.modules.sigmoidlayer import SigmoidLayer
 
 from common import POS_ATTR, PLAYER_BLACK, PLAYER_WHITE, PLAYER_NAME,\
-    other_player, VAL_ATTR, REWARD_WIN, REWARD_LOSE
+    other_player, REWARD_WIN, REWARD_LOSE
 from params import GENERATE_GRAPH_REPORT_EVERY_N_STATES, RECORD_GRAPH,\
     COLLECT_STATS, PRINT_GAME_DETAIL, GAMESET_PROGRESS_REPORT_USE_GZIP,\
     ALTERNATE_SEATS, USE_SEEDS, GAMESET_RECENT_WINNERS_LIST_SIZE,\
     PRINT_GAME_RESULTS, GAMESET_PROGRESS_REPORT_EVERY_N_GAMES
 from state_graph import StateGraph
-import gzip
 
 class Die(object):
     
@@ -85,26 +86,6 @@ class Agent(object):
     def select_action(self):
         raise NotImplementedError
     
-    def select_action_freeroll(self):
-#        if self.exp_params.choose_roll > 0.0:
-#            r = random.random()
-#            if r < self.exp_params.choose_roll:
-#        (action, action_value) = self.select_greedy_action_fixed_roll(evaluator) #@UnusedVariable
-#        return action
-        roll_values = []
-        for replace_roll in self.state.die_object.get_all_sides():
-            self.state.roll = replace_roll
-            roll_action = self.select_action()
-            roll_value = self.last_selected_action_value
-            roll_values.append(((roll_value, random.random()), (replace_roll, roll_action)))
-        
-        roll_values_sorted = sorted(roll_values, reverse=True)
-        best_roll = roll_values_sorted[0][1][0]
-        best_action = roll_values_sorted[0][1][1]
-        self.roll = best_roll
-        return best_action
-        
-
 class AgentRandom(Agent):
     
     def __init__(self, state_class):
@@ -212,12 +193,15 @@ class State(object):
         self.is_graph_based = (self.exp_params.graph_name is not None)
         
         if self.is_graph_based:
-            if self.GAME_GRAPH is None:
-                self.__class__.GAME_GRAPH = StateGraph.load(exp_params)
+            self.load_own_graph()
             self.current_g_id = self.GAME_GRAPH.get_random_source(self.player_to_move)
     
-        self.shadow = None        
+        self.shadow = None
 
+    def load_own_graph(self):
+        if self.GAME_GRAPH is None:
+            self.__class__.GAME_GRAPH = StateGraph.load(self.exp_params)
+        
     def init_pos(self):
         raise NotImplementedError
 
@@ -329,12 +313,12 @@ class State(object):
                                     is_state_queued[sp_key] = True
         return g
                 
-    @classmethod
-    def copy_state_values_to_graph(cls, exp_params, agent_sarsa):
-        cls.GAME_GRAPH.transfer_state_values(agent_sarsa)
-        new_graph_filename = exp_params.get_graph_filename() + \
-                '-' + VAL_ATTR
-        cls.GAME_GRAPH.save_to_file(new_graph_filename)
+#    @classmethod
+#    def copy_state_values_to_graph(cls, exp_params, agent_sarsa):
+#        cls.GAME_GRAPH.transfer_state_values(agent_sarsa)
+#        new_graph_filename = exp_params.get_graph_filename() + \
+#                '-' + VAL_ATTR
+#        cls.GAME_GRAPH.save_to_file(new_graph_filename)
             
     def compute_per_ply_stats(self, current_ply_number):
         if COLLECT_STATS:

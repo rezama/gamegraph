@@ -10,7 +10,6 @@ import cPickle
 from Queue import Queue
 import gzip
 import os
-import time
 from params import VALUE_ITER_MIN_RESIDUAL
 
 USE_GZIP = True
@@ -45,29 +44,32 @@ class StateGraph(object):
             g = cls.__load_from_file(graph_filename)
         else:
             print 'Graph file does not exist.'
-            if exp_params.is_first_trial():
-                print 'Going to generate...'
-                g = exp_params.state_class.generate_graph(exp_params)
-                g.save(exp_params)
-            else:
-                print 'Waiting for graph file to appear...'
-                while not os.path.isfile(graph_ok_filename):
-                    time.sleep(5)
-                g = cls.__load_from_file(graph_filename)
+#            if exp_params.is_first_trial():
+#                print 'Going to generate...'
+#                g = exp_params.state_class.generate_graph(exp_params)
+#                g.save(exp_params)
+#            else:
+#                print 'Waiting for graph file to appear...'
+#                while not os.path.isfile(graph_ok_filename):
+#                    time.sleep(5)
+#                g = cls.__load_from_file(graph_filename)
+            g = exp_params.state_class.generate_graph(exp_params)
+            g.save(exp_params)
         return g
                 
     def save(self, exp_params, filename_suffix=None):
-        print 'Saving graph for signature: %s, suffix: %s...' % (exp_params.signature,
-                                                                 filename_suffix)
-        graph_filename = exp_params.get_graph_filename()
-        if filename_suffix is not None:
-            graph_filename += filename_suffix
-        graph_ok_filename = graph_filename + SUFFIX_GRAPH_OK
-        if os.path.isfile(graph_ok_filename):
-            os.remove(graph_ok_filename)
-        self.__save_to_file(graph_filename)
-        f = open(graph_ok_filename, 'w')
-        f.close()
+        if exp_params.is_first_trial():
+            print 'Saving graph for signature: %s, suffix: %s...' % (exp_params.signature,
+                                                                     filename_suffix)
+            graph_filename = exp_params.get_graph_filename()
+            if filename_suffix is not None:
+                graph_filename += filename_suffix
+            graph_ok_filename = graph_filename + SUFFIX_GRAPH_OK
+            if os.path.isfile(graph_ok_filename):
+                os.remove(graph_ok_filename)
+            self.__save_to_file(graph_filename)
+            f = open(graph_ok_filename, 'w')
+            f.close()
 
     @classmethod 
     def __load_from_file(cls, path_to_file):
@@ -264,7 +266,7 @@ class StateGraph(object):
         iteration = 0
         while cont:
             iteration += 1
-            print 'Iteration %d...' % iteration
+            print 'Iteration %d... ' % iteration,
             max_residual = 0
             for node_id in reversed(range(self.get_num_nodes())):
                 if (node_id not in self.sinks[PLAYER_WHITE]) and (node_id not in self.sinks[PLAYER_BLACK]):
@@ -288,7 +290,7 @@ class StateGraph(object):
                     if residual > max_residual:
                         max_residual = residual
                     self.node_attrs[node_id][VAL_ATTR] = new_state_value
-            print 'Maximum residual: %.2f' % max_residual
+            print 'maximum residual: %.2f' % max_residual
             if max_residual < VALUE_ITER_MIN_RESIDUAL:
                 cont = False
         print 'Done.'

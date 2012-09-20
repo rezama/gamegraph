@@ -11,10 +11,8 @@ from common import Experiment, PLAYER_WHITE, other_player, REWARD_LOSE,\
     REWARD_WIN, FILE_PREFIX_NTD
 from params import NTD_LEARNING_RATE, NTD_EPSILON, NTD_LAMBDA, NTD_ALPHA,\
     NTD_GAMMA, NTD_TRAIN_EPOCHS, NTD_USE_ALPHA_ANNEALING, NTD_NUM_ITERATIONS,\
-    NTD_NUM_EVAL_GAMES, NTD_NUM_TRAINING_GAMES, EVAL_OPPONENT,\
-    EVAL_OPPONENT_SARSA, NTD_NETWORK_INIT_WEIGHTS
-from app_sarsa import AgentSarsa
-from domain import AgentNeural, AgentRandom, GameSet
+    NTD_NUM_EVAL_GAMES, NTD_NUM_TRAINING_GAMES, NTD_NETWORK_INIT_WEIGHTS
+from domain import AgentNeural, GameSet
 
 class AgentNTD(AgentNeural):
     
@@ -256,11 +254,8 @@ if __name__ == '__main__':
 
     agent_ntd1 = AgentNTD(exp_params.state_class)
 #    agent_ntd2 = AgentNTD()
-    if EVAL_OPPONENT == EVAL_OPPONENT_SARSA:
-        agent_opponent = AgentSarsa(exp_params.state_class, load_knowledge = True)
-    else:
-        agent_opponent = AgentRandom(exp_params.state_class)
-    print 'Opponent is: %s' % agent_opponent
+    agent_eval = Experiment.create_eval_opponent_agent(exp_params)
+    print 'Evaluation opponent is: %s' % agent_eval
 
     for i in range(NTD_NUM_ITERATIONS):
         print 'Iteration %d' % i
@@ -270,7 +265,7 @@ if __name__ == '__main__':
 #        agent_ntd2.pause_learning()
         for agent in [agent_ntd1]:
             game_set = GameSet(exp_params, NTD_NUM_EVAL_GAMES,
-                               agent, agent_opponent)
+                               agent, agent_eval)
             count_wins = game_set.run()
             win_ratio = float(count_wins[0]) / NTD_NUM_EVAL_GAMES
             print 'Win ratio against the opponent: %.2f' % win_ratio

@@ -6,7 +6,8 @@ Created on Dec 11, 2011
 import sys
 import getopt
 
-from params import SAVE_STATS
+from params import SAVE_STATS, EVAL_OPPONENT, EVAL_OPPONENT_SARSA,\
+    EVAL_OPPONENT_RANDOM, EVAL_OPPONENT_OPTIMAL
 
 PLAYER_WHITE = 0
 PLAYER_BLACK = 1
@@ -178,6 +179,20 @@ class Experiment(object):
                                              p, offset, choose_roll, trial,
                                              signature)
             return cls.exp_param_cached
+
+    @classmethod
+    def create_eval_opponent_agent(cls, exp_params):
+        agent_eval = None
+        from app_sarsa import AgentSarsa
+        from domain import AgentRandom
+        from app_optimal import AgentOptimal
+        if EVAL_OPPONENT == EVAL_OPPONENT_RANDOM:
+            agent_eval = AgentRandom(exp_params.state_class)
+        elif EVAL_OPPONENT == EVAL_OPPONENT_SARSA:
+            agent_eval = AgentSarsa(exp_params.state_class, load_knowledge = True)
+        elif EVAL_OPPONENT == EVAL_OPPONENT_OPTIMAL:
+            agent_eval = AgentOptimal(exp_params.state_class)
+        return agent_eval
 
     @classmethod
     def save_stats(cls, state_class, exp_params):

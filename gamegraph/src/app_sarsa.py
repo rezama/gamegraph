@@ -12,7 +12,7 @@ import pickle
 from params import SARSA_EPSILON, SARSA_LAMBDA, SARSA_ALPHA, SARSA_GAMMA,\
     SARSA_USE_ALPHA_ANNEALING, SARSA_MIN_ALPHA, SARSA_TRAIN_AGAINST_SELF,\
     SARSA_SAVE_TRIAL_DATA, SARSA_NUM_ITERATIONS, SARSA_SAVE_TABLES,\
-    SARSA_SAVE_STATE_VALUES_IN_GRAPH, SARSA_NUM_FINAL_EVAL
+    SARSA_NUM_FINAL_EVAL
 from domain import Agent, AgentRandom, Game, GameSet
 
 class AgentSarsa(Agent):
@@ -273,14 +273,14 @@ if __name__ == '__main__':
 #    random.seed(0)
     agent_sarsa = AgentSarsa(exp_params.state_class)
     if SARSA_TRAIN_AGAINST_SELF:
-        agent_opponent = AgentSarsa(exp_params.state_class)
+        agent_eval = AgentSarsa(exp_params.state_class)
     else:
-        agent_opponent = AgentRandom(exp_params.state_class)
+        agent_eval = AgentRandom(exp_params.state_class)
     # use this for evaluating against pre-trained version of self:
-#    agent_opponent = AgentSarsa(load_knowledge = True) 
+#    agent_eval = AgentSarsa(load_knowledge = True) 
 
     # when training for benchmark, have the RL agent play as black
-#    game_set = Domain.GameSetClass(NUM_ITERATIONS, agent_opponent, agent_sarsa, 
+#    game_set = Domain.GameSetClass(NUM_ITERATIONS, agent_eval, agent_sarsa, 
 #                                   p, reentry_offset,
 #                                   print_learning_progress = True)
     if SARSA_SAVE_TRIAL_DATA:
@@ -289,9 +289,9 @@ if __name__ == '__main__':
         progress_filename = exp_params.get_trial_filename(FILE_PREFIX_SARSA)
     else:
         progress_filename = None
-    print 'Opponent is: %s' % agent_opponent
+    print 'Opponent is: %s' % agent_eval
     game_set = GameSet(exp_params, SARSA_NUM_ITERATIONS,
-                       agent_sarsa, agent_opponent, 
+                       agent_sarsa, agent_eval, 
                        print_learning_progress = True,
                        progress_filename = progress_filename)
     count_wins = game_set.run()
@@ -305,17 +305,17 @@ if __name__ == '__main__':
         print 'Saving RL table...'
         agent_sarsa.algorithm.save_knowledge()
 
-    if SARSA_SAVE_STATE_VALUES_IN_GRAPH and exp_params.is_graph_based() and \
-                exp_params.is_first_trial():
-        print 'Saving state values in graph...'
-        exp_params.domain.StateClass.copy_state_values_to_graph(exp_params, agent_sarsa)
+#    if SARSA_SAVE_STATE_VALUES_IN_GRAPH and exp_params.is_graph_based() and \
+#                exp_params.is_first_trial():
+#        print 'Saving state values in graph...'
+#        exp_params.domain.StateClass.copy_state_values_to_graph(exp_params, agent_sarsa)
     
     if SARSA_TRAIN_AGAINST_SELF:
         # evaluate against random
         agent_sarsa.pause_learning()
-        agent_opponent = AgentRandom(exp_params.state_class)
+        agent_eval = AgentRandom(exp_params.state_class)
         game_set = GameSet(exp_params, SARSA_NUM_FINAL_EVAL,
-                           agent_sarsa, agent_opponent)
+                           agent_sarsa, agent_eval)
         count_wins = game_set.run()
     #    print 'Won %d out of %d games against random agent.' % (
     #                    count_wins[1], NUM_ITERATIONS)
