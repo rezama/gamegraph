@@ -1310,11 +1310,11 @@ class GameSet(object):
                                         PLAYER_NAME[winner], game.count_plies)
             if self.print_learning_progress:
                 if game_number % GAMESET_PROGRESS_REPORT_EVERY_N_GAMES == 0:
-                    win_ratio = float(recent_winners.count(0)) / len(recent_winners)
-                    print 'Played game %2d, recent win ratio: %.2f' % (
-                                                    game_number, win_ratio) 
+                    win_rate = float(recent_winners.count(0)) / len(recent_winners)
+                    print 'Played game %2d, recent win rate: %.2f' % (
+                                                    game_number, win_rate) 
                     if self.progress_filename is not None:
-                        f.write('%d %f\n' % (game_number, win_ratio))
+                        f.write('%d %f\n' % (game_number, win_rate))
             self.sum_count_plies += game.get_count_plies()
 #            player_to_start_game = other_player(player_to_start_game)
             

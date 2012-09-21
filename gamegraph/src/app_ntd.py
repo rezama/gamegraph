@@ -267,9 +267,9 @@ if __name__ == '__main__':
             game_set = GameSet(exp_params, NTD_NUM_EVAL_GAMES,
                                agent, agent_eval)
             count_wins = game_set.run()
-            win_ratio = float(count_wins[0]) / NTD_NUM_EVAL_GAMES
-            print 'Win ratio against the opponent: %.2f' % win_ratio
-            f.write('%d %f\n' % (i, win_ratio))
+            win_rate = float(count_wins[0]) / NTD_NUM_EVAL_GAMES
+            print 'Win rate against the opponent: %.2f' % win_rate
+            f.write('%d %f\n' % (i, win_rate))
         agent_ntd1.resume_learning()        
 #        agent_td2.resume_learning()
 

@@ -68,10 +68,9 @@ if __name__ == '__main__':
             game_set = GameSet(exp_params, HC_NUM_EVAL_GAMES,
                                agent_champion, agent_eval)
             count_wins = game_set.run()
-            ratio_win = float(count_wins[0]) / HC_NUM_EVAL_GAMES
-            print 'Win ratio: %.2f against opponent (out of %d games)' % (
-                            ratio_win, HC_NUM_EVAL_GAMES)
-            eval_f.write('%d %f\n' % (generation_number, ratio_win))
+            win_rate = float(count_wins[0]) / HC_NUM_EVAL_GAMES
+            print 'Win rate: %.2f against opponent' % win_rate
+            eval_f.write('%d %f\n' % (generation_number, win_rate))
             eval_f.flush()
         
         print 'Finding a good challenger...'
