@@ -18,7 +18,7 @@ if __name__ == '__main__':
     f.write('transfer_executable = false\n')  
     f.write('\n')
     
-    for app in ['app_sarsa', 'app_ntd']:
+    for app in ['app_sarsa', 'app_ntd', 'app_hc']:
         for domain in ['minigammon', 'nannon', 'midgammon', 'nohitgammon']:
             for offset in [0, 1, 2, 3]:
                 for trial in range(10):

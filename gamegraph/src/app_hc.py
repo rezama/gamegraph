@@ -15,14 +15,14 @@ from domain import AgentNeural, GameSet
 
 class AgentHC(AgentNeural):
     
-    def __init__(self):
-        super(AgentHC, self).__init__(1, init_weights = 0.0)
+    def __init__(self, state_class):
+        super(AgentHC, self).__init__(state_class, 1, init_weights = 0.0)
         self.network_inputs = {}
 
     def get_state_value(self, state):
         state_str = str(state)[:-2]
         if state_str not in self.network_inputs:
-            self.network_inputs[state_str] = self.encode_network_input(state)
+            self.network_inputs[state_str] = state.encode_network_input()
         network_in = self.network_inputs[state_str]
         network_out = self.network.activate(network_in)
         # if player to move is white, it means black is considering
@@ -54,8 +54,8 @@ if __name__ == '__main__':
     chal_filename = exp_params.get_trial_filename(FILE_PREFIX_HC_CHALLENGE)
     chal_f = open(chal_filename, 'w')
     
-    agent_champion = AgentHC();
-    agent_challenger = AgentHC();
+    agent_champion = AgentHC(exp_params.state_class);
+    agent_challenger = AgentHC(exp_params.state_class);
     
     agent_eval = Experiment.create_eval_opponent_agent(exp_params)
     print 'Evaluation opponent is: %s' % agent_eval
