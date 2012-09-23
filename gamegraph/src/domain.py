@@ -285,7 +285,7 @@ class State(object):
             (s_key, s_pos, s_color) = Q.get()
             is_state_processed[s_key] = True
             if len(is_state_processed) % GENERATE_GRAPH_REPORT_EVERY_N_STATES == 0:
-                print 'Fully processed %d, %d in queue, processing %s...' % \
+                print 'Fully processed %d nodes, %d in queue, processing %s...' % \
                         (len(is_state_processed), Q.qsize(), s_key)
             s.pos = s_pos
             s.player_to_move = s_color
@@ -796,19 +796,19 @@ class NannonState(State):
 
 class MidGammonState(State):
     
-    #        -->                                           <--   
-    #   0      1   2   3   4   5   6   7   8   9  10  11  12     13
-    # +---+  +---+---+---+---+---+---+---+---+---+---+---+---+  +---+
-    # |   |  |ww |ww |   |   |   |   |   |   |   |   | bb| bb|  |   |
-    # +---+  +---+---+---+---+---+---+---+---+---+---+---+---+  +---+
-    #  Bar                                                       Off
+    #        -->                           <--   
+    #   0      1   2   3   4   5   6   7   8      9           
+    # +---+  +---+---+---+---+---+---+---+---+  +---+
+    # |   |  |ww |ww |   |   |   |   | bb| bb|  |   |
+    # +---+  +---+---+---+---+---+---+---+---+  +---+
+    #  Bar                                       Off
     #      
     
     DOMAIN_NAME = 'midgammon'
 
-    BOARD_SIZE   = 6
+    BOARD_SIZE   = 8
     NUM_CHECKERS = 4
-    NUM_DIE_SIDES = 4
+    NUM_DIE_SIDES = 3
     NUM_HIDDEN_UNITS = 20
 
     def __init__(self, exp_params, player_to_move):
@@ -1005,7 +1005,7 @@ class NohitGammonState(State):
 
     BOARD_SIZE   = 8
     NUM_CHECKERS = 4
-    NUM_DIE_SIDES = 2
+    NUM_DIE_SIDES = 3
     NUM_HIDDEN_UNITS = 20
 
     def __init__(self, exp_params, player_to_move):

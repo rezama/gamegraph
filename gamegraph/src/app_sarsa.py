@@ -291,6 +291,7 @@ if __name__ == '__main__':
         agent_sarsa.pause_learning()
         game_set = GameSet(exp_params, SARSA_NUM_EVAL_EPISODES,
                            agent_sarsa, agent_eval)
+        agent_sarsa.resume_learning()
         count_wins = game_set.run()
         win_rate = float(count_wins[0]) / SARSA_NUM_EVAL_EPISODES
         print 'Win rate against the opponent: %.2f' % win_rate
