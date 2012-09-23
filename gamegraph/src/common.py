@@ -49,15 +49,15 @@ FOLDER_QTABLE_VS_SELF = '../q-table/vsself'
 FOLDER_QTABLE_VS_RANDOM = '../q-table/vsrandom'
 SUFFIX_GRAPH_OK = '-ok'
 
+FILE_PREFIX_SARSA = 'sarsa'
 FILE_PREFIX_NTD = 'ntd'
 FILE_PREFIX_HC = 'hc'
 FILE_PREFIX_HC_CHALLENGE = 'hc-challenge'
-FILE_PREFIX_SARSA = 'sarsa'
 
 class ExpParams(object):
     
     def __init__(self, domain_name, exp, graph_name, p, offset, choose_roll,
-                 trial, signature):
+                 trial, exp_signature):
         self.domain_name = domain_name
         from domain_proxy import DomainProxy
         self.state_class = DomainProxy.load_domain_state_class_by_name(domain_name)
@@ -67,7 +67,12 @@ class ExpParams(object):
         self.offset = offset
         self.choose_roll = choose_roll
         self.trial = trial
-        self.signature = signature 
+        self.exp_signature = exp_signature
+        
+        self.domain_signature = self.state_class.get_domain_signature()
+        self.signature = self.domain_signature
+        if self.exp_signature != '':
+            self.signature = self.domain_signature + '-' + self.exp_signature 
 
     def get_filename_suffix_with_trial(self):
         return self.get_filename_suffix_no_trial() + ('-%d' % self.trial)
@@ -135,36 +140,36 @@ class Experiment(object):
                     ['domain=', 'graph=', 'offset=', 'p=', 'chooseroll=',
                      'trial='])        
         
-        signature = ''
+        exp_signature = ''
         
         for opt, arg in options:
             if opt in ('-d', '--domain'):
                 print 'Setting domain to: %s' % arg
                 domain_name = arg
-                signature += arg + '-'
+#                exp_signature += arg + '-'
             elif opt in ('-g', '--graph'):
                 print 'Setting graph name to: %s' % arg
                 graph_name = arg
-                signature += 'graph-%s-' % arg
+                exp_signature += 'graph-%s-' % arg
             elif opt in ('-p', '--p'):
                 print 'Setting p to: %s' % arg
                 p = float(arg)
-                signature += 'p-%s-' % arg
+                exp_signature += 'p-%s-' % arg
             elif opt in ('-o', '--offset'):
                 print 'Setting offset to: %s' % arg
                 offset = int(arg)
-                signature += 'offset-%s-' % arg
+                exp_signature += 'offset-%s-' % arg
             elif opt in ('-c', '--chooseroll'):
                 print 'Setting choose_roll to: %s' % arg
                 choose_roll = float(arg)
-                signature += 'chooseroll-%s-' % arg
+                exp_signature += 'chooseroll-%s-' % arg
             elif opt in ('-t', '--trial'):
                 print 'Setting trial to: %s' % arg
                 trial = int(arg)
-#                signature += 'trial-%s' % arg
+#                exp_signature += 'trial-%s' % arg
 
-        if signature.rfind('-') >= 0:
-            signature = signature[:signature.rfind('-')] # remove last hyphen        
+        if exp_signature.rfind('-') >= 0:
+            exp_signature = exp_signature[:exp_signature.rfind('-')] # remove last hyphen        
 
         if domain_name is None:
             print 'Please specify an experiment using:'
@@ -174,10 +179,10 @@ class Experiment(object):
             print 'python %s --domain=<name> --offset=<int> [--choose-roll=<frac>] [--trial=<trial>]' % sys.argv[0]
             sys.exit(-1)
         else:
-            print 'Run signature is: %s' % signature
+            print 'Experiment signature is: %s' % exp_signature
             cls.exp_param_cached = ExpParams(domain_name, exp, graph_name, 
                                              p, offset, choose_roll, trial,
-                                             signature)
+                                             exp_signature)
             return cls.exp_param_cached
 
     @classmethod
@@ -198,7 +203,7 @@ class Experiment(object):
     def save_stats(cls, state_class, exp_params):
         if not SAVE_STATS:
             return
-    #    # visit counts to individual states        
+    #    # visit counts to individual states
     #    filename = '../data/states-visit-count-%1.2f.txt' % state_class.p
     #    f = open(filename, 'w')
     #    for state, count_visits in sorted(state_class.states_visit_count.iteritems(), 

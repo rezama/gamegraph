@@ -201,6 +201,11 @@ class State(object):
     def load_own_graph(self):
         if self.GAME_GRAPH is None:
             self.__class__.GAME_GRAPH = StateGraph.load(self.exp_params)
+
+    @classmethod
+    def get_domain_signature(cls):
+        return '%s-%d%d%d' % (cls.DOMAIN_NAME, cls.BOARD_SIZE,
+                              cls.NUM_CHECKERS, cls.NUM_DIE_SIDES)
         
     def init_pos(self):
         raise NotImplementedError
@@ -390,8 +395,8 @@ class MiniGammonState(State):
     DOMAIN_NAME = 'minigammon'
 
     BOARD_SIZE   = 8
-    NUM_DIE_SIDES = 2
     NUM_CHECKERS = 2
+    NUM_DIE_SIDES = 2
     NUM_HIDDEN_UNITS = 10
 
     def __init__(self, exp_params, player_to_move):
@@ -585,8 +590,8 @@ class NannonState(State):
     DOMAIN_NAME = 'nannon'
 
     BOARD_SIZE   = 6
-    NUM_DIE_SIDES = 6
     NUM_CHECKERS = 3
+    NUM_DIE_SIDES = 6
     NUM_HIDDEN_UNITS = 10
 
     def __init__(self, exp_params, player_to_move):
@@ -802,8 +807,8 @@ class MidGammonState(State):
     DOMAIN_NAME = 'midgammon'
 
     BOARD_SIZE   = 6
-    NUM_DIE_SIDES = 4
     NUM_CHECKERS = 4
+    NUM_DIE_SIDES = 4
     NUM_HIDDEN_UNITS = 20
 
     def __init__(self, exp_params, player_to_move):
@@ -999,8 +1004,8 @@ class NohitGammonState(State):
     DOMAIN_NAME = 'nohitgammon'
 
     BOARD_SIZE   = 8
-    NUM_DIE_SIDES = 3
     NUM_CHECKERS = 4
+    NUM_DIE_SIDES = 2
     NUM_HIDDEN_UNITS = 20
 
     def __init__(self, exp_params, player_to_move):
