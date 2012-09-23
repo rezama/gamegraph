@@ -1238,7 +1238,7 @@ class Game(object):
             winner = PLAYER_BLACK
             loser = PLAYER_WHITE
         else:
-            print 'Game %d: warning: too many moves, %s wins' % (self.game_number, self.agents[PLAYER_BLACK])
+            print 'Warning: game %d took too long, declaring %s winner' % (self.game_number, self.agents[PLAYER_BLACK])
             winner = PLAYER_BLACK
             loser = PLAYER_WHITE
         
