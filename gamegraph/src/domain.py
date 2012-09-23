@@ -16,7 +16,8 @@ from common import POS_ATTR, PLAYER_BLACK, PLAYER_WHITE, PLAYER_NAME,\
 from params import GENERATE_GRAPH_REPORT_EVERY_N_STATES, RECORD_GRAPH,\
     COLLECT_STATS, PRINT_GAME_DETAIL, GAMESET_PROGRESS_REPORT_USE_GZIP,\
     ALTERNATE_SEATS, USE_SEEDS, GAMESET_RECENT_WINNERS_LIST_SIZE,\
-    PRINT_GAME_RESULTS, GAMESET_PROGRESS_REPORT_EVERY_N_GAMES
+    PRINT_GAME_RESULTS, GAMESET_PROGRESS_REPORT_EVERY_N_GAMES,\
+    MAX_MOVES_PER_GAME
 from state_graph import StateGraph
 
 class Die(object):
@@ -85,6 +86,9 @@ class Agent(object):
 
     def select_action(self):
         raise NotImplementedError
+
+    def __str__(self):
+        return self.__class__.__name__
     
 class AgentRandom(Agent):
     
@@ -140,8 +144,8 @@ class AgentNeural(Agent):
             
         return action
     
-    def __repr__(self):
-        return str(self.network.params)
+#    def __repr__(self):
+#        return str(self.network.params)
 
 class State(object):
     
@@ -806,7 +810,7 @@ class MidGammonState(State):
     
     DOMAIN_NAME = 'midgammon'
 
-    BOARD_SIZE   = 8
+    BOARD_SIZE   = 6
     NUM_CHECKERS = 4
     NUM_DIE_SIDES = 3
     NUM_HIDDEN_UNITS = 20
@@ -1202,7 +1206,8 @@ class Game(object):
         self.count_plies = 0
         
     def play(self):
-        while not self.state.is_final():
+        while (not self.state.is_final()) and \
+                (self.count_plies < MAX_MOVES_PER_GAME * 2):
 #            if self.player_to_play == PLAYER_WHITE:
 #                self.state.compute_per_ply_stats(self.count_plies)
             self.state.compute_per_ply_stats(self.count_plies)
@@ -1233,7 +1238,9 @@ class Game(object):
             winner = PLAYER_BLACK
             loser = PLAYER_WHITE
         else:
-            print 'Error: Game ended without a winning player!'
+            print 'Game %d: warning: too many moves, %s wins' % (self.game_number, self.agents[PLAYER_BLACK])
+            winner = PLAYER_BLACK
+            loser = PLAYER_WHITE
         
         self.agents[winner].end_episode(REWARD_WIN)
         self.agents[loser].end_episode(REWARD_LOSE)

@@ -35,9 +35,9 @@ class AgentOptimal(Agent):
             self.attempt_graph_init = False
             
         node_id = self.graph.get_node_id(node_label)
-        multiplier = 1
-        if node_color == PLAYER_BLACK:
-            multiplier = -1
+#        multiplier = 1
+#        if node_color == PLAYER_BLACK:
+#            multiplier = -1
 
         do_choose_roll = False
         if self.state.exp_params.choose_roll > 0.0:
@@ -56,10 +56,13 @@ class AgentOptimal(Agent):
                 succ_id = self.graph.get_successor(node_id, replace_roll, action)
                 if succ_id is not None:
                     succ_value = self.graph.get_attr(succ_id, VAL_ATTR)
-                    action_values.append(((multiplier * succ_value, random.random()), (replace_roll, action)))
+                    action_values.append(((succ_value, random.random()), (replace_roll, action)))
             
         if len(action_values) > 0:
-            action_values_sorted = sorted(action_values, reverse=True)
+            if node_color == PLAYER_WHITE:
+                action_values_sorted = sorted(action_values, reverse=True)
+            else:
+                action_values_sorted = sorted(action_values, reverse=False)
             best_roll = action_values_sorted[0][1][0]
             # set the best roll there
             self.state.roll = best_roll

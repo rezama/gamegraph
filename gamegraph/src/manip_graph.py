@@ -39,6 +39,8 @@ if __name__ == '__main__':
     exp_params = Experiment.get_command_line_args()
 
     g = StateGraph.load(exp_params)
-    GraphManipulator.create_back_range(exp_params, g)
+#    GraphManipulator.create_back_range(exp_params, g)
+    g.print_stats()
+    print g.node_attrs[0]
 
     

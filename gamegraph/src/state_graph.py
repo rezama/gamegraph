@@ -282,7 +282,13 @@ class StateGraph(object):
                                 successor_value = self.node_attrs[successor][VAL_ATTR]
                                 if (multiplier * successor_value) > (multiplier * roll_values[roll_index]):
                                     roll_values[roll_index] = successor_value
-                    new_state_value = float(sum(roll_values)) / num_rolls
+                    avg_value = float(sum(roll_values)) / num_rolls
+                    if self.node_colors[node_id] == PLAYER_WHITE:
+                        value_with_choose_roll = exp_params.choose_roll * max(roll_values)
+                    else:
+                        value_with_choose_roll = exp_params.choose_roll * min(roll_values)
+                    value_regular = (1 - exp_params.choose_roll) * avg_value
+                    new_state_value = value_regular + value_with_choose_roll
                     residual = abs(self.node_attrs[node_id][VAL_ATTR] - new_state_value)
 #                    if residual > 0:
 #                        print 'Updating state %s value from %.4f to %.4f' % (
