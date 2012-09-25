@@ -50,7 +50,7 @@ def compute_average(basename):
                 key = int(two_values[0])
                 value = float(two_values[1])
                 table[key] = table.get(key, 0) + value
-                table_count[key] = table_count.get(key, 0) + value
+                table_count[key] = table_count.get(key, 0) + 1
             num_existing += 1
         except IOError as e: #@UnusedVariable
             print "Couldn't read from %s" % datafile
