@@ -29,6 +29,8 @@ def compute_average(basename):
     favg = open('%s/%s.txt' % (FOLDER_AVG, basename), 'w')
     
     table = {}
+    table_count = {}
+    
     num_existing = 0
     for t in range(NUM_TRIALS):
         datafile = '%s/%s-%d.txt' % (FOLDER_TRIALS, basename, t)
@@ -39,7 +41,7 @@ def compute_average(basename):
                 f = gzip.open(datafile_gz, 'r')
             else:
                 f = open(datafile, 'r')
-                
+            
             for line in f:
                 line_stripped = line.rstrip()
                 two_values = line_stripped.split()
@@ -48,6 +50,7 @@ def compute_average(basename):
                 key = int(two_values[0])
                 value = float(two_values[1])
                 table[key] = table.get(key, 0) + value
+                table_count[key] = table_count.get(key, 0) + value
             num_existing += 1
         except IOError as e: #@UnusedVariable
             print "Couldn't read from %s" % datafile
@@ -55,7 +58,7 @@ def compute_average(basename):
     keylist = table.keys()
     keylist.sort()
     for key in keylist:
-        favg.write('%d %f\n' % (key, float(table[key]) / num_existing)) 
+        favg.write('%d %f\n' % (key, float(table[key]) / table_count[key])) 
 
     favg.close()
     
