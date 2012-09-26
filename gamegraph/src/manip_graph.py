@@ -5,6 +5,7 @@ Created on Aug 22, 2012
 '''
 from common import Experiment
 from state_graph import StateGraph
+from params import EXP_BACK_RANGE
 
 class GraphManipulator(object):
     
@@ -13,7 +14,7 @@ class GraphManipulator(object):
         g = StateGraph.load(exp_params)
         g.compute_bfs()
 #        prob_keep_range = [1.0, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1, 0.0]
-        prob_keep_range = [1.0, 0.9, 0.5, 0.1, 0.0]
+        prob_keep_range = [x / 100.0 for x in EXP_BACK_RANGE]
         prob_keep_range_inc = []
         currently_kept = 1.0
         for p in prob_keep_range:
