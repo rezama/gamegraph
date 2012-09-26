@@ -9,17 +9,11 @@ from state_graph import StateGraph
 class GraphManipulator(object):
     
     @classmethod
-    def trim_back_edges(cls, exp_params, g, prob_keep = 0.0):
-        g.compute_bfs()
-        g.trim_back_edges(prob_keep)
-        filename_suffix = '-back-%d' % (prob_keep * 100)
-        g.save(exp_params, filename_suffix)
-
-    @classmethod
-    def create_back_range(cls, exp_params, g):
+    def create_back_range(cls, exp_params):
+        g = StateGraph.load(exp_params)
         g.compute_bfs()
 #        prob_keep_range = [1.0, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1, 0.0]
-        prob_keep_range = [1.0, 0.85, 0.5, 0.15, 0.0]
+        prob_keep_range = [1.0, 0.9, 0.5, 0.1, 0.0]
         prob_keep_range_inc = []
         currently_kept = 1.0
         for p in prob_keep_range:
@@ -35,12 +29,15 @@ class GraphManipulator(object):
             g.save(exp_params, filename_suffix)
             print ''
 
+
+    @classmethod
+    def get_graph_info(cls, exp_params):
+        g = StateGraph.load(exp_params)
+        g.print_stats()
+        print g.node_attrs[0]
+
+
 if __name__ == '__main__':
     exp_params = Experiment.get_command_line_args()
-
-    g = StateGraph.load(exp_params)
-#    GraphManipulator.create_back_range(exp_params, g)
-    g.print_stats()
-    print g.node_attrs[0]
-
+    GraphManipulator.create_back_range(exp_params)
     
