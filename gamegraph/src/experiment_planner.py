@@ -11,8 +11,8 @@ def queue_job(f, args):
     args_no_space = args.replace('app_', '').replace('.py', '').\
                 replace(' ', '-').replace('--', '-').replace('--', '-')
     f.write('arguments = %s\n' % args) 
-    f.write('stdout = ../log/%s\n' % args_no_space)
-    f.write('stderr = ../log/%s\n' % args_no_space)
+    f.write('output = ../log/%s.txt\n' % args_no_space)
+    f.write('error = ../log/%s.txt\n' % args_no_space)
     f.write('queue\n')
 
 def plot_them(f, plot_items):

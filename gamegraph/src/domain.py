@@ -225,10 +225,16 @@ class State(object):
             self.pos[player].sort()
 
     def get_move_outcome(self, checker):
+        # always create state with WHITE to move to prevent problems with 
+        # searching the graph for BLACK sources
+#        if self.shadow is None:
+#            self.shadow = self.__class__(self.exp_params, self.player_to_move)
+#        else:
+#            self.shadow.player_to_move = self.player_to_move
         if self.shadow is None:
-            self.shadow = self.__class__(self.exp_params, self.player_to_move)
-        else:
-            self.shadow.player_to_move = self.player_to_move
+            self.shadow = self.__class__(self.exp_params, PLAYER_WHITE)
+        self.shadow.player_to_move = self.player_to_move
+        
         self.shadow.roll = self.roll
 #        self.shadow.pos[0][0] = self.pos[0][0]
 #        self.shadow.pos[0][1] = self.pos[0][1]
@@ -269,6 +275,10 @@ class State(object):
     @classmethod
     def generate_graph(cls, exp_params):
         print 'Generating graph...'
+        if exp_params.is_graph_based():
+            print 'Cannot generate graph in a graph-based experiment!'
+            return None
+        
         s = exp_params.state_class(exp_params, PLAYER_WHITE)
         g = StateGraph(s.die_object.get_all_sides(), 1,
                        s.action_object.get_all_actions())
