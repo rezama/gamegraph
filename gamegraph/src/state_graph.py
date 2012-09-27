@@ -441,16 +441,16 @@ class StateGraph(object):
 
     def remove_value_attrs(self):
         for node_id in range(self.get_num_nodes()):
-            if self.node_attrs[node_id].has_attr(VAL_ATTR):
+            if self.node_attrs[node_id].has_key(VAL_ATTR):
                 del self.node_attrs[node_id][VAL_ATTR]
 
     def remove_attrs(self):
         for node_id in range(self.get_num_nodes()):
-            if self.node_attrs[node_id].has_attr(BFS_COLOR_ATTR):
+            if self.node_attrs[node_id].has_key(BFS_COLOR_ATTR):
                 del self.node_attrs[node_id][BFS_COLOR_ATTR]
-            if self.node_attrs[node_id].has_attr(DIST_ATTR):
+            if self.node_attrs[node_id].has_key(DIST_ATTR):
                 del self.node_attrs[node_id][DIST_ATTR]
-            if self.node_attrs[node_id].has_attr(VAL_ATTR):
+            if self.node_attrs[node_id].has_key(VAL_ATTR):
                 del self.node_attrs[node_id][VAL_ATTR]
             
     def print_stats(self):
