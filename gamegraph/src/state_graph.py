@@ -361,6 +361,7 @@ class StateGraph(object):
                             
     def trim_back_edges(self, prob_keep = 0.0):
         print 'Trimming back edges, keeping %d%%...' % (prob_keep * 100)
+        self.remove_value_attrs()
         count_back_edges = 0
         count_replaceable = 0
         count_replaced = 0
@@ -399,6 +400,7 @@ class StateGraph(object):
 
     def trim_hit_edges(self, prob_keep = 0.0):
         print 'Trimming hit edges, keeping %d%%...' % (prob_keep * 100)
+        self.remove_value_attrs()
         count_hit_edges = 0
         count_replaceable = 0
         count_replaced = 0
@@ -437,11 +439,16 @@ class StateGraph(object):
                                 
         print 'Done.'
 
-    def cleanup_attrs(self):
+    def remove_value_attrs(self):
         for node_id in range(self.get_num_nodes()):
-            del self.node_attrs[node_id][DIST_ATTR]
-            del self.node_attrs[node_id][BFS_COLOR_ATTR]
+            del self.node_attrs[node_id][VAL_ATTR]
 
+    def remove_attrs(self):
+        for node_id in range(self.get_num_nodes()):
+            del self.node_attrs[node_id][BFS_COLOR_ATTR]
+            del self.node_attrs[node_id][DIST_ATTR]
+            del self.node_attrs[node_id][VAL_ATTR]
+            
     def print_stats(self):
         print 'Graph Stats:'
         print 'Number of nodes: %d' % self.get_num_nodes()
