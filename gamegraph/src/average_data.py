@@ -3,14 +3,15 @@ Created on Dec 13, 2011
 
 @author: reza
 '''
-from params import NUM_TRIALS
 import os
 import gzip
+
 from common import FOLDER_AVG, FOLDER_TRIALS
+from params import NUM_TRIALS
 
 def compute_all():
     processed_bases = []
-    for (dirpath, dirname, filenames) in os.walk('../data/trials/'): #@UnusedVariable
+    for (dirpath, dirname, filenames) in os.walk(FOLDER_TRIALS): #@UnusedVariable
         for filename in filenames:
             filename = filename.replace('.gz', '') # remove .gz extension
             filename = filename.replace('.txt', '') # remove .txt extension

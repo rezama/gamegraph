@@ -59,6 +59,8 @@ FILE_PREFIX_HC = 'hc'
 FILE_PREFIX_HC_CHALLENGE = 'hc-challenge'
 
 class ExpParams(object):
+
+    exp_param_cached = None
     
     def __init__(self, domain_name, exp, graph_name, p, offset, choose_roll,
                  trial, exp_signature):
@@ -78,59 +80,15 @@ class ExpParams(object):
         if self.exp_signature != '':
             self.signature = self.domain_signature + '-' + self.exp_signature 
 
-    def get_filename_suffix_with_trial(self):
-        return self.get_filename_suffix_no_trial() + ('-%d' % self.trial)
-
-    def get_filename_suffix_no_trial(self):
-        return self.signature
-#        if self.exp == EXP_BASE:
-#            return EXP_BASE
-#        if self.exp == EXP_P:
-#            return '%s-%1.2f' % (self.exp, self.p)
-#        elif self.exp == EXP_OFFSET:
-#            return '%s-%d' % (self.exp, self.offset)
-#        elif self.exp == EXP_GRAPH:
-#            return '%s-%s' % (self.exp, self.graph_name)
-#        else:
-#            return 'invalidexp'
-        
-    def get_custom_filename_no_trial(self, folder, file_prefix):
-        filename = '%s/%s-%s.txt' % (folder, file_prefix,
-                                        self.get_filename_suffix_no_trial())
-        return filename
-        
-    def get_custom_filename_with_trial(self, folder, file_prefix):
-        filename = '%s/%s-%s.txt' % (folder, file_prefix,
-                                        self.get_filename_suffix_with_trial())
-        return filename
-        
-    def get_trial_filename(self, file_prefix):
-        filename = '%s/%s-%s.txt' % (FOLDER_TRIALS, file_prefix,
-                                        self.get_filename_suffix_with_trial())
-        return filename
-        
-    def get_graph_filename(self):
-        if self.graph_name is not None:
-            filename = '%s/%s' % (FOLDER_GRAPH, self.graph_name)
-        else:
-            filename = '%s/%s' % (FOLDER_GRAPH, self.get_filename_suffix_no_trial())
-        return filename
-        
-    def is_graph_based(self):
-        return (self.graph_name is not None)
-    
-    def is_first_trial(self):
-        return self.trial == 0
-
-class Experiment(object):
-    
-    exp_param_cached = None
-    
     @classmethod
-    def get_command_line_args(cls):
-        if cls.exp_param_cached is not None:
-            return cls.exp_param_cached
-        
+    def get_exp_params_from_command_line_args(cls):
+        if cls.exp_param_cached is None:
+            cls.exp_param_cached = cls.get_exp_params(sys.argv[1:])
+            
+        return cls.exp_param_cached
+            
+    @classmethod
+    def get_exp_params(cls, options_list):
         domain_name = DEFAULT_DOMAIN_NAME
         exp = DEFAULT_EXP
         graph_name = DEFAULT_GRAPH_NAME
@@ -139,7 +97,7 @@ class Experiment(object):
         choose_roll = DEFAULT_CHOOSE_ROLL
         trial = DEFAULT_TRIAL
 
-        options, remainder = getopt.getopt(sys.argv[1:], #@UnusedVariable
+        options, remainder = getopt.getopt(options_list, #@UnusedVariable
                     'd:g:o:p:c:t:',
                     ['domain=', 'graph=', 'offset=', 'p=', 'chooseroll=',
                      'trial='])        
@@ -189,6 +147,52 @@ class Experiment(object):
                                              exp_signature)
             return cls.exp_param_cached
 
+    def get_filename_suffix_with_trial(self):
+        return self.get_filename_suffix_no_trial() + ('-%d' % self.trial)
+
+    def get_filename_suffix_no_trial(self):
+        return self.signature
+#        if self.exp == EXP_BASE:
+#            return EXP_BASE
+#        if self.exp == EXP_P:
+#            return '%s-%1.2f' % (self.exp, self.p)
+#        elif self.exp == EXP_OFFSET:
+#            return '%s-%d' % (self.exp, self.offset)
+#        elif self.exp == EXP_GRAPH:
+#            return '%s-%s' % (self.exp, self.graph_name)
+#        else:
+#            return 'invalidexp'
+        
+    def get_custom_filename_no_trial(self, folder, file_prefix):
+        filename = '%s/%s-%s.txt' % (folder, file_prefix,
+                                        self.get_filename_suffix_no_trial())
+        return filename
+        
+    def get_custom_filename_with_trial(self, folder, file_prefix):
+        filename = '%s/%s-%s.txt' % (folder, file_prefix,
+                                        self.get_filename_suffix_with_trial())
+        return filename
+        
+    def get_trial_filename(self, file_prefix):
+        filename = '%s/%s-%s.txt' % (FOLDER_TRIALS, file_prefix,
+                                        self.get_filename_suffix_with_trial())
+        return filename
+        
+    def get_graph_filename(self):
+        if self.graph_name is not None:
+            filename = '%s/%s' % (FOLDER_GRAPH, self.graph_name)
+        else:
+            filename = '%s/%s' % (FOLDER_GRAPH, self.get_filename_suffix_no_trial())
+        return filename
+        
+    def is_graph_based(self):
+        return (self.graph_name is not None)
+    
+    def is_first_trial(self):
+        return self.trial == 0
+
+class Experiment(object):
+    
     @classmethod
     def create_eval_opponent_agent(cls, exp_params):
         agent_eval = None

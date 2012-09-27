@@ -15,7 +15,7 @@ def queue_job(f, args):
     f.write('error = ../log/%s.txt\n' % args_no_space)
     f.write('queue\n')
 
-def plot_them(f, plot_items):
+def plot_results(f, plot_items):
     plot_name = plot_items[0]
     if plot_name.rfind('-') >= 0:
         plot_name = plot_name[:plot_name.rfind('-')] # remove last token
@@ -65,7 +65,7 @@ if __name__ == '__main__':
 #                for trial in range(NUM_TRIALS):
 #                    args = '%s.py --domain %s --chooseroll %s --trial %d' % (app, domain, chooseroll, trial)
 #                    queue_job(f, args)
-#            plot_them(fp, plot_items)
+#            plot_results(fp, plot_items)
 #
 #            plot_items = []
 #            for offset in [0, 1, 2, 3]:
@@ -74,7 +74,7 @@ if __name__ == '__main__':
 #                for trial in range(NUM_TRIALS):
 #                    args = '%s.py --domain %s --offset %d --trial %d' % (app, domain, offset, trial)
 #                    queue_job(f, args)
-#            plot_them(fp, plot_items)
+#            plot_results(fp, plot_items)
 
             plot_items = []
             for back in EXP_BACK_RANGE:
@@ -83,7 +83,7 @@ if __name__ == '__main__':
                 for trial in range(NUM_TRIALS):
                     args = '%s.py --domain %s --graph %s-back-%d --trial %d' % (app, domain, domain_full, back, trial)
                     queue_job(f, args)
-            plot_them(fp, plot_items)
+            plot_results(fp, plot_items)
 
     f.close()
     fp.close()

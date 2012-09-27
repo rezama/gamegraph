@@ -4,12 +4,13 @@ Created on Sep 17, 2012
 @author: reza
 '''
 
-from common import Experiment, PLAYER_WHITE, PLAYER_BLACK, FOLDER_DOMAINSTATS
+from common import Experiment, PLAYER_WHITE, PLAYER_BLACK, FOLDER_DOMAINSTATS,\
+    ExpParams
 from params import NUM_STATS_GAMES, RECORD_GRAPH, SAVE_STATS, COLLECT_STATS
 from domain import AgentRandom, GameSet
 
 if __name__ == '__main__':
-    exp_params = Experiment.get_command_line_args()
+    exp_params = ExpParams.get_exp_params_from_command_line_args()
    
     num_games = NUM_STATS_GAMES
     agent_white = AgentRandom(exp_params.state_class)

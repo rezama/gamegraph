@@ -3,10 +3,11 @@ Created on Sep 20, 2012
 
 @author: reza
 '''
+import random
+
 from domain import Agent, AgentRandom, GameSet
 from common import VAL_ATTR, PLAYER_BLACK, Experiment, FOLDER_DOMAINSTATS,\
-    PLAYER_WHITE
-import random
+    PLAYER_WHITE, ExpParams
 from params import NUM_STATS_GAMES, SAVE_STATS, COLLECT_STATS
 
 class AgentOptimal(Agent):
@@ -73,7 +74,7 @@ class AgentOptimal(Agent):
         return action
     
 if __name__ == '__main__':
-    exp_params = Experiment.get_command_line_args()
+    exp_params = ExpParams.get_exp_params_from_command_line_args()
    
     num_games = NUM_STATS_GAMES
     agent_white = AgentOptimal(exp_params.state_class)

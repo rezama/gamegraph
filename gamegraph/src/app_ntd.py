@@ -8,7 +8,7 @@ from pybrain.datasets.supervised import SupervisedDataSet
 from pybrain.supervised.trainers.backprop import BackpropTrainer
 
 from common import Experiment, PLAYER_WHITE, other_player, REWARD_LOSE,\
-    REWARD_WIN, FILE_PREFIX_NTD
+    REWARD_WIN, FILE_PREFIX_NTD, ExpParams
 from params import NTD_LEARNING_RATE, NTD_EPSILON, NTD_LAMBDA, NTD_ALPHA,\
     NTD_GAMMA, NTD_TRAIN_EPOCHS, NTD_USE_ALPHA_ANNEALING, NTD_NUM_ITERATIONS,\
     NTD_NUM_EVAL_GAMES, NTD_NUM_TRAINING_GAMES, NTD_NETWORK_INIT_WEIGHTS
@@ -247,7 +247,7 @@ class AgentNTD(AgentNeural):
         self.print_e()
            
 if __name__ == '__main__':
-    exp_params = Experiment.get_command_line_args()
+    exp_params = ExpParams.get_exp_params_from_command_line_args()
    
     filename = exp_params.get_trial_filename(FILE_PREFIX_NTD)
     f = open(filename, 'w')

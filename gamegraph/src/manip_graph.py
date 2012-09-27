@@ -3,11 +3,12 @@ Created on Aug 22, 2012
 
 @author: reza
 '''
-from common import Experiment
+from common import FOLDER_GRAPH, ExpParams
 from state_graph import StateGraph
 from params import EXP_BACK_RANGE
+import os
 
-class GraphManipulator(object):
+class ManipGraph(object):
     
     @classmethod
     def create_back_range(cls, exp_params):
@@ -30,15 +31,28 @@ class GraphManipulator(object):
             g.save(exp_params, filename_suffix)
             print ''
 
-
     @classmethod
     def get_graph_info(cls, exp_params):
         g = StateGraph.load(exp_params)
         g.print_stats()
         print g.node_attrs[0]
 
+    @classmethod
+    def get_all_graphs_infos(cls):
+        for (dirpath, dirname, filenames) in os.walk(FOLDER_GRAPH): #@UnusedVariable
+            for filename in filenames:
+                if '.gz' in filename:
+                    graph_name = filename.replace('.gz', '') # remove .gz extension
+                    domain_name = filename.split('-', 1)[0]
+                    options_list = ['--domain', domain_name, '--graph', graph_name] 
+                    exp_params = ExpParams.get_exp_params(options_list)
+                    g = StateGraph.load(exp_params)
+                    g.print_stats()
+            break
 
 if __name__ == '__main__':
-    exp_params = Experiment.get_command_line_args()
-    GraphManipulator.create_back_range(exp_params)
+#    exp_params = ExpParams.get_exp_params_from_command_line_args()
+#    ManipGraph.get_graph_info(exp_params)
+#    ManipGraph.create_back_range(exp_params)
+    ManipGraph.get_all_graphs_infos()
     

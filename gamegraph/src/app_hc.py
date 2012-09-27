@@ -7,7 +7,7 @@ Created on Dec 9, 2011
 import random
 
 from common import Experiment, PLAYER_WHITE, PLAYER_BLACK, FILE_PREFIX_HC,\
-    FILE_PREFIX_HC_CHALLENGE
+    FILE_PREFIX_HC_CHALLENGE, ExpParams
 from params import HC_RATIO_KEEP_CHAMPION_WEIGHTS, HC_MUTATE_WEIGHT_SIGMA,\
     HC_NUM_GENERATIONS, HC_EVALUATE_EVERY_N_GENERATIONS, HC_NUM_EVAL_GAMES,\
     HC_NUM_CHALLENGE_GAMES, HC_CHALLENGER_NEEDS_TO_WIN
@@ -47,7 +47,7 @@ class AgentHC(AgentNeural):
                                      for w in self.network.params]
     
 if __name__ == '__main__':
-    exp_params = Experiment.get_command_line_args()
+    exp_params = ExpParams.get_exp_params_from_command_line_args()
    
     eval_filename = exp_params.get_trial_filename(FILE_PREFIX_HC)
     eval_f = open(eval_filename, 'w')

@@ -5,10 +5,10 @@ Created on Dec 10, 2011
 '''
 
 import random
+import pickle
 
 from common import Experiment, FILE_PREFIX_SARSA, FOLDER_QTABLE_VS_SELF,\
-    FOLDER_QTABLE_VS_RANDOM
-import pickle
+    FOLDER_QTABLE_VS_RANDOM, ExpParams
 from params import SARSA_EPSILON, SARSA_LAMBDA, SARSA_ALPHA, SARSA_GAMMA,\
     SARSA_USE_ALPHA_ANNEALING, SARSA_MIN_ALPHA, SARSA_TRAIN_AGAINST_SELF,\
     SARSA_NUM_TRAINING_ITERATIONS, SARSA_SAVE_TABLES, SARSA_NUM_EVAL_EPISODES,\
@@ -204,7 +204,7 @@ class SarsaLambdaAlg(object):
                         
     
     def get_knowledge_filename(self):
-        exp_params = Experiment.get_command_line_args()
+        exp_params = ExpParams.get_exp_params_from_command_line_args()
         if SARSA_TRAIN_AGAINST_SELF:
             table_folder = FOLDER_QTABLE_VS_SELF
         else:
@@ -268,7 +268,7 @@ class SarsaLambdaAlg(object):
         self.print_Q()
         
 if __name__ == '__main__':
-    exp_params = Experiment.get_command_line_args()
+    exp_params = ExpParams.get_exp_params_from_command_line_args()
    
     filename = exp_params.get_trial_filename(FILE_PREFIX_SARSA)
     f = open(filename, 'w')
