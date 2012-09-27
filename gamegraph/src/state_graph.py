@@ -59,6 +59,10 @@ class StateGraph(object):
                 
     def save(self, exp_params, filename_suffix=None):
         if exp_params.is_first_trial():
+            if not self.has_attr(0, VAL_ATTR):
+                print 'Automatically calling value_iteration() in save()...'
+                self.value_iteration(exp_params)
+
             print 'Saving graph for signature: %s, suffix: %s...' % (exp_params.signature,
                                                                      filename_suffix)
             graph_filename = exp_params.get_graph_filename()
