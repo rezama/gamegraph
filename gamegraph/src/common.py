@@ -39,6 +39,7 @@ POS_ATTR = 'pos'
 DIST_ATTR = 'd'
 BFS_COLOR_ATTR = 'bfscolor'
 VAL_ATTR = 'value'
+VOLATILITY_ATTR = 'volatility'
 
 FOLDER_DATA = '../data'
 FOLDER_TRIALS = '../data/trials'

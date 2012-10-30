@@ -4,12 +4,13 @@ Created on Sep 21, 2012
 @author: reza
 '''
 from common import FILE_CONDOR_PLAN, FILE_PLOT_PLAN
-from params import NUM_TRIALS, EXP_CHOOSEROLL_RANGE, EXP_BACK_RANGE
+from params import NUM_TRIALS, EXP_CHOOSEROLL_RANGE, EXP_BACK_RANGE #@UnusedImport
 import domain_proxy
 
 def queue_job(f, args):
     args_no_space = args.replace('app_', '').replace('.py', '').\
-                replace(' ', '-').replace('--', '-').replace('--', '-')
+                replace('domain', '').replace(' ', '-').\
+                replace('--', '-').replace('--', '-').replace('--', '-')
     f.write('arguments = %s\n' % args) 
     f.write('output = ../log/%s.txt\n' % args_no_space)
     f.write('error = ../log/%s.txt\n' % args_no_space)

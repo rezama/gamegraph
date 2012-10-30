@@ -11,6 +11,7 @@ from Queue import Queue
 import gzip
 import os
 from params import VALUE_ITER_MIN_RESIDUAL
+import math
 
 USE_GZIP = True
 
@@ -62,6 +63,10 @@ class StateGraph(object):
             if not self.has_attr(0, VAL_ATTR):
                 print 'Automatically calling value_iteration() in save()...'
                 self.value_iteration(exp_params)
+
+            if not self.has_attr(0, DIST_ATTR):
+                print 'Automatically calling compute_bfs() in save()...'
+                self.compute_bfs()
 
             print 'Saving graph for signature: %s, suffix: %s...' % (exp_params.signature,
                                                                      filename_suffix)
@@ -173,14 +178,23 @@ class StateGraph(object):
         return self.successors[node_id][roll - self.roll_offset][action]
     
     def get_all_successors(self, node_id):
-        succ = []
+        succ_list = []
         for roll in self.all_rolls:
             roll_index = roll - self.roll_offset
             for action in self.all_actions:
                 succ_id = self.successors[node_id][roll_index][action]
-                if (succ_id is not None) and (succ_id not in succ):
-                    succ.append(succ_id)
-        return succ
+                if (succ_id is not None) and (succ_id not in succ_list):
+                    succ_list.append(succ_id)
+        return succ_list
+    
+    def get_all_successors_for_roll(self, node_id, roll):
+        succ_list = []
+        roll_index = roll - self.roll_offset
+        for action in self.all_actions:
+            succ_id = self.successors[node_id][roll_index][action]
+            if (succ_id is not None) and (succ_id not in succ_list):
+                succ_list.append(succ_id)
+        return succ_list
     
     def get_random_successor_at_distance(self, node_id, color, distance):
         result = None
@@ -259,8 +273,14 @@ class StateGraph(object):
     def value_iteration(self, exp_params):
         print 'Doing value iteration...'
         init_val = float(REWARD_WIN - REWARD_LOSE) / 2
+#        init_val = -1.0
         for node_id in range(self.get_num_nodes()):
             self.set_attr(node_id, VAL_ATTR, init_val)
+#        for node_id in range(self.get_num_nodes()):
+#            if self.node_colors[node_id] == PLAYER_WHITE:
+#                self.set_attr(node_id, VAL_ATTR, REWARD_WIN)
+#            else:
+#                self.set_attr(node_id, VAL_ATTR, REWARD_LOSE)
         for node_id in self.sinks[PLAYER_WHITE]:
             self.set_attr(node_id, VAL_ATTR, REWARD_WIN)
         for node_id in self.sinks[PLAYER_BLACK]:
@@ -273,21 +293,33 @@ class StateGraph(object):
             print 'Iteration %d... ' % iteration,
             max_residual = 0
             for node_id in reversed(range(self.get_num_nodes())):
-                if (node_id not in self.sinks[PLAYER_WHITE]) and (node_id not in self.sinks[PLAYER_BLACK]):
-                    multiplier = 1
-                    if self.node_colors[node_id] == PLAYER_BLACK:
-                        multiplier = -1
-                    roll_values = [-multiplier * REWARD_WIN] * len(self.all_rolls) 
+                node_color = self.node_colors[node_id]
+                if (node_id not in self.sinks[PLAYER_WHITE]) and \
+                                    (node_id not in self.sinks[PLAYER_BLACK]):
+#                    multiplier = 1
+#                    if self.node_colors[node_id] == PLAYER_BLACK:
+#                        multiplier = -1
+#                    roll_values = [-multiplier * REWARD_WIN] * len(self.all_rolls) 
+                    roll_values = [None] * len(self.all_rolls) 
                     for roll in self.all_rolls:
                         roll_index = roll - self.roll_offset
                         for action in self.all_actions:
                             successor = self.successors[node_id][roll_index][action]
                             if successor is not None:
                                 successor_value = self.node_attrs[successor][VAL_ATTR]
-                                if (multiplier * successor_value) > (multiplier * roll_values[roll_index]):
+                                if roll_values[roll_index] is None:
                                     roll_values[roll_index] = successor_value
+                                else:
+                                    if node_color == PLAYER_WHITE:
+                                        if successor_value > roll_values[roll_index]:
+                                            roll_values[roll_index] = successor_value
+                                    else:
+                                        if successor_value < roll_values[roll_index]:
+                                            roll_values[roll_index] = successor_value
+#                            if (multiplier * successor_value) > (multiplier * roll_values[roll_index]):
+#                                    roll_values[roll_index] = successor_value
                     avg_value = float(sum(roll_values)) / num_rolls
-                    if self.node_colors[node_id] == PLAYER_WHITE:
+                    if node_color == PLAYER_WHITE:
                         value_with_choose_roll = exp_params.choose_roll * max(roll_values)
                     else:
                         value_with_choose_roll = exp_params.choose_roll * min(roll_values)
@@ -297,6 +329,8 @@ class StateGraph(object):
 #                    if residual > 0:
 #                        print 'Updating state %s value from %.4f to %.4f' % (
 #                                self.node_names[node_id], self.node_attrs[node_id][VAL_ATTR], new_state_value)
+#                    if (new_state_value == init_val) and (avg_value != init_val):
+#                        print 'Fucked here!'
                     if residual > max_residual:
                         max_residual = residual
                     self.node_attrs[node_id][VAL_ATTR] = new_state_value
@@ -304,6 +338,69 @@ class StateGraph(object):
             if max_residual < VALUE_ITER_MIN_RESIDUAL:
                 cont = False
         print 'Done.'
+    
+    def compute_dice_volatility(self, exp_params):
+        num_rolls = len(self.all_rolls)
+        sum_volatility = 0.0
+        count_nodes = 0
+        for node_id in range(self.get_num_nodes()):
+            node_color = self.node_colors[node_id]
+            if (node_id not in self.sinks[PLAYER_WHITE]) and (node_id not in self.sinks[PLAYER_BLACK]):
+                count_nodes += 1
+                roll_values = [None] * len(self.all_rolls) 
+                for roll in self.all_rolls:
+                    roll_index = roll - self.roll_offset
+                    for action in self.all_actions:
+                        successor = self.successors[node_id][roll_index][action]
+                        if successor is not None:
+                            successor_value = self.node_attrs[successor][VAL_ATTR]
+                            if roll_values[roll_index] is None:
+                                roll_values[roll_index] = successor_value
+                            else:
+                                if node_color == PLAYER_WHITE:
+                                    if successor_value > roll_values[roll_index]:
+                                        roll_values[roll_index] = successor_value
+                                else:
+                                    if successor_value < roll_values[roll_index]:
+                                        roll_values[roll_index] = successor_value
+                avg_value = float(sum(roll_values)) / num_rolls
+                if self.node_colors[node_id] == PLAYER_WHITE:
+                    value_with_choose_roll = exp_params.choose_roll * max(roll_values)
+                else:
+                    value_with_choose_roll = exp_params.choose_roll * min(roll_values)
+                value_regular = (1 - exp_params.choose_roll) * avg_value
+                mean_value = self.node_attrs[node_id][VAL_ATTR]
+                squared_diffs_regular = [(v - mean_value) * (v - mean_value)
+                                         for v in roll_values]
+                squared_diffs_regular_adjusted = [d * (1 - exp_params.choose_roll) / num_rolls
+                                                  for d in squared_diffs_regular]
+                squared_diff_choose_roll_adjusted = (value_with_choose_roll - mean_value) * (value_with_choose_roll - mean_value) * exp_params.choose_roll
+                squared_diff_sum = sum(squared_diffs_regular_adjusted) + squared_diff_choose_roll_adjusted
+                std_dev = math.sqrt(squared_diff_sum)
+                sum_volatility += std_dev
+        avg_volatility = sum_volatility / count_nodes
+        return avg_volatility
+    
+    def compute_action_volatility(self, exp_params):
+        sum_volatility = 0.0
+        count_nodes = 0
+        for node_id in range(self.get_num_nodes()):
+            if (node_id not in self.sinks[PLAYER_WHITE]) and (node_id not in self.sinks[PLAYER_BLACK]):
+                for roll in self.all_rolls:
+                    roll_successors = self.get_all_successors_for_roll(node_id, roll)
+                    if len(roll_successors) > 0:
+                        count_nodes += 1
+                        successor_values = [self.node_attrs[successor][VAL_ATTR]
+                                            for successor in roll_successors]
+                        
+                        mean_value = float(sum(successor_values)) / len(successor_values)
+                        squared_diffs = [(v - mean_value) * (v - mean_value)
+                                                 for v in successor_values]
+                        squared_diff_sum = sum(squared_diffs)
+                        std_dev = math.sqrt(squared_diff_sum)
+                        sum_volatility += std_dev
+        avg_volatility = sum_volatility / count_nodes
+        return avg_volatility
     
     def print_all_edges(self):
         for node_id in range(self.get_num_nodes()):
