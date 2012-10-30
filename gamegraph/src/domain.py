@@ -1215,7 +1215,7 @@ class NimState(State):
     NUM_HIDDEN_UNITS = 10
 
     def __init__(self, exp_params, player_to_move):
-        super(MiniGammonState, self).__init__(exp_params, self.BOARD_SIZE, 
+        super(NimState, self).__init__(exp_params, self.BOARD_SIZE, 
                             self.NUM_DIE_SIDES, self.NUM_CHECKERS,
                             self.NUM_HIDDEN_UNITS, player_to_move)
                 
@@ -1227,6 +1227,13 @@ class NimState(State):
         target_pos[1] = source_pos[1]
         target_pos[2] = source_pos[2]
         target_pos[3] = source_pos[3]
+    
+    def has_player_won(self, player):
+        if self.is_graph_based:
+            return (self.GAME_GRAPH.get_sink_color(self.current_g_id) == player)
+        else:
+            sum_checker_pos = sum(self.pos)
+            return (sum_checker_pos == 0) and (self.player_to_move != player)
 
     def move(self, checker):
         success = False
@@ -1250,57 +1257,13 @@ class NimState(State):
             if checker == self.action_object.action_forfeit_move:
                 success = True
             else:
-                player = self.player_to_move
-                checker_pos = self.pos[player][checker]
-                other_checker = self.action_object.next_checker(checker)
-                other_checker_pos = self.pos[player][other_checker]
-                opponent = other_player(player)
-                opponent_actual_checker_pos = [self.board_off - x for x in self.pos[opponent]]
+                which_heap = int(checker / self.TAKE_MAX)
+                how_many = (checker % self.TAKE_MAX) + 1
                 
-                checker_target = checker_pos + self.roll
-        
-                # if playing checker from bar, select entry position based on p 
-                if checker_pos == self.board_bar:
-                    offset = self.board_reentry_pos1
-                    r = random.random()
-                    if r >= self.exp_params.p:
-                        offset = self.board_reentry_pos2
-                    checker_target += offset
-                
-                # if playing a 2 from the last point
-                if checker_target > self.board_off:
-                    checker_target = self.board_off
-                    
-                # if both checkers from opponent sit together
-#                opponent_has_block = (opponent_actual_checker1_pos == opponent_actual_checker2_pos) and\
-#                                     (opponent_actual_checker1_pos != self.board_off)
-                
-                hitting_opponent = (checker_target != self.board_off) and \
-                        (opponent_actual_checker_pos.count(checker_target) == 1)
-                
-                # illegal move conditions
-                moving_checker_while_other_is_on_bar = (checker_pos != self.board_bar) and \
-                        (other_checker_pos == self.board_bar)
-                moving_bourne_off_checker = (checker_pos == self.board_off)
-                premature_bear_off = (checker_target > self.board_end) and \
-                        (other_checker_pos <= self.board_mid)
-                hitting_opponent_in_block = (checker_target != self.board_off) and \
-                        (opponent_actual_checker_pos.count(checker_target) > 1)
-                
-                is_illegal_move = (moving_checker_while_other_is_on_bar or
-                                   moving_bourne_off_checker or
-                                   premature_bear_off or
-                                   hitting_opponent_in_block)
-                
-                if not is_illegal_move:
+                if self.pos[which_heap] >= how_many:
                     success = True
                     # move checker
-                    self.pos[player][checker] = checker_target
-                    # hit if checker from opponent is there
-                    if hitting_opponent:
-                        hit_checker = opponent_actual_checker_pos.index(checker_target)
-                        self.pos[opponent][hit_checker] = self.board_bar
-                    self.fix_checker_orders()
+                    self.pos[which_heap] -= how_many
                         
         if success:
             self.switch_turn()

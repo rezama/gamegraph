@@ -4,7 +4,7 @@ Created on Sep 17, 2011
 @author: reza
 '''
 from domain import MiniGammonState, NannonState, MidGammonState,\
-    NohitGammonState
+    NohitGammonState, NimState
 
 class DomainProxy(object):
     
@@ -21,6 +21,8 @@ class DomainProxy(object):
             result = MidGammonState
         elif domain_name == NohitGammonState.DOMAIN_NAME:
             result = NohitGammonState
+        elif domain_name == NimState.DOMAIN_NAME:
+            result = NimState
         return result
 
 #class DomainProxy(object):
