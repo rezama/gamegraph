@@ -1441,6 +1441,10 @@ class Game(object):
     @classmethod
     def get_max_episode_reward(cls):
         return REWARD_WIN
+    
+    @classmethod
+    def get_min_episode_reward(cls):
+        return REWARD_LOSE
         
 class GameSet(object):
     

@@ -12,7 +12,7 @@ from common import Experiment, FILE_PREFIX_SARSA, FOLDER_QTABLE_VS_SELF,\
 from params import SARSA_EPSILON, SARSA_LAMBDA, SARSA_ALPHA, SARSA_GAMMA,\
     SARSA_USE_ALPHA_ANNEALING, SARSA_MIN_ALPHA, SARSA_TRAIN_AGAINST_SELF,\
     SARSA_NUM_TRAINING_ITERATIONS, SARSA_SAVE_TABLES, SARSA_NUM_EVAL_EPISODES,\
-    SARSA_NUM_EPISODES_PER_ITERATION
+    SARSA_NUM_EPISODES_PER_ITERATION, SARSA_OPTIMISTIC_INIT
 from domain import Agent, AgentRandom, Game, GameSet
 
 class AgentSarsa(Agent):
@@ -75,7 +75,10 @@ class SarsaLambdaAlg(object):
         self.e = {}
         self.visit_count = {}
         
-        self.default_q = Game.get_max_episode_reward() #* 1.1
+        if SARSA_OPTIMISTIC_INIT:
+            self.default_q = Game.get_max_episode_reward() #* 1.1
+        else:
+            self.default_q = Game.get_min_episode_reward()
         
     def begin_episode(self, state):
         self.e = {}
