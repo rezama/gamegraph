@@ -99,10 +99,12 @@ class SarsaLambdaAlg(object):
             action = state.action_object.random_action(state)
         else:
             do_choose_roll = False
-            if state.exp_params.choose_roll > 0.0:
-                r = random.random()
-                if r < state.exp_params.choose_roll:
-                    do_choose_roll = True
+#            if state.exp_params.choose_roll > 0.0:
+#                r = random.random()
+#                if r < state.exp_params.choose_roll:
+#                    do_choose_roll = True
+            if state.stochastic_p < state.exp_params.choose_roll:
+                do_choose_roll = True
 
             roll_range = [state.roll]
             if do_choose_roll:

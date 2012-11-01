@@ -41,10 +41,12 @@ class AgentOptimal(Agent):
 #            multiplier = -1
 
         do_choose_roll = False
-        if self.state.exp_params.choose_roll > 0.0:
-            r = random.random()
-            if r < self.state.exp_params.choose_roll:
-                do_choose_roll = True
+#        if self.state.exp_params.choose_roll > 0.0:
+#            r = random.random()
+#            if r < self.state.exp_params.choose_roll:
+#                do_choose_roll = True
+        if self.state.stochastic_p < self.state.exp_params.choose_roll:
+            do_choose_roll = True
                 
         roll_range = [self.state.roll]
         if do_choose_roll:

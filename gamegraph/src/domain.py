@@ -117,10 +117,12 @@ class AgentNeural(Agent):
                         
     def select_action(self):
         do_choose_roll = False
-        if self.state.exp_params.choose_roll > 0.0:
-            r = random.random()
-            if r < self.state.exp_params.choose_roll:
-                do_choose_roll = True
+#        if self.state.exp_params.choose_roll > 0.0:
+#            r = random.random()
+#            if r < self.state.exp_params.choose_roll:
+#                do_choose_roll = True
+        if self.state.stochastic_p < self.state.exp_params.choose_roll:
+            do_choose_roll = True
         
         roll_range = [self.state.roll]
         if do_choose_roll:
@@ -201,6 +203,7 @@ class State(object):
 
         self.current_g_id = None
         self.roll = None
+        self.stochastic_p = None
 
         self.pos = self.init_pos()
         
@@ -270,6 +273,7 @@ class State(object):
     def switch_turn(self):
         self.player_to_move = other_player(self.player_to_move)
         self.roll = self.die_object.roll()
+        self.stochastic_p = random.random()
         
     def reroll_dice(self):
         self.roll = self.die_object.roll()    
@@ -1365,6 +1369,7 @@ class Game(object):
 
         # initial die roll
         self.state.roll = self.state.die_object.roll()
+        self.state.stochastic_p = random.random()
         if RECORD_GRAPH and not self.state.is_graph_based:
             record_graph = self.state.RECORD_GAME_GRAPH
             s = record_graph.add_node(self.state.board_config(), self.state.player_to_move)
