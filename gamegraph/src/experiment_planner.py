@@ -55,19 +55,19 @@ if __name__ == '__main__':
 
     
     for app in ['app_sarsa', 'app_ntd', 'app_hc']:
-        for domain in ['minigammon', 'nannon', 'midgammon', 'nohitgammon']:
+        for domain in ['minigammon', 'nannon', 'midgammon', 'nohitgammon', 'nim']:
             state_class = domain_proxy.DomainProxy.load_domain_state_class_by_name(domain)
             domain_full = state_class.get_domain_signature()
             
-#            plot_items = []
-#            for chooseroll in EXP_CHOOSEROLL_RANGE:
-#                plot_item = '%s-%s-chooseroll-%s' % (app.replace('app_', ''), domain_full, chooseroll)
-#                plot_items.append(plot_item)
-#                for trial in range(NUM_TRIALS):
-#                    args = '%s.py --domain %s --chooseroll %s --trial %d' % (app, domain, chooseroll, trial)
-#                    queue_job(f, args)
-#            plot_results(fp, plot_items)
-#
+            plot_items = []
+            for chooseroll in EXP_CHOOSEROLL_RANGE:
+                plot_item = '%s-%s-chooseroll-%s' % (app.replace('app_', ''), domain_full, chooseroll)
+                plot_items.append(plot_item)
+                for trial in range(NUM_TRIALS):
+                    args = '%s.py --domain %s --chooseroll %s --trial %d' % (app, domain, chooseroll, trial)
+                    queue_job(f, args)
+            plot_results(fp, plot_items)
+
 #            plot_items = []
 #            for offset in [0, 1, 2, 3]:
 #                plot_item = '%s-%s-offset-%d' % (app.replace('app_', ''), domain_full, offset)
@@ -76,15 +76,15 @@ if __name__ == '__main__':
 #                    args = '%s.py --domain %s --offset %d --trial %d' % (app, domain, offset, trial)
 #                    queue_job(f, args)
 #            plot_results(fp, plot_items)
-
-            plot_items = []
-            for back in EXP_BACK_RANGE:
-                plot_item = '%s-%s-graph-%s-back-%d' % (app.replace('app_', ''), domain_full, domain_full, back)
-                plot_items.append(plot_item)
-                for trial in range(NUM_TRIALS):
-                    args = '%s.py --domain %s --graph %s-back-%d --trial %d' % (app, domain, domain_full, back, trial)
-                    queue_job(f, args)
-            plot_results(fp, plot_items)
+#
+#            plot_items = []
+#            for back in EXP_BACK_RANGE:
+#                plot_item = '%s-%s-graph-%s-back-%d' % (app.replace('app_', ''), domain_full, domain_full, back)
+#                plot_items.append(plot_item)
+#                for trial in range(NUM_TRIALS):
+#                    args = '%s.py --domain %s --graph %s-back-%d --trial %d' % (app, domain, domain_full, back, trial)
+#                    queue_job(f, args)
+#            plot_results(fp, plot_items)
 
     f.close()
     fp.close()

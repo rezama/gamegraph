@@ -3,7 +3,7 @@ Created on Aug 22, 2012
 
 @author: reza
 '''
-from common import FOLDER_GRAPH, ExpParams
+from common import FOLDER_GRAPH, ExpParams, VAL_ATTR
 from state_graph import StateGraph
 from params import EXP_BACK_RANGE
 import os
@@ -45,6 +45,7 @@ class ManipGraph(object):
         for node_id in range(num_nodes - 10, num_nodes):
             print node_id, g.node_attrs[node_id]
         print '-----------'
+        print 'White''s win probability is: %s' % g.node_attrs[0][VAL_ATTR] 
         print 'Dice volatility is: %s' % g.compute_dice_volatility(exp_params) 
         print 'Action volatility is: %s' % g.compute_action_volatility(exp_params) 
 

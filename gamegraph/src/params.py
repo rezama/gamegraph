@@ -5,7 +5,7 @@ Created on Sep 11, 2012
 '''
 #--------------------------------------------------------------------
 
-MAX_MOVES_PER_GAME = 1000
+MAX_MOVES_PER_GAME = 200
 
 NUM_TRIALS = 10
 
@@ -39,7 +39,7 @@ EVAL_OPPONENT = EVAL_OPPONENT_OPTIMAL
 VALUE_ITER_MIN_RESIDUAL = 0.0001
 
 EXP_BACK_RANGE = [100, 90, 50, 10, 0]
-EXP_CHOOSEROLL_RANGE = ['0.0', '0.1', '0.5', '0.9']
+EXP_CHOOSEROLL_RANGE = ['0.0', '0.1', '0.5', '0.9', '1.0']
 
 #--------------------------------------------------------------------
 

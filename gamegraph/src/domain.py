@@ -1211,6 +1211,254 @@ class NohitGammonState(State):
                 self.pos[1][0], self.pos[1][1], self.pos[1][2], self.pos[1][3],
                 self.roll)
 
+class TwoDiceMiniState(State):
+    
+    #        -->                           <--   
+    #   0      1   2   3   4   5   6   7   8      9           
+    # +---+  +---+---+---+---+---+---+---+---+  +---+
+    # |   |  |ww |ww |   |   |   |   | bb| bb|  |   |
+    # +---+  +---+---+---+---+---+---+---+---+  +---+
+    #  Bar                                       Off
+    #      
+    
+    DOMAIN_NAME = 'twodicemini'
+
+    BOARD_SIZE   = 6
+    NUM_CHECKERS = 16
+    NUM_DIE_SIDES = 4
+    NUM_HIDDEN_UNITS = 10
+
+    def __init__(self, exp_params, player_to_move):
+        super(TwoDiceMiniState, self).__init__(exp_params, self.BOARD_SIZE, 
+                            self.NUM_DIE_SIDES, self.NUM_CHECKERS,
+                            self.NUM_HIDDEN_UNITS, player_to_move)
+                
+    def init_pos(self):
+        start2 = self.board_start + 1
+        return [[self.board_start, self.board_start, start2, start2],
+                [self.board_start, self.board_start, start2, start2]]
+
+    def copy_pos(self, target_pos, source_pos):
+        target_pos[0][0] = source_pos[0][0]
+        target_pos[0][1] = source_pos[0][1]
+        target_pos[0][2] = source_pos[0][2]
+        target_pos[0][3] = source_pos[0][3]
+        target_pos[1][0] = source_pos[1][0]
+        target_pos[1][1] = source_pos[1][1]
+        target_pos[1][2] = source_pos[1][2]
+        target_pos[1][3] = source_pos[1][3]
+
+    def has_player_won(self, player):
+        if self.is_graph_based:
+            return (self.GAME_GRAPH.get_sink_color(self.current_g_id) == player)
+        else:
+            sum_checker_pos = sum(self.pos[player])
+            return (sum_checker_pos == self.action_object.get_num_checkers() / 4 * self.board_off)
+
+    def move(self, checker):
+        success = False
+        if RECORD_GRAPH and not self.is_graph_based:
+            node_from_name = self.board_config()
+            current_roll = self.roll
+                
+        if self.is_graph_based:
+            next_id = self.GAME_GRAPH.get_transition_outcome(self.current_g_id,
+                                                             self.roll, checker)
+            if next_id is not None:
+                self.current_g_id = next_id
+                self.pos = self.GAME_GRAPH.get_attr(next_id, POS_ATTR)
+                success = True
+            if (checker == self.action_object.action_forfeit_move) and not success:
+                self.GAME_GRAPH.set_as_sink(self.current_g_id, 
+                                            other_player(self.player_to_move))
+                print "Encountered unexplored graph node: %s" % \
+                        self.GAME_GRAPH.get_node_name(self.current_g_id)
+                print "Marking as final."
+        else:
+            if checker == self.action_object.action_forfeit_move:
+                success = True
+            else:
+                player = self.player_to_move
+                opponent = other_player(player)
+                opponent_actual_checker_pos = [self.board_off - x for x in self.pos[opponent]]
+
+                roll1 = int((self.roll - 1) / 2) + 1 
+                roll2 = ((self.roll - 1) % 2) + 1
+                checker1 = int(checker / 4)
+                checker2 = checker % 4
+                
+                checker1_pos = self.pos[player][checker1]
+                checker1_target = checker1_pos + roll1
+        
+                # if playing checker from bar, select entry position based on p 
+                if checker1_pos == self.board_bar:
+                    offset = self.board_reentry_pos1
+                    r = random.random()
+                    if r >= self.exp_params.p:
+                        offset = self.board_reentry_pos2
+                    checker1_target += offset
+                
+                # if playing a 2 from the last point
+                if checker1_target > self.board_off:
+                    checker1_target = self.board_off
+                    
+                hitting_opponent = (checker1_target != self.board_off) and \
+                        (opponent_actual_checker_pos.count(checker1_target) == 1)
+                
+                # illegal move conditions
+                moving_checker_while_other_is_on_bar = (checker1_pos != self.board_bar) and \
+                        (self.pos[player].count(self.board_bar) > 0)
+                moving_bourne_off_checker = (checker1_pos == self.board_off)
+                premature_bear_off = (checker1_target > self.board_end) and \
+                        (min(self.pos[player]) <= self.board_mid)
+                hitting_opponent_in_block = (checker1_target != self.board_off) and \
+                        (opponent_actual_checker_pos.count(checker1_target) > 1)
+                
+                is_illegal_move = (moving_checker_while_other_is_on_bar or
+                                   moving_bourne_off_checker or
+                                   premature_bear_off or
+                                   hitting_opponent_in_block)
+                
+                if not is_illegal_move:
+                    # move checker
+                    checker1_prev_pos = self.pos[player][checker1]
+                    self.pos[player][checker1] = checker1_target
+                    # hit if checker from opponent is there
+                    hit_checker1 = None
+                    if hitting_opponent:
+                        hit_checker1 = opponent_actual_checker_pos.index(checker1_target)
+                        hit_checker1_prev_pos = self.pos[opponent][hit_checker1]
+                        self.pos[opponent][hit_checker1] = self.board_bar
+
+                    checker2_pos = self.pos[player][checker2]
+                    checker2_target = checker2_pos + roll2
+            
+                    # if playing checker from bar, select entry position based on p 
+                    if checker2_pos == self.board_bar:
+                        offset = self.board_reentry_pos1
+                        r = random.random()
+                        if r >= self.exp_params.p:
+                            offset = self.board_reentry_pos2
+                        checker2_target += offset
+                    
+                    # if playing a 2 from the last point
+                    if checker2_target > self.board_off:
+                        checker2_target = self.board_off
+                        
+                    hitting_opponent = (checker2_target != self.board_off) and \
+                            (opponent_actual_checker_pos.count(checker2_target) == 1)
+                    
+                    # illegal move conditions
+                    moving_checker_while_other_is_on_bar = (checker2_pos != self.board_bar) and \
+                            (self.pos[player].count(self.board_bar) > 0)
+                    moving_bourne_off_checker = (checker2_pos == self.board_off)
+                    premature_bear_off = (checker2_target > self.board_end) and \
+                            (min(self.pos[player]) <= self.board_mid)
+                    hitting_opponent_in_block = (checker2_target != self.board_off) and \
+                            (opponent_actual_checker_pos.count(checker2_target) > 1)
+                    
+                    is_illegal_move = (moving_checker_while_other_is_on_bar or
+                                       moving_bourne_off_checker or
+                                       premature_bear_off or
+                                       hitting_opponent_in_block)
+                    
+                    if not is_illegal_move:
+                        success = True
+                        # move checker
+                        self.pos[player][checker2] = checker2_target
+                        # hit if checker from opponent is there
+                        if hitting_opponent:
+                            hit_checker2 = opponent_actual_checker_pos.index(checker2_target)
+                            self.pos[opponent][hit_checker2] = self.board_bar
+    
+                        self.fix_checker_orders()
+                    else:
+                        self.pos[player][checker1] = checker1_prev_pos
+                        if hit_checker1 is not None:
+                            self.pos[opponent][hit_checker1] = hit_checker1_prev_pos
+                
+        if success:
+            self.switch_turn()
+            if RECORD_GRAPH and not self.is_graph_based:
+                node_from_id = self.RECORD_GAME_GRAPH.get_node_id(node_from_name)
+                node_to_name = self.board_config()
+                node_to_id = self.RECORD_GAME_GRAPH.add_node(node_to_name, self.player_to_move)
+                if not self.RECORD_GAME_GRAPH.has_attr(node_to_id, POS_ATTR):
+                    self.RECORD_GAME_GRAPH.set_attr(node_to_id, POS_ATTR, copy.deepcopy(self.pos))
+                self.RECORD_GAME_GRAPH.add_edge(node_from_id, current_roll,
+                                                checker, node_to_id)
+        return success
+
+    @classmethod
+    def get_network_inputdim(cls):
+        return (cls.BOARD_SIZE + 2) * 8   + 2
+        # 10 points: |1w |2w |1b |2b             |white's turn |black's turn
+        
+    @classmethod
+    def get_network_hiddendim(cls):
+        return cls.NUM_HIDDEN_UNITS
+    
+    def encode_network_input(self):
+        inputdim = self.get_network_inputdim()
+        network_in = [0] * inputdim
+        for player in [PLAYER_WHITE, PLAYER_BLACK]:
+            for checker in self.action_object.get_all_checkers():
+                pos = self.pos[player][checker]
+                offset = pos * 8 + player * 4
+                # Seeing a second checker on the same point?
+                while network_in[offset] == 1:
+                    offset += 1
+                network_in[offset] = 1
+        turn_offset = inputdim - 2
+        network_in[turn_offset + self.player_to_move] = 1
+        return network_in
+    
+    def print_state(self):
+        encoding = self.encode()
+        print '#   0       1    2    3    4    5    6       7  '
+        print '# +----+  +----+----+----+----+----+----+  +----+'
+        print '# %s' % encoding
+        print '# +----+  +----+----+----+----+----+----+  +----+'
+        print '#                                                                              '
+
+    def encode(self):
+        if self.is_graph_based:
+            return self.GAME_GRAPH.get_node_name(self.current_g_id)[2:]
+        cell_content = [''] * (self.board_off + 1)
+        for player in [PLAYER_WHITE, PLAYER_BLACK]:
+            for checker in self.action_object.get_all_checkers():
+                pos = self.pos[player][checker]
+                if (player == PLAYER_BLACK):
+                    pos = self.flip_pos(pos)
+                letter = PLAYER_NAME[player].lower()[0]
+                cell_content[pos] += letter
+                
+        for pos in range(self.board_off + 1):
+            cell_content[pos] = cell_content[pos].center(4)
+
+#        encoding = '|%s|  |%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|  |%s|' % (cell_content[0], cell_content[1], cell_content[2], cell_content[3], cell_content[4], cell_content[5], cell_content[6], cell_content[7], cell_content[8], cell_content[9], cell_content[10], cell_content[11], cell_content[12], cell_content[13])
+        encoding = '|%s|  |%s|%s|%s|%s|%s|%s|  |%s|' % (cell_content[0], cell_content[1], cell_content[2], cell_content[3], cell_content[4], cell_content[5], cell_content[6], cell_content[7])
+        return encoding
+
+    def board_config(self):
+        if self.is_graph_based:
+            return self.GAME_GRAPH.get_node_name(self.current_g_id)
+        else:
+            return '%d-%d%d%d%d%d%d%d%d' % (self.player_to_move,
+                self.pos[0][0], self.pos[0][1], self.pos[0][2], self.pos[0][3], 
+                self.pos[1][0], self.pos[1][1], self.pos[1][2], self.pos[1][3])
+
+    def board_config_and_roll(self):
+        if self.is_graph_based:
+            return self.GAME_GRAPH.get_node_name(self.current_g_id) + \
+                ('-%d' % self.roll)
+        else:
+            return '%d-%d%d%d%d%d%d%d%d-%d' % (self.player_to_move,
+                self.pos[0][0], self.pos[0][1], self.pos[0][2], self.pos[0][3], 
+                self.pos[1][0], self.pos[1][1], self.pos[1][2], self.pos[1][3],
+                self.roll)
+
+
 class NimState(State):
     
     # New version:
