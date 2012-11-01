@@ -45,6 +45,7 @@ class AgentOptimal(Agent):
             r = random.random()
             if r < self.state.exp_params.choose_roll:
                 do_choose_roll = True
+                
         roll_range = [self.state.roll]
         if do_choose_roll:
             roll_range = self.state.die_object.get_all_sides()
@@ -70,8 +71,14 @@ class AgentOptimal(Agent):
             action = action_values_sorted[0][1][1]
         else:
             action = self.state.action_object.action_forfeit_move
-        
+    
+#            if (action != self.state.action_object.action_forfeit_move) or self.state.can_forfeit_move():
+#                return action
+#            else:
+#                self.state.reroll_dice()
+
         return action
+    
     
 if __name__ == '__main__':
     exp_params = ExpParams.get_exp_params_from_command_line_args()

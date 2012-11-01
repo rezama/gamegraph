@@ -41,7 +41,10 @@ class Action(object):
         self.all_actions = self.all_checkers + [self.action_forfeit_move]
     
     def get_checker_name(self, i):
-        return 'Checker %d' % (i + 1)
+        if i == self.action_forfeit_move:
+            return 'no checkers (forfeits move)'
+        else:
+            return 'Checker %d' % (i + 1)
     
     def random_action(self, state):
         action = self.action_forfeit_move
@@ -119,35 +122,37 @@ class AgentNeural(Agent):
             if r < self.state.exp_params.choose_roll:
                 do_choose_roll = True
         
-        while True:
-            roll_range = [self.state.roll]
-            if do_choose_roll:
-                roll_range = self.state.die_object.get_all_sides()
+        roll_range = [self.state.roll]
+        if do_choose_roll:
+            roll_range = self.state.die_object.get_all_sides()
+        
+        action_values = []
+        
+        for replace_roll in roll_range:
+            self.state.roll = replace_roll
+            for action in self.state.action_object.get_all_checkers():
+                move_outcome = self.state.get_move_outcome(action)
+                if move_outcome is not None:
+                    move_value = self.get_state_value(move_outcome)
+                    # insert a random number to break the ties
+                    action_values.append(((move_value, random.random()), (replace_roll, action)))
             
-            action_values = []
-            
-            for replace_roll in roll_range:
-                self.state.roll = replace_roll
-                for action in self.state.action_object.get_all_checkers():
-                    move_outcome = self.state.get_move_outcome(action)
-                    if move_outcome is not None:
-                        move_value = self.get_state_value(move_outcome)
-                        # insert a random number to break the ties
-                        action_values.append(((move_value, random.random()), (replace_roll, action)))
+        if len(action_values) > 0:
+            action_values_sorted = sorted(action_values, reverse=True)
+            best_roll = action_values_sorted[0][1][0]
+            # set the best roll there
+            self.state.roll = best_roll
+            action = action_values_sorted[0][1][1]
+        else:
+            action = self.state.action_object.action_forfeit_move
                 
-            if len(action_values) > 0:
-                action_values_sorted = sorted(action_values, reverse=True)
-                best_roll = action_values_sorted[0][1][0]
-                # set the best roll there
-                self.state.roll = best_roll
-                action = action_values_sorted[0][1][1]
-            else:
-                action = self.state.action_object.action_forfeit_move
-                
-            if (action != self.state.action_object.action_forfeit_move) or self.state.can_forfeit_move():
-                return action
-            else:
-                self.state.re_roll_dice()
+#            if (action != self.state.action_object.action_forfeit_move) or self.state.can_forfeit_move():
+#                return action
+#            else:
+#                self.state.reroll_dice()
+
+        return action
+    
     
 #    def __repr__(self):
 #        return str(self.network.params)
@@ -1216,13 +1221,13 @@ class NimState(State):
     DOMAIN_NAME = 'nim'
 
     NUM_HEAPS = 4
-    TAKE_MAX = 3  
+    TAKE_MAX = 3
     SIZE_HEAPS = [3, 4, 5, 4]
     TOTAL_TOKENS = sum(SIZE_HEAPS)
 
     BOARD_SIZE   = 0
-    NUM_CHECKERS = 1
-    NUM_DIE_SIDES = NUM_HEAPS * TAKE_MAX
+    NUM_CHECKERS = TAKE_MAX
+    NUM_DIE_SIDES = NUM_HEAPS
     NUM_HIDDEN_UNITS = 10
 
     def __init__(self, exp_params, player_to_move):
@@ -1271,15 +1276,17 @@ class NimState(State):
             if checker == self.action_object.action_forfeit_move:
                 success = False
             else:
-                action = self.roll - 1
-                which_heap = int(action / self.TAKE_MAX)
-                how_many = (action % self.TAKE_MAX) + 1
+#                action = self.roll - 1
+#                which_heap = int(action / self.TAKE_MAX)
+#                how_many = (action % self.TAKE_MAX) + 1
+                which_heap = self.roll - 1
+                how_many = checker + 1
                 
                 if self.pos[which_heap] >= how_many:
                     success = True
                     # move checker
                     self.pos[which_heap] -= how_many
-                        
+        
         if success:
             self.switch_turn()
             if RECORD_GRAPH and not self.is_graph_based:
@@ -1294,7 +1301,7 @@ class NimState(State):
 
     @classmethod
     def get_network_inputdim(cls):
-        return (cls.TOTAL_TOKENS) + 2
+        return (cls.TOTAL_TOKENS) + cls.NUM_HEAPS + 2
         #                         | white's turn |black's turn
         
     @classmethod
@@ -1307,9 +1314,9 @@ class NimState(State):
         offset = 0
         for heap in range(self.NUM_HEAPS):
             tokens_in_heap = self.pos[heap]
-            if tokens_in_heap > 0:
-                network_in[offset + tokens_in_heap] = 1
-            offset += self.SIZE_HEAPS[heap]
+#            if tokens_in_heap > 0:
+            network_in[offset + tokens_in_heap] = 1
+            offset += self.SIZE_HEAPS[heap] + 1
         turn_offset = inputdim - 2
         network_in[turn_offset + self.player_to_move] = 1
         return network_in
@@ -1377,15 +1384,22 @@ class Game(object):
             self.state.compute_per_ply_stats(self.count_plies)
             if PRINT_GAME_DETAIL:
                 self.state.print_state()
-            action = self.agents[self.state.player_to_move].select_action()
-            if PRINT_GAME_DETAIL:
-                print '#  %s rolls %d, playing %s...' % \
-                        (PLAYER_NAME[self.state.player_to_move], 
-                         self.state.roll,
-                         self.state.action_object.get_checker_name(action))
-            self.state.move(action)
-            if PRINT_GAME_DETAIL:
-                print '# '
+            done = False
+            while not done:
+                action = self.agents[self.state.player_to_move].select_action()
+                if PRINT_GAME_DETAIL:
+                    print '#  %s rolls %d, playing %s...' % \
+                            (PLAYER_NAME[self.state.player_to_move], 
+                             self.state.roll,
+                             self.state.action_object.get_checker_name(action))
+                success = self.state.move(action)
+                if PRINT_GAME_DETAIL:
+                    print '# '
+                if success:
+                    done = True
+                else:
+                    self.state.reroll_dice()
+                    
             self.count_plies += 1
         
         if PRINT_GAME_DETAIL:
