@@ -1426,7 +1426,7 @@ class TwoDiceMiniState(State):
             return self.GAME_GRAPH.get_node_name(self.current_g_id)[2:]
         cell_content = [''] * (self.board_off + 1)
         for player in [PLAYER_WHITE, PLAYER_BLACK]:
-            for checker in self.action_object.get_all_checkers():
+            for checker in [0, 1, 2, 3]:
                 pos = self.pos[player][checker]
                 if (player == PLAYER_BLACK):
                     pos = self.flip_pos(pos)
