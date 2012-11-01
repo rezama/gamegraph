@@ -318,11 +318,14 @@ class StateGraph(object):
                                             roll_values[roll_index] = successor_value
 #                            if (multiplier * successor_value) > (multiplier * roll_values[roll_index]):
 #                                    roll_values[roll_index] = successor_value
-                    avg_value = float(sum(roll_values)) / num_rolls
+                    # have to remove Nones for rolls that are not legal
+                    legal_roll_values = [v for v in roll_values if v is not None]
+                    num_legal_rolls = len(legal_roll_values) 
+                    avg_value = float(sum(legal_roll_values)) / num_legal_rolls
                     if node_color == PLAYER_WHITE:
-                        value_with_choose_roll = exp_params.choose_roll * max(roll_values)
+                        value_with_choose_roll = exp_params.choose_roll * max(legal_roll_values)
                     else:
-                        value_with_choose_roll = exp_params.choose_roll * min(roll_values)
+                        value_with_choose_roll = exp_params.choose_roll * min(legal_roll_values)
                     value_regular = (1 - exp_params.choose_roll) * avg_value
                     new_state_value = value_regular + value_with_choose_roll
                     residual = abs(self.node_attrs[node_id][VAL_ATTR] - new_state_value)
