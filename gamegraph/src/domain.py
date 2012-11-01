@@ -118,31 +118,36 @@ class AgentNeural(Agent):
             r = random.random()
             if r < self.state.exp_params.choose_roll:
                 do_choose_roll = True
-        roll_range = [self.state.roll]
-        if do_choose_roll:
-            roll_range = self.state.die_object.get_all_sides()
         
-        action_values = []
-        
-        for replace_roll in roll_range:
-            self.state.roll = replace_roll
-            for action in self.state.action_object.get_all_checkers():
-                move_outcome = self.state.get_move_outcome(action)
-                if move_outcome is not None:
-                    move_value = self.get_state_value(move_outcome)
-                    # insert a random number to break the ties
-                    action_values.append(((move_value, random.random()), (replace_roll, action)))
+        while True:
+            roll_range = [self.state.roll]
+            if do_choose_roll:
+                roll_range = self.state.die_object.get_all_sides()
             
-        if len(action_values) > 0:
-            action_values_sorted = sorted(action_values, reverse=True)
-            best_roll = action_values_sorted[0][1][0]
-            # set the best roll there
-            self.state.roll = best_roll
-            action = action_values_sorted[0][1][1]
-        else:
-            action = self.state.action_object.action_forfeit_move
+            action_values = []
             
-        return action
+            for replace_roll in roll_range:
+                self.state.roll = replace_roll
+                for action in self.state.action_object.get_all_checkers():
+                    move_outcome = self.state.get_move_outcome(action)
+                    if move_outcome is not None:
+                        move_value = self.get_state_value(move_outcome)
+                        # insert a random number to break the ties
+                        action_values.append(((move_value, random.random()), (replace_roll, action)))
+                
+            if len(action_values) > 0:
+                action_values_sorted = sorted(action_values, reverse=True)
+                best_roll = action_values_sorted[0][1][0]
+                # set the best roll there
+                self.state.roll = best_roll
+                action = action_values_sorted[0][1][1]
+            else:
+                action = self.state.action_object.action_forfeit_move
+                
+            if (action != self.state.action_object.action_forfeit_move) or self.state.can_forfeit_move():
+                return action
+            else:
+                self.state.re_roll_dice()
     
 #    def __repr__(self):
 #        return str(self.network.params)
@@ -254,9 +259,15 @@ class State(object):
         else:
             return None
     
+    def can_forfeit_move(self):
+        return True
+    
     def switch_turn(self):
         self.player_to_move = other_player(self.player_to_move)
         self.roll = self.die_object.roll()
+        
+    def reroll_dice(self):
+        self.roll = self.die_object.roll()    
     
     def is_final(self):
         if self.is_graph_based:
@@ -1210,8 +1221,8 @@ class NimState(State):
     TOTAL_TOKENS = sum(SIZE_HEAPS)
 
     BOARD_SIZE   = 0
-    NUM_CHECKERS = NUM_HEAPS * TAKE_MAX
-    NUM_DIE_SIDES = 3
+    NUM_CHECKERS = 1
+    NUM_DIE_SIDES = NUM_HEAPS * TAKE_MAX
     NUM_HIDDEN_UNITS = 10
 
     def __init__(self, exp_params, player_to_move):
@@ -1235,6 +1246,9 @@ class NimState(State):
             sum_checker_pos = sum(self.pos)
             return (sum_checker_pos == 0) and (self.player_to_move != player)
 
+    def can_forfeit_move(self):
+        return False
+
     def move(self, checker):
         success = False
         if RECORD_GRAPH and not self.is_graph_based:
@@ -1255,10 +1269,11 @@ class NimState(State):
                 print "Marking as final."
         else:
             if checker == self.action_object.action_forfeit_move:
-                success = True
+                success = False
             else:
-                which_heap = int(checker / self.TAKE_MAX)
-                how_many = (checker % self.TAKE_MAX) + 1
+                action = self.roll - 1
+                which_heap = int(action / self.TAKE_MAX)
+                how_many = (action % self.TAKE_MAX) + 1
                 
                 if self.pos[which_heap] >= how_many:
                     success = True
