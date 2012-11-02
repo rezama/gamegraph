@@ -1226,7 +1226,7 @@ class TwoDiceMiniState(State):
     TRUE_NUM_CHECKERS = 4
     TRUE_NUM_DICE_SIDES = 2
     
-    BOARD_SIZE   = 8
+    BOARD_SIZE   = 7
     NUM_CHECKERS = TRUE_NUM_CHECKERS * TRUE_NUM_CHECKERS
     NUM_DIE_SIDES = TRUE_NUM_DICE_SIDES * TRUE_NUM_DICE_SIDES
     NUM_HIDDEN_UNITS = 10
@@ -1478,20 +1478,26 @@ class NimState(State):
     
     DOMAIN_NAME = 'nim'
 
-#    NUM_HEAPS = 4
-#    TAKE_MAX = 3
-#    SIZE_HEAPS = [3, 4, 5, 4]
-#    TOTAL_TOKENS = sum(SIZE_HEAPS)
-
-    NUM_HEAPS = 1
+    NUM_HEAPS = 4
     TAKE_MAX = 3
-    SIZE_HEAPS = [25]
+    SIZE_HEAPS = [3, 4, 5, 4]
     TOTAL_TOKENS = sum(SIZE_HEAPS)
 
     BOARD_SIZE   = 0
-    NUM_CHECKERS = NUM_HEAPS
-    NUM_DIE_SIDES = TAKE_MAX
+    NUM_CHECKERS = TAKE_MAX
+    NUM_DIE_SIDES = NUM_HEAPS
     NUM_HIDDEN_UNITS = 10
+
+#    BOARD_SIZE   = 0
+#    NUM_CHECKERS = NUM_HEAPS * TAKE_MAX
+#    NUM_DIE_SIDES = 1
+#    NUM_HIDDEN_UNITS = 10
+
+#    NUM_HEAPS = 1
+#    TAKE_MAX = 3
+#    SIZE_HEAPS = [25]
+#    TOTAL_TOKENS = sum(SIZE_HEAPS)
+
 
     def __init__(self, exp_params, player_to_move):
         super(NimState, self).__init__(exp_params, self.BOARD_SIZE, 
@@ -1544,9 +1550,16 @@ class NimState(State):
 #                which_heap = self.roll - 1
 #                how_many = checker + 1
 
-                which_heap = checker
-                how_many = self.roll
-                
+#                which_heap = checker
+#                how_many = self.roll
+
+#                action = checker
+#                which_heap = int(action / self.TAKE_MAX)
+#                how_many = (action % self.TAKE_MAX) + 1
+
+                which_heap = self.roll - 1
+                how_many = checker + 1
+
                 if self.pos[which_heap] >= how_many:
                     success = True
                     # move checker
