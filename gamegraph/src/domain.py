@@ -1226,7 +1226,7 @@ class TwoDiceMiniState(State):
     TRUE_NUM_CHECKERS = 4
     TRUE_NUM_DICE_SIDES = 2
     
-    BOARD_SIZE   = 6
+    BOARD_SIZE   = 8
     NUM_CHECKERS = TRUE_NUM_CHECKERS * TRUE_NUM_CHECKERS
     NUM_DIE_SIDES = TRUE_NUM_DICE_SIDES * TRUE_NUM_DICE_SIDES
     NUM_HIDDEN_UNITS = 10
@@ -1256,7 +1256,7 @@ class TwoDiceMiniState(State):
             return (self.GAME_GRAPH.get_sink_color(self.current_g_id) == player)
         else:
             sum_checker_pos = sum(self.pos[player])
-            return (sum_checker_pos == self.action_object.get_num_checkers() / 4 * self.board_off)
+            return (sum_checker_pos == self.action_object.get_num_checkers() / self.TRUE_NUM_CHECKERS * self.board_off)
 
     def move(self, checker):
         success = False
@@ -1354,7 +1354,10 @@ class TwoDiceMiniState(State):
                     # illegal move conditions
                     moving_checker_while_other_is_on_bar = (checker2_pos != self.board_bar) and \
                             (self.pos[player].count(self.board_bar) > 0)
-                    moving_bourne_off_checker = (checker2_pos == self.board_off)
+                    # if the player is winning, we allow him to spend his
+                    # second move on moving a bourne off checker
+                    moving_bourne_off_checker = (checker2_pos == self.board_off) \
+                            and not self.has_player_won(player)
                     premature_bear_off = (checker2_target > self.board_end) and \
                             (min(self.pos[player]) <= self.board_mid)
                     hitting_opponent_in_block = (checker2_target != self.board_off) and \
