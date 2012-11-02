@@ -1223,9 +1223,12 @@ class TwoDiceMiniState(State):
     
     DOMAIN_NAME = 'twodicemini'
 
+    TRUE_NUM_CHECKERS = 4
+    TRUE_NUM_DICE_SIDES = 2
+    
     BOARD_SIZE   = 6
-    NUM_CHECKERS = 16
-    NUM_DIE_SIDES = 4
+    NUM_CHECKERS = TRUE_NUM_CHECKERS * TRUE_NUM_CHECKERS
+    NUM_DIE_SIDES = TRUE_NUM_DICE_SIDES * TRUE_NUM_DICE_SIDES
     NUM_HIDDEN_UNITS = 10
 
     def __init__(self, exp_params, player_to_move):
@@ -1282,10 +1285,10 @@ class TwoDiceMiniState(State):
                 opponent = other_player(player)
                 opponent_actual_checker_pos = [self.board_off - x for x in self.pos[opponent]]
 
-                roll1 = int((self.roll - 1) / 2) + 1 
-                roll2 = ((self.roll - 1) % 2) + 1
-                checker1 = int(checker / 4)
-                checker2 = checker % 4
+                roll1 = int((self.roll - 1) / self.TRUE_NUM_DICE_SIDES) + 1 
+                roll2 = ((self.roll - 1) % self.TRUE_NUM_DICE_SIDES) + 1
+                checker1 = int(checker / self.TRUE_NUM_CHECKERS)
+                checker2 = checker % self.TRUE_NUM_CHECKERS
                 
                 checker1_pos = self.pos[player][checker1]
                 checker1_target = checker1_pos + roll1
@@ -1402,7 +1405,7 @@ class TwoDiceMiniState(State):
         inputdim = self.get_network_inputdim()
         network_in = [0] * inputdim
         for player in [PLAYER_WHITE, PLAYER_BLACK]:
-            for checker in self.action_object.get_all_checkers():
+            for checker in range(self.TRUE_NUM_CHECKERS):
                 pos = self.pos[player][checker]
                 offset = pos * 8 + player * 4
                 # Seeing a second checker on the same point?
@@ -1426,7 +1429,7 @@ class TwoDiceMiniState(State):
             return self.GAME_GRAPH.get_node_name(self.current_g_id)[2:]
         cell_content = [''] * (self.board_off + 1)
         for player in [PLAYER_WHITE, PLAYER_BLACK]:
-            for checker in [0, 1, 2, 3]:
+            for checker in range(self.TRUE_NUM_CHECKERS):
                 pos = self.pos[player][checker]
                 if (player == PLAYER_BLACK):
                     pos = self.flip_pos(pos)

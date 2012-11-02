@@ -55,7 +55,8 @@ if __name__ == '__main__':
 
     
     for app in ['app_sarsa', 'app_ntd', 'app_hc']:
-        for domain in ['minigammon', 'nannon', 'midgammon', 'nohitgammon', 'nim']:
+#        for domain in ['minigammon', 'nannon', 'midgammon', 'nohitgammon', 'nim']:
+        for domain in ['twodicemini']:
             state_class = domain_proxy.DomainProxy.load_domain_state_class_by_name(domain)
             domain_full = state_class.get_domain_signature()
             
