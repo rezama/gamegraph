@@ -1478,14 +1478,19 @@ class NimState(State):
     
     DOMAIN_NAME = 'nim'
 
-    NUM_HEAPS = 4
+#    NUM_HEAPS = 4
+#    TAKE_MAX = 3
+#    SIZE_HEAPS = [3, 4, 5, 4]
+#    TOTAL_TOKENS = sum(SIZE_HEAPS)
+
+    NUM_HEAPS = 1
     TAKE_MAX = 3
-    SIZE_HEAPS = [3, 4, 5, 4]
+    SIZE_HEAPS = [25]
     TOTAL_TOKENS = sum(SIZE_HEAPS)
 
     BOARD_SIZE   = 0
-    NUM_CHECKERS = TAKE_MAX
-    NUM_DIE_SIDES = NUM_HEAPS
+    NUM_CHECKERS = NUM_HEAPS
+    NUM_DIE_SIDES = TAKE_MAX
     NUM_HIDDEN_UNITS = 10
 
     def __init__(self, exp_params, player_to_move):
@@ -1497,10 +1502,8 @@ class NimState(State):
         return self.SIZE_HEAPS[:]
 
     def copy_pos(self, target_pos, source_pos):
-        target_pos[0] = source_pos[0]
-        target_pos[1] = source_pos[1]
-        target_pos[2] = source_pos[2]
-        target_pos[3] = source_pos[3]
+        for i in range(self.NUM_HEAPS):
+            target_pos[i] = source_pos[i]
     
     def has_player_won(self, player):
         if self.is_graph_based:
@@ -1537,8 +1540,12 @@ class NimState(State):
 #                action = self.roll - 1
 #                which_heap = int(action / self.TAKE_MAX)
 #                how_many = (action % self.TAKE_MAX) + 1
-                which_heap = self.roll - 1
-                how_many = checker + 1
+
+#                which_heap = self.roll - 1
+#                how_many = checker + 1
+
+                which_heap = checker
+                how_many = self.roll
                 
                 if self.pos[which_heap] >= how_many:
                     success = True
@@ -1595,20 +1602,19 @@ class NimState(State):
         if self.is_graph_based:
             return self.GAME_GRAPH.get_node_name(self.current_g_id)
         else:
-            return '%d-%d%d%d%d' % (self.player_to_move,
-                                self.pos[0], self.pos[1], 
-                                self.pos[2], self.pos[3])
+#            return '%d-%d%d%d%d' % (self.player_to_move,
+#                                self.pos[0], self.pos[1], 
+#                                self.pos[2], self.pos[3])
+            return ('%d-' % self.player_to_move) + ''.join([str(x) for x in self.pos])
 
     def board_config_and_roll(self):
         if self.is_graph_based:
             return self.GAME_GRAPH.get_node_name(self.current_g_id) + \
                 ('-%d' % self.roll)
         else:
-            return '%d-%d%d%d%d-%d' % (self.player_to_move,
-                                self.pos[0], self.pos[1], 
-                                self.pos[2], self.pos[3],
+            return '%d-%s-%d' % (self.player_to_move,
+                                ''.join([str(x) for x in self.pos]),
                                 self.roll)
-        
 
 class Game(object):
         
