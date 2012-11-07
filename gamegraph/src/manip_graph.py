@@ -3,7 +3,7 @@ Created on Aug 22, 2012
 
 @author: reza
 '''
-from common import FOLDER_GRAPH, ExpParams, VAL_ATTR
+from common import FOLDER_GRAPH, ExpParams
 from state_graph import StateGraph
 from params import EXP_BACK_RANGE
 import os

@@ -299,8 +299,8 @@ class StateGraph(object):
 #                    multiplier = 1
 #                    if self.node_colors[node_id] == PLAYER_BLACK:
 #                        multiplier = -1
-#                    roll_values = [-multiplier * REWARD_WIN] * len(self.all_rolls) 
-                    roll_values = [None] * len(self.all_rolls) 
+#                    roll_values = [-multiplier * REWARD_WIN] * num_rolls
+                    roll_values = [None] * num_rolls
                     for roll in self.all_rolls:
                         roll_index = roll - self.roll_offset
                         for action in self.all_actions:
@@ -350,7 +350,7 @@ class StateGraph(object):
             node_color = self.node_colors[node_id]
             if (node_id not in self.sinks[PLAYER_WHITE]) and (node_id not in self.sinks[PLAYER_BLACK]):
                 count_nodes += 1
-                roll_values = [None] * len(self.all_rolls) 
+                roll_values = [None] * num_rolls
                 for roll in self.all_rolls:
                     roll_index = roll - self.roll_offset
                     for action in self.all_actions:
@@ -371,7 +371,7 @@ class StateGraph(object):
                     value_with_choose_roll = exp_params.choose_roll * max(roll_values)
                 else:
                     value_with_choose_roll = exp_params.choose_roll * min(roll_values)
-                value_regular = (1 - exp_params.choose_roll) * avg_value
+                value_regular = (1 - exp_params.choose_roll) * avg_value #@UnusedVariable
                 mean_value = self.node_attrs[node_id][VAL_ATTR]
                 squared_diffs_regular = [(v - mean_value) * (v - mean_value)
                                          for v in roll_values]
