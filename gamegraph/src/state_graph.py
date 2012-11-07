@@ -4,7 +4,7 @@ Created on Jun 25, 2012
 @author: reza
 '''
 from common import PLAYER_WHITE, PLAYER_BLACK, REWARD_WIN, REWARD_LOSE,\
-    DIST_ATTR, BFS_COLOR_ATTR, VAL_ATTR, SUFFIX_GRAPH_OK
+    DIST_ATTR, BFS_COLOR_ATTR, VAL_ATTR, SUFFIX_GRAPH_OK, ExpParams
 import random
 import cPickle
 from Queue import Queue
@@ -571,7 +571,25 @@ class StateGraph(object):
                         total_edges += 1
         print 'Number of edges: %d' % total_edges
 
-if __name__ == '__main__':
+    @classmethod
+    def print_graph_info(cls, exp_params):
+        g = StateGraph.load(exp_params)
+        g.print_stats()
+#        num_nodes = len(g.node_names)
+##        for node_id in range(num_nodes):
+##            print node_id, g.node_colors[node_id], g.node_attrs[node_id]
+#        print '-----------'
+#        for node_id in range(10):
+#            print node_id, g.node_attrs[node_id]
+#        print '-----------'
+#        for node_id in range(num_nodes - 10, num_nodes):
+#            print node_id, g.node_attrs[node_id]
+#        print '-----------'
+        print 'White\'s win probability is: %s' % g.node_attrs[0][VAL_ATTR] 
+#        print 'Dice volatility is: %s' % g.compute_dice_volatility(exp_params) 
+#        print 'Action volatility is: %s' % g.compute_action_volatility(exp_params) 
+
+def test_graph():
     g = StateGraph([0, 1], [1, 2], 1)
     n0 = g.add_node('0', PLAYER_WHITE)
     n1 = g.add_node('1', PLAYER_BLACK)
@@ -595,5 +613,9 @@ if __name__ == '__main__':
     print g.get_all_successors(n2)
     print g.successors[n2]
     g.print_stats()
+
+if __name__ == '__main__':
+    exp_params = ExpParams.get_exp_params_from_command_line_args()
+    StateGraph.print_graph_info(exp_params)
     
     

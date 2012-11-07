@@ -32,24 +32,6 @@ class ManipGraph(object):
             print ''
 
     @classmethod
-    def get_graph_info(cls, exp_params):
-        g = StateGraph.load(exp_params)
-        g.print_stats()
-        num_nodes = len(g.node_names)
-#        for node_id in range(num_nodes):
-#            print node_id, g.node_colors[node_id], g.node_attrs[node_id]
-        print '-----------'
-        for node_id in range(10):
-            print node_id, g.node_attrs[node_id]
-        print '-----------'
-        for node_id in range(num_nodes - 10, num_nodes):
-            print node_id, g.node_attrs[node_id]
-        print '-----------'
-        print 'White''s win probability is: %s' % g.node_attrs[0][VAL_ATTR] 
-        print 'Dice volatility is: %s' % g.compute_dice_volatility(exp_params) 
-        print 'Action volatility is: %s' % g.compute_action_volatility(exp_params) 
-
-    @classmethod
     def get_all_graphs_infos(cls):
         for (dirpath, dirname, filenames) in os.walk(FOLDER_GRAPH): #@UnusedVariable
             for filename in filenames:
@@ -64,8 +46,7 @@ class ManipGraph(object):
 
 if __name__ == '__main__':
     exp_params = ExpParams.get_exp_params_from_command_line_args()
-    ManipGraph.get_graph_info(exp_params)
+    StateGraph.print_graph_info(exp_params)
 #    ManipGraph.create_back_range(exp_params)
-
 #    ManipGraph.get_all_graphs_infos()
     
