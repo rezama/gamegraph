@@ -7,13 +7,13 @@ from common import FILE_CONDOR_PLAN, FILE_PLOT_PLAN
 from params import NUM_TRIALS, EXP_CHOOSEROLL_RANGE, EXP_BACK_RANGE #@UnusedImport
 import domain_proxy
 
-def queue_job(f, args):
+def queue_job(f, args, domain_full):
     args_no_space = args.replace('app_', '').replace('.py', '').\
                 replace('domain', '').replace(' ', '-').\
                 replace('--', '-').replace('--', '-').replace('--', '-')
     f.write('arguments = %s\n' % args) 
-    f.write('output = ../log/%s.txt\n' % args_no_space)
-    f.write('error = ../log/%s.txt\n' % args_no_space)
+    f.write('output = ../log/%s.txt\n' % (domain_full + '-' + args_no_space))
+    f.write('error = ../log/%s.txt\n' % (domain_full + '-' + args_no_space))
     f.write('queue\n')
 
 def plot_results(f, plot_items):
@@ -66,7 +66,7 @@ if __name__ == '__main__':
                 plot_items.append(plot_item)
                 for trial in range(NUM_TRIALS):
                     args = '%s.py --domain %s --chooseroll %s --trial %d' % (app, domain, chooseroll, trial)
-                    queue_job(f, args)
+                    queue_job(f, args, domain_full)
             plot_results(fp, plot_items)
 
 #            plot_items = []
