@@ -1478,9 +1478,14 @@ class NimState(State):
     
     DOMAIN_NAME = 'nim'
 
-    NUM_HEAPS = 4
+#    NUM_HEAPS = 4
+#    TAKE_MAX = 3
+#    SIZE_HEAPS = [3, 4, 5, 4]
+#    TOTAL_TOKENS = sum(SIZE_HEAPS)
+
+    NUM_HEAPS = 1
     TAKE_MAX = 3
-    SIZE_HEAPS = [3, 4, 5, 4]
+    SIZE_HEAPS = [15]
     TOTAL_TOKENS = sum(SIZE_HEAPS)
 
     BOARD_SIZE   = 0
@@ -1492,12 +1497,6 @@ class NimState(State):
 #    NUM_CHECKERS = NUM_HEAPS * TAKE_MAX
 #    NUM_DIE_SIDES = 1
 #    NUM_HIDDEN_UNITS = 10
-
-#    NUM_HEAPS = 1
-#    TAKE_MAX = 3
-#    SIZE_HEAPS = [25]
-#    TOTAL_TOKENS = sum(SIZE_HEAPS)
-
 
     def __init__(self, exp_params, player_to_move):
         super(NimState, self).__init__(exp_params, self.BOARD_SIZE, 
@@ -1731,7 +1730,7 @@ class GameSet(object):
         self.print_learning_progress = print_learning_progress
         self.progress_filename = progress_filename
 
-        self.sum_count_plies = 0 
+        self.sum_count_plies = 0
     
     def run(self):
         if self.progress_filename is not None:

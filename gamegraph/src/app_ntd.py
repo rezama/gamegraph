@@ -11,7 +11,8 @@ from common import Experiment, PLAYER_WHITE, other_player, REWARD_LOSE,\
     REWARD_WIN, FILE_PREFIX_NTD, ExpParams
 from params import NTD_LEARNING_RATE, NTD_EPSILON, NTD_LAMBDA, NTD_ALPHA,\
     NTD_GAMMA, NTD_TRAIN_EPOCHS, NTD_USE_ALPHA_ANNEALING, NTD_NUM_ITERATIONS,\
-    NTD_NUM_EVAL_GAMES, NTD_NUM_TRAINING_GAMES, NTD_NETWORK_INIT_WEIGHTS
+    NTD_NUM_EVAL_GAMES, NTD_NUM_TRAINING_GAMES, NTD_NETWORK_INIT_WEIGHTS,\
+    ALTERNATE_SEATS
 from domain import AgentNeural, GameSet
 
 class AgentNTD(AgentNeural):
@@ -253,7 +254,10 @@ if __name__ == '__main__':
     f = open(filename, 'w')
 
     agent_ntd1 = AgentNTD(exp_params.state_class)
-#    agent_ntd2 = AgentNTD()
+    if not ALTERNATE_SEATS:
+        agent_ntd2 = AgentNTD(exp_params.state_class)
+    else:
+        agent_ntd2 = agent_ntd1
     agent_eval = Experiment.create_eval_opponent_agent(exp_params)
     print 'Evaluation opponent is: %s' % agent_eval
 
@@ -270,12 +274,13 @@ if __name__ == '__main__':
             win_rate = float(count_wins[0]) / NTD_NUM_EVAL_GAMES
             print 'Win rate against the opponent: %.2f' % win_rate
             f.write('%d %f\n' % (i, win_rate))
-        agent_ntd1.resume_learning()        
-#        agent_td2.resume_learning()
+        agent_ntd1.resume_learning()
+        if not ALTERNATE_SEATS:
+            agent_ntd2.resume_learning()
 
         print 'Training against self (%d games)...' % NTD_NUM_TRAINING_GAMES
         game_set = GameSet(exp_params, NTD_NUM_TRAINING_GAMES,
-                           agent_ntd1, agent_ntd1)
+                           agent_ntd1, agent_ntd2)
         count_wins = game_set.run()
 
     f.close()
