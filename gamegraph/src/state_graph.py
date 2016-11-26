@@ -575,10 +575,13 @@ class StateGraph(object):
     def print_graph_info(cls, exp_params):
         g = StateGraph.load(exp_params)
         g.print_stats()
-#        num_nodes = len(g.node_names)
-##        for node_id in range(num_nodes):
-##            print node_id, g.node_colors[node_id], g.node_attrs[node_id]
-#        print '-----------'
+        print '-----------'
+        g.print_all_edges()
+        print '-----------'
+        num_nodes = len(g.node_names)
+        for node_id in range(num_nodes):
+            print node_id, 'color:', g.node_colors[node_id], g.node_attrs[node_id]
+        print '-----------'
 #        for node_id in range(10):
 #            print node_id, g.node_attrs[node_id]
 #        print '-----------'

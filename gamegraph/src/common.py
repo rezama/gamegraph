@@ -62,7 +62,7 @@ FILE_PREFIX_HC_CHALLENGE = 'hc-challenge'
 class ExpParams(object):
 
     exp_param_cached = None
-    
+
     def __init__(self, domain_name, exp, graph_name, p, offset, choose_roll,
                  trial, exp_signature):
         self.domain_name = domain_name
@@ -75,19 +75,19 @@ class ExpParams(object):
         self.choose_roll = choose_roll
         self.trial = trial
         self.exp_signature = exp_signature
-        
+
         self.domain_signature = self.state_class.get_domain_signature()
         self.signature = self.domain_signature
         if self.exp_signature != '':
-            self.signature = self.domain_signature + '-' + self.exp_signature 
+            self.signature = self.domain_signature + '-' + self.exp_signature
 
     @classmethod
     def get_exp_params_from_command_line_args(cls):
         if cls.exp_param_cached is None:
             cls.exp_param_cached = cls.get_exp_params(sys.argv[1:])
-            
+
         return cls.exp_param_cached
-            
+
     @classmethod
     def get_exp_params(cls, options_list):
         domain_name = DEFAULT_DOMAIN_NAME
@@ -101,10 +101,10 @@ class ExpParams(object):
         options, remainder = getopt.getopt(options_list, #@UnusedVariable
                     'd:g:o:p:c:t:',
                     ['domain=', 'graph=', 'offset=', 'p=', 'chooseroll=',
-                     'trial='])        
-        
+                     'trial='])
+
         exp_signature = ''
-        
+
         for opt, arg in options:
             if opt in ('-d', '--domain'):
                 print 'Setting domain to: %s' % arg
@@ -132,7 +132,7 @@ class ExpParams(object):
 #                exp_signature += 'trial-%s' % arg
 
         if exp_signature.rfind('-') >= 0:
-            exp_signature = exp_signature[:exp_signature.rfind('-')] # remove last hyphen        
+            exp_signature = exp_signature[:exp_signature.rfind('-')] # remove last hyphen
 
         if domain_name is None:
             print 'Please specify an experiment using:'
@@ -143,7 +143,7 @@ class ExpParams(object):
             sys.exit(-1)
         else:
             print 'Experiment signature is: %s' % exp_signature
-            cls.exp_param_cached = ExpParams(domain_name, exp, graph_name, 
+            cls.exp_param_cached = ExpParams(domain_name, exp, graph_name,
                                              p, offset, choose_roll, trial,
                                              exp_signature)
             return cls.exp_param_cached
@@ -163,37 +163,37 @@ class ExpParams(object):
 #            return '%s-%s' % (self.exp, self.graph_name)
 #        else:
 #            return 'invalidexp'
-        
+
     def get_custom_filename_no_trial(self, folder, file_prefix):
         filename = '%s/%s-%s.txt' % (folder, file_prefix,
                                         self.get_filename_suffix_no_trial())
         return filename
-        
+
     def get_custom_filename_with_trial(self, folder, file_prefix):
         filename = '%s/%s-%s.txt' % (folder, file_prefix,
                                         self.get_filename_suffix_with_trial())
         return filename
-        
+
     def get_trial_filename(self, file_prefix):
         filename = '%s/%s-%s.txt' % (FOLDER_TRIALS, file_prefix,
                                         self.get_filename_suffix_with_trial())
         return filename
-        
+
     def get_graph_filename(self):
         if self.graph_name is not None:
             filename = '%s/%s' % (FOLDER_GRAPH, self.graph_name)
         else:
             filename = '%s/%s' % (FOLDER_GRAPH, self.get_filename_suffix_no_trial())
         return filename
-        
+
     def is_graph_based(self):
         return (self.graph_name is not None)
-    
+
     def is_first_trial(self):
         return self.trial == 0
 
 class Experiment(object):
-    
+
     @classmethod
     def create_eval_opponent_agent(cls, exp_params):
         agent_eval = None
@@ -215,60 +215,60 @@ class Experiment(object):
     #    # visit counts to individual states
     #    filename = '../data/states-visit-count-%1.2f.txt' % state_class.p
     #    f = open(filename, 'w')
-    #    for state, count_visits in sorted(state_class.states_visit_count.iteritems(), 
+    #    for state, count_visits in sorted(state_class.states_visit_count.iteritems(),
     #                                      key=lambda (k,v): (v,k)):
     #        f.write('%s %d\n' % (state, count_visits))
     ##        print '%s: %d' % (state, count_visits)
     #    f.close()
-    
+
         # number of states discovered by game
 #        filename = '../data/%s-%s-games-discovered-states-count.txt' % (domain.name, cls.get_filename_suffix_with_trial())
-        filename = exp_params.get_custom_filename_with_trial(FOLDER_DOMAINSTATS, 
+        filename = exp_params.get_custom_filename_with_trial(FOLDER_DOMAINSTATS,
                     'games-discovered-states-count')
         f = open(filename, 'w')
         for game_number in range(len(state_class.games_discovered_states_count)):
-            f.write('%d %d\n' % (game_number, 
-                                 state_class.games_discovered_states_count[game_number])) 
+            f.write('%d %d\n' % (game_number,
+                                 state_class.games_discovered_states_count[game_number]))
         f.close()
-    
-        # number of states discovered by game over average number of plies per game      
+
+        # number of states discovered by game over average number of plies per game
 #        filename = '../data/%s-%s-games-discovered-states-count-over-avg-num-plies.txt' % (domain.name, cls.get_filename_suffix_with_trial())
-        filename = exp_params.get_custom_filename_with_trial(FOLDER_DOMAINSTATS, 
+        filename = exp_params.get_custom_filename_with_trial(FOLDER_DOMAINSTATS,
                     'games-discovered-states-count-over-avg-num-plies')
         f = open(filename, 'w')
         for game_number in range(len(state_class.games_discovered_states_count_over_avg_num_plies)):
-            f.write('%d %f\n' % (game_number, 
-                                 state_class.games_discovered_states_count_over_avg_num_plies[game_number])) 
+            f.write('%d %f\n' % (game_number,
+                                 state_class.games_discovered_states_count_over_avg_num_plies[game_number]))
         f.close()
-    
+
 #        filename = '../data/%s-%s-games-new-discovered-states-count.txt' % (domain.name, cls.get_filename_suffix_with_trial())
-        filename = exp_params.get_custom_filename_with_trial(FOLDER_DOMAINSTATS, 
+        filename = exp_params.get_custom_filename_with_trial(FOLDER_DOMAINSTATS,
                     'games-new-discovered-states-count')
         f = open(filename, 'w')
         for game_number in range(len(state_class.games_discovered_states_count)):
             newly_discovered_count = state_class.games_discovered_states_count[game_number]
             if game_number != 0:
                 newly_discovered_count -= state_class.games_discovered_states_count[game_number - 1]
-            f.write('%d %d\n' % (game_number, newly_discovered_count)) 
+            f.write('%d %d\n' % (game_number, newly_discovered_count))
         f.close()
-    
-        # number of visits to game states sorted by first ply of visit    
+
+        # number of visits to game states sorted by first ply of visit
 #        filename = '../data/%s-%s-states-sorted-by-ply-visit-count.txt' % (domain.name, cls.get_filename_suffix_with_trial())
-        filename = exp_params.get_custom_filename_with_trial(FOLDER_DOMAINSTATS, 
+        filename = exp_params.get_custom_filename_with_trial(FOLDER_DOMAINSTATS,
                     'states-sorted-by-ply-visit-count')
         f = open(filename, 'w')
         for i in range(len(state_class.states_sorted_by_ply_visit_count)):
             state_sorted_by_ply_visit_count = state_class.states_sorted_by_ply_visit_count[i]
             f.write('%d: %d\n' % (i, state_sorted_by_ply_visit_count))
-        f.close()        
-    
-        # same as above, over average num of plies per game   
+        f.close()
+
+        # same as above, over average num of plies per game
 #        filename = '../data/%s-%s-states-sorted-by-ply-visit-count-over-avg-num-plies.txt' % (domain.name, cls.get_filename_suffix_with_trial())
-        filename = exp_params.get_custom_filename_with_trial(FOLDER_DOMAINSTATS, 
+        filename = exp_params.get_custom_filename_with_trial(FOLDER_DOMAINSTATS,
                     'states-sorted-by-ply-visit-count-over-avg-num-plies')
         f = open(filename, 'w')
         for i in range(len(state_class.states_sorted_by_ply_visit_count_over_avg_num_plies)):
             state_sorted_by_ply_visit_count_over_avg_num_plies = state_class.states_sorted_by_ply_visit_count_over_avg_num_plies[i]
             f.write('%d: %f\n' % (i, state_sorted_by_ply_visit_count_over_avg_num_plies))
         f.close()
-    
+

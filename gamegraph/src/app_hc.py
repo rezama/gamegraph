@@ -14,7 +14,7 @@ from params import HC_RATIO_KEEP_CHAMPION_WEIGHTS, HC_MUTATE_WEIGHT_SIGMA,\
 from domain import AgentNeural, GameSet
 
 class AgentHC(AgentNeural):
-    
+
     def __init__(self, state_class):
         super(AgentHC, self).__init__(state_class, 1, init_weights = 0.0)
         self.network_inputs = {}
@@ -32,12 +32,12 @@ class AgentHC(AgentNeural):
         else:
             multiplier = 1.0
         return multiplier * network_out[0]
-    
+
     def move_weights_toward(self, challenger):
         ratio_challenger_weights = 1.0 - HC_RATIO_KEEP_CHAMPION_WEIGHTS
         self.network.params[:] = [HC_RATIO_KEEP_CHAMPION_WEIGHTS * pair[0] +
                                   ratio_challenger_weights * pair[1]
-                                  for pair in zip(self.network.params, 
+                                  for pair in zip(self.network.params,
                                                   challenger.network.params)]
 
     def mutate_challenger(self, challenger):
@@ -45,34 +45,34 @@ class AgentHC(AgentNeural):
 #                                     for w in self.network.params]
         challenger.network.params[:] = [random.gauss(w, HC_MUTATE_WEIGHT_SIGMA)
                                      for w in self.network.params]
-    
+
 if __name__ == '__main__':
     exp_params = ExpParams.get_exp_params_from_command_line_args()
-   
+
     eval_filename = exp_params.get_trial_filename(FILE_PREFIX_HC)
     eval_f = open(eval_filename, 'w')
     chal_filename = exp_params.get_trial_filename(FILE_PREFIX_HC_CHALLENGE)
     chal_f = open(chal_filename, 'w')
-    
-    agent_champion = AgentHC(exp_params.state_class);
-    agent_challenger = AgentHC(exp_params.state_class);
-    
+
+    agent_champion = AgentHC(exp_params.state_class)
+    agent_challenger = AgentHC(exp_params.state_class)
+
     agent_eval = Experiment.create_eval_opponent_agent(exp_params)
     print 'Evaluation opponent is: %s' % agent_eval
 
     for generation_number in range(HC_NUM_GENERATIONS):
         print 'Generation %d' % generation_number
-        
-        if generation_number % HC_EVALUATE_EVERY_N_GENERATIONS == 0: 
+
+        if generation_number % HC_EVALUATE_EVERY_N_GENERATIONS == 0:
             print 'Evaluating against the opponent (%d games)...' % HC_NUM_EVAL_GAMES
             game_set = GameSet(exp_params, HC_NUM_EVAL_GAMES,
                                agent_champion, agent_eval)
             count_wins = game_set.run()
             win_rate = float(count_wins[0]) / HC_NUM_EVAL_GAMES
-            print 'Win rate: %.2f against opponent' % win_rate
+            print 'Win rate: %.2f against evaluation opponent' % win_rate
             eval_f.write('%d %f\n' % (generation_number, win_rate))
             eval_f.flush()
-        
+
         print 'Finding a good challenger...'
         found_good_challenger = False
         tries = 1
@@ -96,6 +96,6 @@ if __name__ == '__main__':
             tries += 1
 
         print '--'
-        
+
     eval_f.close()
     chal_f.close()

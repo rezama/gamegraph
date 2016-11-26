@@ -27,22 +27,22 @@ class AgentSarsa(Agent):
 
     def begin_episode(self):
         self.algorithm.begin_episode(self.state)
-        
+
     def end_episode(self, reward):
         self.algorithm.end_episode(self.state, reward)
 
     def select_action(self):
         return self.algorithm.select_action(self.state)
-    
+
     def get_board_value(self, board_str):
         return self.algorithm.get_board_value(board_str)
-    
+
     def pause_learning(self):
         self.algorithm.pause_learning()
 
     def resume_learning(self):
         self.algorithm.resume_learning()
-    
+
 #    def save_learning_state(self):
 #        if self.algorithm is not None:
 #            self.algorithm.save_learning_state()
@@ -59,45 +59,81 @@ class SarsaLambdaAlg(object):
 
     def __init__(self, state_class):
         self.state_class = state_class
-        
+
         self.epsilon = SARSA_EPSILON
         self.lamda = SARSA_LAMBDA
         self.alpha = SARSA_ALPHA
         self.gamma = SARSA_GAMMA
-        
+
         self.state_str = None
         self.last_state_str = None
         self.last_action = None
-        
+
         self.is_learning = True
         self.Q = {}
         self.Q_save = {}
         self.e = {}
         self.visit_count = {}
-        
+
         if SARSA_OPTIMISTIC_INIT:
             self.default_q = Game.get_max_episode_reward() #* 1.1
         else:
             self.default_q = Game.get_min_episode_reward()
-        
+
     def begin_episode(self, state):
         self.e = {}
         self.state_str = None
         self.last_state_str = None
         self.last_action = None
-        
+
     def end_episode(self, state, reward):
         if self.is_learning:
-            s = self.last_state_str
-            a = self.last_action
-            
-            delta = reward - self.Q.get((s, a), self.default_q)
-    
+            # assert state.is_final()
+            # Bad assertion: State should be final, unless when the game is ended because
+            # of too many moves.
+
+            self.sarsa_step(state, action=None, reward=reward)
+
+    def sarsa_step(self, state, action, reward=0):
+        s = self.last_state_str
+        a = self.last_action
+        sp = self.state_str
+        ap = action
+
+        # reward = 0
+
+        if s is not None:
+            # update e
+            for key in self.e.iterkeys():
+                self.e[key] *= (self.gamma * self.lamda)
+
+            # replacing traces
+            self.e[(s, a)] = 1.0
+            # set the trace for the other actions to 0
+            for other_action in state.action_object.get_all_actions():
+                if other_action != a:
+                    if (s, other_action) in self.e:
+                        self.e[(s, other_action)] = 0
+
+
+            if state.is_final():
+                delta = reward - self.Q.get((s, a), self.default_q)
+            else:
+                delta = reward + self.gamma * self.Q.get((sp, ap), self.default_q) - \
+                        self.Q.get((s, a), self.default_q)
+
             self.update_values(delta)
-    
+
+        # save visited state and chosen action
+        self.last_state_str = self.state_str
+        self.last_action = action
+        if action is not None:  # end_episode calls this with action=None.
+            key = (self.last_state_str, self.last_action)
+            self.visit_count[key] = self.visit_count.get(key, 0) + 1
+
     def select_action(self, state):
         self.state_str = str(state)
-        
+
         if self.is_learning and (random.random() < self.epsilon):
             action = state.action_object.random_action(state)
         else:
@@ -112,7 +148,7 @@ class SarsaLambdaAlg(object):
             roll_range = [state.roll]
             if do_choose_roll:
                 roll_range = state.die_object.get_all_sides()
-            
+
             action_values = []
 
             for replace_roll in roll_range:
@@ -124,8 +160,13 @@ class SarsaLambdaAlg(object):
                         move_value = self.Q.get((self.state_str, checker), self.default_q)
                         # insert a random number to break the ties
                         action_values.append(((move_value, random.random()), (replace_roll, checker)))
-                
+
             if len(action_values) > 0:
+                # reverse = state.player_to_move == PLAYER_WHITE
+                # The Sarsa agent maintains (in Q table) state values for white
+                # and black players from their own perspectives.  So, regardless
+                # of player's color, we need to pick actions leading to states
+                # with higher values.
                 action_values_sorted = sorted(action_values, reverse=True)
                 best_roll = action_values_sorted[0][1][0]
                 # set the best roll there
@@ -134,49 +175,17 @@ class SarsaLambdaAlg(object):
                 action = action_values_sorted[0][1][1]
             else:
                 action = state.action_object.action_forfeit_move
-    
+
 #                if (action != state.action_object.action_forfeit_move) or state.can_forfeit_move():
 #                    done = True
 #                else:
 #                    state.reroll_dice()
 
         # update values
-        
-        if self.is_learning:
-            s = self.last_state_str
-            a = self.last_action
-            sp = self.state_str
-            ap = action
-            
-            reward = 0
 
-            if s is not None:
-                # update e
-                for key in self.e.iterkeys():
-                    self.e[key] *= (self.gamma * self.lamda)
-                        
-                # replacing traces
-                self.e[(s, a)] = 1.0
-                # set the trace for the other actions to 0
-                for other_action in state.action_object.get_all_actions():
-                    if other_action != a:
-                        self.e[(s, other_action)] = 0
-                
-                
-                if state.is_final():
-                    delta = reward - self.Q.get((s, a), self.default_q)
-                else:
-                    delta = reward + self.gamma * self.Q.get((sp, ap), self.default_q) - \
-                            self.Q.get((s, a), self.default_q)
-        
-                self.update_values(delta)
-        
-            # save visited state and chosen action
-            self.last_state_str = self.state_str
-            self.last_action = action
-            key = (self.last_state_str, self.last_action)
-            self.visit_count[key] = self.visit_count.get(key, 0) + 1
-                
+        if self.is_learning:
+            self.sarsa_step(state, action)
+
         return action
 
     def get_board_value(self, board_str, all_rolls, all_actions):
@@ -190,19 +199,19 @@ class SarsaLambdaAlg(object):
                 action_value = self.Q.get((state_str, action), INVALID_ACTION_VALUE)
                 # insert a random number to break the ties
                 action_values.append(((action_value, random.random()), action))
-                
+
             action_values_sorted = sorted(action_values, reverse=True)
             best_action_value = action_values_sorted[0][0][0]
 
             if best_action_value != INVALID_ACTION_VALUE:
                 sum_values += best_action_value
                 count += 1
-        
+
         if count == 0:
             return INVALID_ACTION_VALUE
         else:
-            return sum_values / count    
-    
+            return sum_values / count
+
     def update_values(self, delta):
         alpha = self.alpha
         for (si, ai) in self.e.iterkeys():
@@ -212,8 +221,8 @@ class SarsaLambdaAlg(object):
             if self.e[(si, ai)] != 0.0:
                 change = alpha * delta * self.e[(si, ai)]
                 self.Q[(si, ai)] = self.Q.get((si, ai), self.default_q) + change
-                        
-    
+
+
     def get_knowledge_filename(self):
         exp_params = ExpParams.get_exp_params_from_command_line_args()
         if SARSA_TRAIN_AGAINST_SELF:
@@ -223,7 +232,7 @@ class SarsaLambdaAlg(object):
         filename = exp_params.get_custom_filename_no_trial(table_folder,
                                                 FILE_PREFIX_SARSA)
         return filename
-    
+
     def save_knowledge(self):
         filename = self.get_knowledge_filename()
         f = open(filename, 'w')
@@ -235,16 +244,16 @@ class SarsaLambdaAlg(object):
         f = open(filename, 'r')
         self.Q = pickle.load(f)
         f.close()
-    
+
     def pause_learning(self):
         self.is_learning = False
-        
+
     def resume_learning(self):
-        self.is_learning = True    
+        self.is_learning = True
 
 #    def save_learning_state(self):
 #        self.Q_save = copy.deepcopy(self.Q)
-#        
+#
 #    def restore_learning_state(self):
 #        self.Q = copy.deepcopy(self.Q_save)
 
@@ -256,7 +265,7 @@ class SarsaLambdaAlg(object):
 #            print "Q%s -> %.2f" % (key, self.Q[key])
         for key, value in sorted(self.Q.iteritems(), key=lambda (k,v): (v,k)):
             print "%s: %s" % (key, value)
-            
+
     def print_e(self):
         e_keys = self.e.keys()
         e_keys.sort()
@@ -272,15 +281,15 @@ class SarsaLambdaAlg(object):
 #            print "Q%s -> %.2f" % (key, self.Q[key])
         for key, value in sorted(self.visit_count.iteritems(), key=lambda (k,v): (v,k)):
             print "%s: %s" % (key, value)
-    
+
     def print_values(self):
         self.print_visit_count()
         self.print_e()
         self.print_Q()
-        
+
 if __name__ == '__main__':
     exp_params = ExpParams.get_exp_params_from_command_line_args()
-   
+
     filename = exp_params.get_trial_filename(FILE_PREFIX_SARSA)
     f = open(filename, 'w')
 
@@ -288,7 +297,7 @@ if __name__ == '__main__':
     if SARSA_TRAIN_AGAINST_SELF:
         agent_opponent = AgentSarsa(exp_params.state_class)
 #        # use this for evaluating against pre-trained version of self:
-#        agent_opponent = AgentSarsa(exp_params.state_class, load_knowledge = True) 
+#        agent_opponent = AgentSarsa(exp_params.state_class, load_knowledge = True)
     else:
         agent_opponent = AgentRandom(exp_params.state_class)
     agent_eval = Experiment.create_eval_opponent_agent(exp_params)
@@ -302,31 +311,31 @@ if __name__ == '__main__':
         agent_sarsa.pause_learning()
         game_set = GameSet(exp_params, SARSA_NUM_EVAL_EPISODES,
                            agent_sarsa, agent_eval)
-        agent_sarsa.resume_learning()
         count_wins = game_set.run()
+        agent_sarsa.resume_learning()
         win_rate = float(count_wins[0]) / SARSA_NUM_EVAL_EPISODES
-        print 'Win rate against the opponent: %.2f' % win_rate
+        print 'Win rate against evaluation opponent: %.2f' % win_rate
         f.write('%d %f\n' % (i * SARSA_NUM_EPISODES_PER_ITERATION, win_rate))
         agent_sarsa.resume_learning()
 
         print 'Training (%d games)...' % SARSA_NUM_EPISODES_PER_ITERATION
 #        # when training for benchmark, have the RL agent play as black
-#        game_set = Domain.GameSetClass(NUM_ITERATIONS, agent_eval, agent_sarsa, 
+#        game_set = Domain.GameSetClass(NUM_ITERATIONS, agent_eval, agent_sarsa,
 #                                       p, reentry_offset,
 #                                       print_learning_progress = True)
         game_set = GameSet(exp_params, SARSA_NUM_EPISODES_PER_ITERATION,
                            agent_sarsa, agent_opponent)
         count_wins = game_set.run()
+        # agent_sarsa.algorithm.print_values()
         print 'Win rate in training: %.2f' % (float(count_wins[0]) /
                                               SARSA_NUM_EPISODES_PER_ITERATION)
-    
-#    agent_sarsa.algorithm.print_values()
+
     if SARSA_SAVE_TABLES and exp_params.is_first_trial():
         print 'Saving RL table...'
         agent_sarsa.algorithm.save_knowledge()
+        agent_sarsa.algorithm.print_values()
 
 #    if SARSA_SAVE_STATE_VALUES_IN_GRAPH and exp_params.is_graph_based() and \
 #                exp_params.is_first_trial():
 #        print 'Saving state values in graph...'
 #        exp_params.domain.StateClass.copy_state_values_to_graph(exp_params, agent_sarsa)
-    
