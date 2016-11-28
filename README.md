@@ -2,7 +2,7 @@
 
 This codebase contains tools to study the impact of domain stochasticity and ergodicity on efficiency of Reinforcement Learning in board games through self-play.  It explores the hypothesis that RL through self-play works better in domains that are more stochastic and more ergodic.
 
-![Minigammon Game Board](/minigammon.png?raw=true "Minigammon Game Board")
+![Minigammon Game Board](/gamegraph/doc/minigammon.png?raw=true "Minigammon Game Board")
 
 The implementation contains three learning algorithms:
 
