@@ -46,7 +46,7 @@ The degree of ergodicity in backgammon-like domains can be varied through differ
 Invoke the following commands from inside the `src` directory:
 
 ```sh
-# Runs the tabular Sarsa algorithm on Minigammon.
+# Runs the tabular Sarsa algorithm on Minigammon:
 $ python app_sarsa.py --domain=minigammon
 ```
 
@@ -66,19 +66,19 @@ $ python app_ntd.py --domain=nim --chooseroll=1.0
 ```
 
 ```sh
-# Runs games between optimal agents trained using value iteration.
+# Runs games between optimal agents trained using value iteration:
 $ python app_optimal.py --domain=nim --chooseroll=1.0
 ```
 
 ```sh
-# Runs games between agents making random moves.
+# Runs games between agents making random moves:
 $ python app_random.py --domain=nim --chooseroll=1.0
 ```
 
 ```sh
-# Generate graphs for modified versions of Minigammon with varying degrees of ergodicity.
+# Generate graphs for modified versions of Minigammon with varying degrees of ergodicity:
 $ python manip_graph.py --domain=minigammon
-# Train a neural-network-based agent on one of the generated graphs.
+# Train a neural-network-based agent on one of the generated graphs:
 $ python app_ntd.py --domain=minigammon --graph=minigammon-822-back-50
 ```
 
