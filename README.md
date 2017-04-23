@@ -84,4 +84,13 @@ $ python app_ntd.py --domain=minigammon --graph=minigammon-822-back-50
 
 ### Requirements
 
-- PyBrain (included in `gamegraph/lib/`)
+- PyBrain
+
+Install using `virtualenv`:
+
+```sh
+$ virtualenv .venv
+$ source .venv/bin/activate
+$ pip install -r requirements.txt
+```
+
