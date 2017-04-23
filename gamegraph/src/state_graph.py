@@ -574,7 +574,6 @@ class StateGraph(object):
     @classmethod
     def print_graph_info(cls, exp_params):
         g = StateGraph.load(exp_params)
-        g.print_stats()
         print '-----------'
         g.print_all_edges()
         print '-----------'
@@ -588,6 +587,8 @@ class StateGraph(object):
 #        for node_id in range(num_nodes - 10, num_nodes):
 #            print node_id, g.node_attrs[node_id]
 #        print '-----------'
+        g.print_stats()
+        print '-----------'
         print 'White\'s win probability is: %s' % g.node_attrs[0][VAL_ATTR] 
 #        print 'Dice volatility is: %s' % g.compute_dice_volatility(exp_params) 
 #        print 'Action volatility is: %s' % g.compute_action_volatility(exp_params) 

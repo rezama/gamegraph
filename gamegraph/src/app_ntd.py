@@ -278,7 +278,8 @@ class AgentNTD(AgentNeural):
         for state_str in sorted(self.network_inputs.iterkeys()):
             # state_value = self.network_outputs[state_str]
             state_value = self.network.activate(self.network_inputs[state_str])
-            print "%s -> %s" % (state_str, state_value)
+            abs_value = state_value[0] - state_value[1]
+            print "%s -> %s (%.2f)" % (state_str, state_value, abs_value)
 
     def print_traj_counts(self):
         print "Trajectories:"
