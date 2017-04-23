@@ -1,2 +1,7 @@
 *.pyc
 .venv
+doc/plots/
+doc/pres-images/
+plot/archive/
+retired/
+src/forks/
