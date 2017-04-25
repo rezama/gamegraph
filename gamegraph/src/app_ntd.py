@@ -4,27 +4,29 @@ Created on Dec 9, 2011
 @author: reza
 '''
 import random
-from pybrain.datasets.supervised import SupervisedDataSet
-from pybrain.supervised.trainers.backprop import BackpropTrainer
 
-from common import Experiment, PLAYER_WHITE, other_player, REWARD_LOSE,\
-    REWARD_WIN, FILE_PREFIX_NTD, ExpParams
-from params import NTD_LEARNING_RATE, NTD_EPSILON, NTD_LAMBDA, NTD_ALPHA,\
-    NTD_GAMMA, NTD_TRAIN_EPOCHS, NTD_USE_ALPHA_ANNEALING, NTD_NUM_ITERATIONS,\
-    NTD_NUM_EVAL_GAMES, NTD_NUM_TRAINING_GAMES, NTD_NETWORK_INIT_WEIGHTS,\
-    ALTERNATE_SEATS
+from pybrain.datasets.supervised import SupervisedDataSet  # pylint: disable=import-error
+from pybrain.supervised.trainers.backprop import BackpropTrainer  # pylint: disable=import-error
+
+from common import (FILE_PREFIX_NTD, PLAYER_WHITE, REWARD_LOSE, REWARD_WIN,
+                    Experiment, ExpParams, other_player)
 from domain import AgentNeural, GameSet
+from params import (ALTERNATE_SEATS, NTD_ALPHA, NTD_EPSILON, NTD_GAMMA,
+                    NTD_LAMBDA, NTD_LEARNING_RATE, NTD_NETWORK_INIT_WEIGHTS,
+                    NTD_NUM_EVAL_GAMES, NTD_NUM_ITERATIONS,
+                    NTD_NUM_TRAINING_GAMES, NTD_TRAIN_EPOCHS,
+                    NTD_USE_ALPHA_ANNEALING)
+
 
 class AgentNTD(AgentNeural):
 
-    def __init__(self, state_class, load_knowledge = False):
-#        super(AgentNTD, self).__init__(2, init_weights = 0.15)
+    def __init__(self, state_class, load_knowledge=False):
         super(AgentNTD, self).__init__(state_class, 2,
-                                      init_weights = NTD_NETWORK_INIT_WEIGHTS)
+                                       init_weights=NTD_NETWORK_INIT_WEIGHTS)
 
         self.trainer = BackpropTrainer(self.network,
-                                       learningrate = NTD_LEARNING_RATE,
-                                       momentum = 0.0, verbose = False)
+                                       learningrate=NTD_LEARNING_RATE,
+                                       momentum=0.0, verbose=False)
 
         self.epsilon = NTD_EPSILON
         self.lamda = NTD_LAMBDA
@@ -37,7 +39,7 @@ class AgentNTD(AgentNeural):
         # self.last_state_in = None
         self.last_action = None
         self.processed_final_reward = False
-#        self.last_played_as = None
+        # self.last_played_as = None
         self.episode_traj = ''
 
         self.is_learning = True
@@ -52,8 +54,8 @@ class AgentNTD(AgentNeural):
         self.traj_count = {}
 
         if load_knowledge:
-            self.load_knowledge()
-            self.is_learning = False
+            raise ValueError('AgentNTD does not support load_knowledge.')
+            # self.is_learning = False
 
     def begin_episode(self):
         self.e = {}
@@ -61,9 +63,9 @@ class AgentNTD(AgentNeural):
         self.network_outputs = {}
         self.visited_in_episode = {}
         # self.state_str = None
-#        self.state_in = None
+        # self.state_in = None
         self.last_state_str = None
-#        self.last_state_in = None
+        # self.last_state_in = None
         self.last_action = None
         self.processed_final_reward = False
         self.episode_traj = ''
@@ -90,7 +92,7 @@ class AgentNTD(AgentNeural):
                 alpha = 1.0 / self.visit_count.get(si, 1)
             if self.e[si] != 0.0:
                 change = [alpha * e * self.e[si] for e in delta]
-#                network_in = self.network_inputs[si]
+                # network_in = self.network_inputs[si]
                 current_update = self.updates.get(si, [0.0, 0.0])
                 self.updates[si] = [a + b for a, b in zip(current_update, change)]
 
@@ -101,12 +103,12 @@ class AgentNTD(AgentNeural):
             current_value = self.get_network_value(si)
             new_value = [a + b for a, b in zip(current_value, self.updates[si])]
             dataset.addSample(network_in, new_value)
-#            print 'updating %s from [%.2f, %.2f] to [%.2f, %.2f]' % (si,
-#                current_value[0], current_value[1], new_value[0], new_value[1])
-        if len(dataset) > 0:
+            # print 'updating %s from [%.2f, %.2f] to [%.2f, %.2f]' % (si,
+            #     current_value[0], current_value[1], new_value[0], new_value[1])
+        if dataset:  # len(dataset) > 0:
             self.trainer.setData(dataset)
             self.trainer.trainEpochs(NTD_TRAIN_EPOCHS)
-#        print '----'
+        # print '----'
 
     def get_state_value(self, state):
         """Returns state value.  Higher is better for requesting player.
@@ -122,8 +124,9 @@ class AgentNTD(AgentNeural):
             is white and p_b - p_w when the requesting player is black.
         """
         if state.is_final():
-            # The algorithm never trains the network on final states, so it cannot
-            # know their values.  Need to retrieve the value of final states directly.
+            # The algorithm never trains the network on final states, so it
+            # cannot know their values.  Need to retrieve the value of final
+            # states directly.
             if state.has_player_won(PLAYER_WHITE):
                 white_black_values = [REWARD_WIN, REWARD_LOSE]
             else:
@@ -140,10 +143,10 @@ class AgentNTD(AgentNeural):
         else:
             multiplier = 1.0
         return multiplier * (white_black_values[0] - white_black_values[1])
-#        if state.player_to_move == PLAYER_WHITE:
-#            return network_out[1]
-#        else:
-#            return network_out[0]
+        # if state.player_to_move == PLAYER_WHITE:
+        #    return network_out[1]
+        # else:
+        #    return network_out[0]
 
     def cache_network_values(self, state):
         state_str = str(state)[:-2]
@@ -156,16 +159,27 @@ class AgentNTD(AgentNeural):
     def get_network_value(self, state_str):
         return self.network_outputs[state_str]
 
-    def ntd_step(self, action, reward=[0,0]):
+    def ntd_step(self, action, reward=[0, 0]):
+        """Updates the underlying model after every transition.
+
+        This method is called in self.select_action() and self.end_episode().
+
+        Args:
+            action: Action taken by the agent.
+            reward: Rewards received from the environment.
+
+        Returns:
+            None
+        """
         s = self.last_state_str
-#            s_in = self.last_state_in
-        a = self.last_action
+        # s_in = self.last_state_in
+        # Since the NTD agent's operates based on state values and not
+        # state-action values, we don't need a, ap in this method.
+        # a = self.last_action
         state_str = str(self.state)[:-2]
         sp = state_str
-#            sp_in = self.state_in
-        ap = action #@UnusedVariable
-
-        # reward = [0, 0]
+        # sp_in = self.state_in
+        # ap = action
 
         self.episode_traj += ' -> ' + state_str
 
@@ -176,22 +190,22 @@ class AgentNTD(AgentNeural):
 
             # replacing traces
             self.e[s] = 1.0
-#                # set the trace for the other actions to 0
-#                for other_action in Domain.ActionClass.ALL_ACTIONS:
-#                    if other_action != a:
-#                        self.e[(s, other_action)] = 0
+            # # set the trace for the other actions to 0
+            # for other_action in Domain.ActionClass.ALL_ACTIONS:
+            #     if other_action != a:
+            #         self.e[(s, other_action)] = 0
 
             if self.state.is_final():
-#                    delta = reward - self.Q.get((s, a), self.default_q)
+                # delta = reward - self.Q.get((s, a), self.default_q)
                 # print 'Shouldn\'t happen'
                 delta = reward - self.get_network_value(s)
             else:
-#                    delta = reward + self.gamma * self.Q.get((sp, ap), self.default_q) - \
-#                            self.Q.get((s, a), self.default_q)
-                delta = [self.gamma * a - b for a, b in
-                         zip(self.get_network_value(sp), self.get_network_value(s))]
-#                    delta = reward + self.gamma * self.get_network_value(sp_in) - \
-#                            self.get_network_value(s_in)
+                # delta = reward + self.gamma * (self.Q.get((sp, ap), self.default_q) -
+                #                                self.Q.get((s, a), self.default_q))
+                delta = [self.gamma * x - y
+                         for x, y in zip(self.get_network_value(sp), self.get_network_value(s))]
+                # delta = reward + self.gamma * (self.get_network_value(sp_in) -
+                #                                self.get_network_value(s_in))
 
             self.update_values(delta)
 
@@ -205,51 +219,51 @@ class AgentNTD(AgentNeural):
                 self.visit_count[key] = self.visit_count.get(key, 0) + 1
             self.visited_in_episode[key] = True
 
-
     def select_action(self):
-#        self.last_played_as = self.state.player_to_move
+        # self.last_played_as = self.state.player_to_move
         self.cache_network_values(self.state)
         # self.state_str = str(self.state)[:-2]
-#        if self.state_str not in self.network_inputs:
-#            self.network_inputs[self.state_str] = self.encode_network_input(self.state)
-#        self.state_in = self.network_inputs[self.state_str]
+
+        # if self.state_str not in self.network_inputs:
+        #     self.network_inputs[self.state_str] = self.encode_network_input(self.state)
+        # self.state_in = self.network_inputs[self.state_str]
 
         if self.is_learning and (random.random() < self.epsilon):
             action = self.state.action_object.random_action(self.state)
         else:
             action = super(AgentNTD, self).select_action()
-#            action_values = []
-#            for checker in self.state.action_object.get_all_checkers():
-#                move_outcome = self.state.get_move_outcome(checker)
-#                if move_outcome is not None:
-#                    move_value = self.get_state_value(move_outcome)
-#                    # insert a random number to break the ties
-#                    action_values.append(((move_value, random.random()), checker))
-#
-#            if len(action_values) > 0:
-#                action_values_sorted = sorted(action_values, reverse=True)
-#                action = action_values_sorted[0][1]
-#            else:
-#                action = self.state.action_object.action_forfeit_move
+            # action_values = []
+            # for checker in self.state.action_object.get_all_checkers():
+            #     move_outcome = self.state.get_move_outcome(checker)
+            #     if move_outcome is not None:
+            #         move_value = self.get_state_value(move_outcome)
+            #         # insert a random number to break the ties
+            #         action_values.append(((move_value, random.random()), checker))
+            #
+            # if len(action_values) > 0:
+            #     action_values_sorted = sorted(action_values, reverse=True)
+            #     action = action_values_sorted[0][1]
+            # else:
+            #     action = self.state.action_object.action_forfeit_move
 
-        # update values
-
+        # Update values.
         if self.is_learning:
             self.ntd_step(action)
 
         return action
 
-#    def save_knowledge(self):
-#        filename = './td-network.txt' % Domain.name
-#        f = open(filename, 'w')
-#        pickle.dump(self.network, f)
-#        f.close()
-#
-#    def load_knowledge(self):
-#        filename = './td-network-%s.txt' % Domain.name
-#        f = open(filename, 'r')
-#        self.network = pickle.load(f)
-#        f.close()
+    # def save_knowledge(self):
+    #
+    #     filename = './td-network.txt' % Domain.name
+    #     f = open(filename, 'w')
+    #     pickle.dump(self.network, f)
+    #     f.close()
+    #
+    # def load_knowledge(self):
+    #     filename = './td-network-%s.txt' % Domain.name
+    #     f = open(filename, 'r')
+    #     self.network = pickle.load(f)
+    #     f.close()
 
     def pause_learning(self):
         self.is_learning = False
@@ -268,9 +282,9 @@ class AgentNTD(AgentNeural):
         keys = self.visit_count.keys()
         keys.sort()
         print "Visit Counts:"
-#        for key in Q_keys:
-#            print "Q%s -> %.2f" % (key, self.Q[key])
-        for key, value in sorted(self.visit_count.iteritems(), key=lambda (k,v): (v,k)):
+        # for key in Q_keys:
+        #     print "Q%s -> %.2f" % (key, self.Q[key])
+        for key, value in sorted(self.visit_count.iteritems(), key=lambda (k, v): (v, k)):
             print "%s: %s" % (key, value)
 
     def probe_network(self):
@@ -282,7 +296,7 @@ class AgentNTD(AgentNeural):
             print "%s -> %s (%.2f)" % (state_str, state_value, abs_value)
 
     def print_traj_counts(self):
-        print "Trajectories:"
+        print "Trajectories in training:"
         import operator
         sorted_traj_count = sorted(self.traj_count.items(),
                                    key=operator.itemgetter(1),
@@ -297,6 +311,7 @@ class AgentNTD(AgentNeural):
         self.print_e()
         self.probe_network()
         self.print_traj_counts()
+
 
 if __name__ == '__main__':
     exp_params = ExpParams.get_exp_params_from_command_line_args()
@@ -324,6 +339,7 @@ if __name__ == '__main__':
                                agent, agent_eval)
             count_wins = game_set.run()
             win_rate = float(count_wins[0]) / NTD_NUM_EVAL_GAMES
+            # Report some useful information about the state of the learner.
             agent_ntd1.print_values()
             print 'Win rate against evaluation opponent: %.2f' % win_rate
             f.write('%d %f\n' % (i, win_rate))

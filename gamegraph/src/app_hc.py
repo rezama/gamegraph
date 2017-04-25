@@ -6,17 +6,19 @@ Created on Dec 9, 2011
 
 import random
 
-from common import Experiment, PLAYER_WHITE, PLAYER_BLACK, FILE_PREFIX_HC,\
-    FILE_PREFIX_HC_CHALLENGE, ExpParams
-from params import HC_RATIO_KEEP_CHAMPION_WEIGHTS, HC_MUTATE_WEIGHT_SIGMA,\
-    HC_NUM_GENERATIONS, HC_EVALUATE_EVERY_N_GENERATIONS, HC_NUM_EVAL_GAMES,\
-    HC_NUM_CHALLENGE_GAMES, HC_CHALLENGER_NEEDS_TO_WIN
+from common import (FILE_PREFIX_HC, FILE_PREFIX_HC_CHALLENGE, PLAYER_BLACK,
+                    PLAYER_WHITE, Experiment, ExpParams)
 from domain import AgentNeural, GameSet
+from params import (HC_CHALLENGER_NEEDS_TO_WIN,
+                    HC_EVALUATE_EVERY_N_GENERATIONS, HC_MUTATE_WEIGHT_SIGMA,
+                    HC_NUM_CHALLENGE_GAMES, HC_NUM_EVAL_GAMES,
+                    HC_NUM_GENERATIONS, HC_RATIO_KEEP_CHAMPION_WEIGHTS)
+
 
 class AgentHC(AgentNeural):
 
     def __init__(self, state_class):
-        super(AgentHC, self).__init__(state_class, 1, init_weights = 0.0)
+        super(AgentHC, self).__init__(state_class, 1, init_weights=0.0)
         self.network_inputs = {}
 
     def get_state_value(self, state):
@@ -41,10 +43,11 @@ class AgentHC(AgentNeural):
                                                   challenger.network.params)]
 
     def mutate_challenger(self, challenger):
-#        challenger.network.params[:] = [random.gauss(w, w * MUTATE_WEIGHT_SIGMA)
-#                                     for w in self.network.params]
+        # challenger.network.params[:] = [random.gauss(w, w * MUTATE_WEIGHT_SIGMA)
+        #                                 for w in self.network.params]
         challenger.network.params[:] = [random.gauss(w, HC_MUTATE_WEIGHT_SIGMA)
-                                     for w in self.network.params]
+                                        for w in self.network.params]
+
 
 if __name__ == '__main__':
     exp_params = ExpParams.get_exp_params_from_command_line_args()
@@ -78,12 +81,12 @@ if __name__ == '__main__':
         tries = 1
         while not found_good_challenger:
             # update challenger to have Gaussian distribution around champion
-#            print 'Mutating challenger...'
+            # print 'Mutating challenger...'
             agent_champion.mutate_challenger(agent_challenger)
             game_set = GameSet(exp_params, HC_NUM_CHALLENGE_GAMES,
                                agent_champion, agent_challenger)
             count_wins = game_set.run()
-#            print 'Challenger won %d out of %d games.' % (count_wins[1], NUM_CHALLENGE_GAMES)
+            # print 'Challenger won %d out of %d games.' % (count_wins[1], NUM_CHALLENGE_GAMES)
             # if the champion loses more games than the challenger
             if count_wins[PLAYER_BLACK] >= HC_CHALLENGER_NEEDS_TO_WIN:
                 found_good_challenger = True

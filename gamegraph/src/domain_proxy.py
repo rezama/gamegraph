@@ -3,15 +3,16 @@ Created on Sep 17, 2011
 
 @author: reza
 '''
-from domain import MiniGammonState, NannonState, MidGammonState,\
-    NohitGammonState, NimState, TwoDiceMiniState
+from domain import (MidGammonState, MiniGammonState, NannonState, NimState,
+                    NohitGammonState, TwoDiceMiniState)
+
 
 class DomainProxy(object):
-    
+
     @classmethod
     def load_domain_state_class_by_name(cls, domain_name):
         print 'Loading Domain: %s' % domain_name
-        print 
+        print
         result = None
         if domain_name == MiniGammonState.DOMAIN_NAME:
             result = MiniGammonState
@@ -27,12 +28,12 @@ class DomainProxy(object):
             result = NimState
         return result
 
-#class DomainProxy(object):
-#    
+# class DomainProxy(object):
+#
 #    @classmethod
 #    def load_domain_by_name(cls, domain_name):
 #        print 'Loading Domain: %s' % domain_name
-#        print 
+#        print
 #        result = None
 #        if domain_name == DomainMiniGammon.name:
 #            result = DomainMiniGammon
@@ -44,7 +45,7 @@ class DomainProxy(object):
 #            result = DomainNohitGammon
 #        return result
 #
-#class DomainMiniGammon(object):
+# class DomainMiniGammon(object):
 #    name = 'minigammon'
 #    DieClass = MiniGammonDie
 #    StateClass = MiniGammonState
@@ -54,7 +55,7 @@ class DomainProxy(object):
 #    AgentNeuralClass = MiniGammonAgentNeural
 #
 #
-#class DomainNannon(object):
+# class DomainNannon(object):
 #    name = 'nannon'
 #    DieClass = NannonDie
 #    StateClass = NannonState
@@ -62,8 +63,8 @@ class DomainProxy(object):
 #    AgentClass = NannonAgent
 #    AgentRandomClass = NannonAgentRandom
 #    AgentNeuralClass = NannonAgentNeural
-#    
-#class DomainMidGammon(object):
+#
+# class DomainMidGammon(object):
 #    name = 'midgammon'
 #    DieClass = MidGammonDie
 #    StateClass = MidGammonState
@@ -72,7 +73,7 @@ class DomainProxy(object):
 #    AgentRandomClass = MidGammonAgentRandom
 #    AgentNeuralClass = MidGammonAgentNeural
 #
-#class DomainNohitGammon(object):
+# class DomainNohitGammon(object):
 #    name = 'nohitgammon'
 #    DieClass = NohitGammonDie
 #    StateClass = NohitGammonState
@@ -80,4 +81,3 @@ class DomainProxy(object):
 #    AgentClass = NohitGammonAgent
 #    AgentRandomClass = NohitGammonAgentRandom
 #    AgentNeuralClass = NohitGammonAgentNeural
-
