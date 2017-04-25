@@ -5,11 +5,12 @@ Created on Sep 17, 2012
 '''
 
 from common import (FOLDER_DOMAINSTATS, PLAYER_BLACK, PLAYER_WHITE, Experiment,
-                    ExpParams)
+                    ExpParams, make_data_folders)
 from domain import AgentRandom, GameSet
 from params import COLLECT_STATS, NUM_STATS_GAMES, SAVE_STATS
 
 if __name__ == '__main__':
+    make_data_folders()
     exp_params = ExpParams.get_exp_params_from_command_line_args()
 
     num_games = NUM_STATS_GAMES

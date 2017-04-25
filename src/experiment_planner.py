@@ -4,7 +4,7 @@ Created on Sep 21, 2012
 @author: reza
 '''
 import domain_proxy
-from common import FILE_CONDOR_PLAN, FILE_PLOT_PLAN
+from common import FILE_CONDOR_PLAN, FILE_PLOT_PLAN, FOLDER_PLOTS
 from params import EXP_CHOOSEROLL_RANGE, NUM_TRIALS
 
 
@@ -13,8 +13,8 @@ def queue_job(f, args, domain_full):
                 replace('domain', '').replace(' ', '-').\
                 replace('--', '-').replace('--', '-').replace('--', '-')
     f.write('arguments = %s\n' % args)
-    f.write('output = ../log/%s.txt\n' % (domain_full + '-' + args_no_space))
-    f.write('error = ../log/%s.txt\n' % (domain_full + '-' + args_no_space))
+    f.write('output = ../data/condorlog/%s.txt\n' % (domain_full + '-' + args_no_space))
+    f.write('error = ../data/condorlog/%s.txt\n' % (domain_full + '-' + args_no_space))
     f.write('queue\n')
 
 
@@ -23,7 +23,7 @@ def plot_results(f, plot_items):
     if plot_name.rfind('-') >= 0:
         plot_name = plot_name[:plot_name.rfind('-')]  # remove last token
 
-    f.write('set output "./plots/%s.eps"\n' % plot_name)
+    f.write('set output "%s/%s.eps"\n' % (FOLDER_PLOTS, plot_name))
     for i in range(len(plot_items)):  # pylint: disable=consider-using-enumerate
         segments = plot_items[i].split('-')
         item_title = segments[len(segments) - 2] + ' ' + segments[len(segments) - 1]
@@ -40,7 +40,6 @@ def plot_results(f, plot_items):
 
 
 if __name__ == '__main__':
-
     # pylint: disable=line-too-long
     f = open(FILE_CONDOR_PLAN, 'w')
     f.write('+Group = "GRAD"\n')

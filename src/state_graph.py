@@ -11,7 +11,7 @@ import random
 from Queue import Queue
 
 from common import (BFS_COLOR_ATTR, DIST_ATTR, PLAYER_BLACK, PLAYER_WHITE,
-                    REWARD_LOSE, REWARD_WIN, SUFFIX_GRAPH_OK, VAL_ATTR,
+                    REWARD_LOSE, REWARD_WIN, SUFFIX_GRAPH_LOCK, VAL_ATTR,
                     ExpParams)
 from params import VALUE_ITER_MIN_RESIDUAL
 
@@ -42,8 +42,8 @@ class StateGraph(object):
         print 'Loading graph for signature: %s...' % exp_params.signature
         g = None
         graph_filename = exp_params.get_graph_filename()
-        graph_ok_filename = graph_filename + SUFFIX_GRAPH_OK
-        if os.path.isfile(graph_ok_filename):
+        graph_lock_filename = graph_filename + SUFFIX_GRAPH_LOCK
+        if os.path.isfile(graph_lock_filename):
             print 'Graph file exists.'
             g = cls.__load_from_file(graph_filename)
         else:
@@ -54,7 +54,7 @@ class StateGraph(object):
             #     g.save(exp_params)
             # else:
             #     print 'Waiting for graph file to appear...'
-            #     while not os.path.isfile(graph_ok_filename):
+            #     while not os.path.isfile(graph_lock_filename):
             #         time.sleep(5)
             #     g = cls.__load_from_file(graph_filename)
             g = exp_params.state_class.generate_graph(exp_params)
@@ -76,11 +76,11 @@ class StateGraph(object):
             graph_filename = exp_params.get_graph_filename()
             if filename_suffix is not None:
                 graph_filename += filename_suffix
-            graph_ok_filename = graph_filename + SUFFIX_GRAPH_OK
-            if os.path.isfile(graph_ok_filename):
-                os.remove(graph_ok_filename)
+            graph_lock_filename = graph_filename + SUFFIX_GRAPH_LOCK
+            if os.path.isfile(graph_lock_filename):
+                os.remove(graph_lock_filename)
             self.__save_to_file(graph_filename)
-            f = open(graph_ok_filename, 'w')
+            f = open(graph_lock_filename, 'w')
             f.close()
 
     @classmethod

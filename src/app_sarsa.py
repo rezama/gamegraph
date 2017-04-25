@@ -8,7 +8,8 @@ import pickle
 import random
 
 from common import (FILE_PREFIX_SARSA, FOLDER_QTABLE_VS_RANDOM,
-                    FOLDER_QTABLE_VS_SELF, Experiment, ExpParams)
+                    FOLDER_QTABLE_VS_SELF, Experiment, ExpParams,
+                    make_data_folders)
 from domain import Agent, AgentRandom, Game, GameSet
 from params import (SARSA_ALPHA, SARSA_EPSILON, SARSA_GAMMA, SARSA_LAMBDA,
                     SARSA_MIN_ALPHA, SARSA_NUM_EPISODES_PER_ITERATION,
@@ -310,6 +311,7 @@ class SarsaLambdaAlg(object):
 
 
 if __name__ == '__main__':
+    make_data_folders()
     exp_params = ExpParams.get_exp_params_from_command_line_args()
 
     filename = exp_params.get_trial_filename(FILE_PREFIX_SARSA)

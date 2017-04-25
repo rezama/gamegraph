@@ -3,4 +3,4 @@
 
 # Except these files:
 !.gitignore
-
+cleanup_data.sh

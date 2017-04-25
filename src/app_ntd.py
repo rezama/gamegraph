@@ -9,7 +9,7 @@ from pybrain.datasets.supervised import SupervisedDataSet  # pylint: disable=imp
 from pybrain.supervised.trainers.backprop import BackpropTrainer  # pylint: disable=import-error
 
 from common import (FILE_PREFIX_NTD, PLAYER_WHITE, REWARD_LOSE, REWARD_WIN,
-                    Experiment, ExpParams, other_player)
+                    Experiment, ExpParams, make_data_folders, other_player)
 from domain import AgentNeural, GameSet
 from params import (ALTERNATE_SEATS, NTD_ALPHA, NTD_EPSILON, NTD_GAMMA,
                     NTD_LAMBDA, NTD_LEARNING_RATE, NTD_NETWORK_INIT_WEIGHTS,
@@ -314,6 +314,7 @@ class AgentNTD(AgentNeural):
 
 
 if __name__ == '__main__':
+    make_data_folders()
     exp_params = ExpParams.get_exp_params_from_command_line_args()
 
     filename = exp_params.get_trial_filename(FILE_PREFIX_NTD)

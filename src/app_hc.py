@@ -7,7 +7,7 @@ Created on Dec 9, 2011
 import random
 
 from common import (FILE_PREFIX_HC, FILE_PREFIX_HC_CHALLENGE, PLAYER_BLACK,
-                    PLAYER_WHITE, Experiment, ExpParams)
+                    PLAYER_WHITE, Experiment, ExpParams, make_data_folders)
 from domain import AgentNeural, GameSet
 from params import (HC_CHALLENGER_NEEDS_TO_WIN,
                     HC_EVALUATE_EVERY_N_GENERATIONS, HC_MUTATE_WEIGHT_SIGMA,
@@ -50,6 +50,7 @@ class AgentHC(AgentNeural):
 
 
 if __name__ == '__main__':
+    make_data_folders()
     exp_params = ExpParams.get_exp_params_from_command_line_args()
 
     eval_filename = exp_params.get_trial_filename(FILE_PREFIX_HC)
