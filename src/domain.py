@@ -10,8 +10,8 @@ from Queue import Queue
 from pybrain.structure.modules.sigmoidlayer import SigmoidLayer  # pylint: disable=import-error
 from pybrain.tools.shortcuts import buildNetwork  # pylint: disable=import-error
 
-from common import (PLAYER_BLACK, PLAYER_NAME, PLAYER_WHITE, POS_ATTR,
-                    REWARD_LOSE, REWARD_WIN, other_player)
+from common import (PLAYER_BLACK, PLAYER_NAME, PLAYER_NAME_SHORT, PLAYER_WHITE,
+                    POS_ATTR, REWARD_LOSE, REWARD_WIN, other_player)
 from params import (ALTERNATE_SEATS, COLLECT_STATS,
                     GAMESET_PROGRESS_REPORT_EVERY_N_GAMES,
                     GAMESET_PROGRESS_REPORT_USE_GZIP,
@@ -110,8 +110,6 @@ class AgentNeural(Agent):
 
     def __init__(self, state_class, outputdim, init_weights=None):
         super(AgentNeural, self).__init__(state_class)
-        # self.inputdim = (MiniGammonState.BOARD_SIZE + 2) * 4   + 2
-        # #              10 points: |1w |2w |1b |2b             |white's turn |black's turn
         self.inputdim = self.state_class.get_network_inputdim()
         self.hiddendim = self.state_class.get_network_hiddendim()
         self.outputdim = outputdim
@@ -246,7 +244,7 @@ class State(object):
     def copy_pos(self, target_pos, source_pos):
         raise NotImplementedError
 
-    def encode(self):
+    def board_config(self):
         raise NotImplementedError
 
     def board_config_and_roll(self):
@@ -266,6 +264,8 @@ class State(object):
         #     self.shadow = self.__class__(self.exp_params, self.player_to_move)
         # else:
         #     self.shadow.player_to_move = self.player_to_move
+
+        # Reuse existing shadow for better performance.
         if self.shadow is None:
             # Even though this class's constructor takes many more parameters,
             # the constructors of all state subclasses need only a player color.
@@ -389,8 +389,7 @@ class State(object):
 
     def compute_per_ply_stats(self, current_ply_number):
         if COLLECT_STATS:
-            state = self.encode()
-            # FIXME: change this to self.board_config()
+            state = self.board_config()
             if state in self.states_visit_count:
                 self.states_visit_count[state] += 1
             else:
@@ -440,8 +439,49 @@ class State(object):
                 cls.states_sorted_by_ply_visit_count_over_avg_num_plies.append(
                     state_visit_count_over_avg_num_plies)
 
+    def print_state(self):
+        # print '#   0      1   2   3   4   5   6   7   8      9  '
+        # print '# +---+  +---+---+---+---+---+---+---+---+  +---+'
+        # print '# %s' % self.human_readable_board_config()
+        # print '# +---+  +---+---+---+---+---+---+---+---+  +---+'
+        # print '#                                                '
+
+        line1_middle = ' '.join([str(i).center(3) for i in range(1, self.board_off)])
+        line1 = '#   0     ' + line1_middle + '    ' + str(self.board_off).center(3) + ' '
+        line2 = '# +---+  +' + '---+' * self.board_size + '  +---+'
+
+        print line1
+        print line2
+        print '# %s  (%s)' % (self.human_readable_board_config(), self.board_config())
+        print line2
+        print '# '
+
+    def human_readable_board_config(self):
+        if self.is_graph_based:
+            return self.GAME_GRAPH.get_node_name(self.current_g_id)[2:]
+        cell_content = [''] * (self.board_off + 1)
+        for player in [PLAYER_WHITE, PLAYER_BLACK]:
+            for checker in self.action_object.get_all_checkers():
+                pos = self.pos[player][checker]
+                if player == PLAYER_BLACK:
+                    pos = self.flip_pos(pos)
+                letter = PLAYER_NAME[player].lower()[0]
+                cell_content[pos] += letter
+
+        for pos in range(self.board_off + 1):
+            if cell_content[pos] == 'ww':
+                cell_content[pos] = cell_content[pos].ljust(3)
+            elif cell_content[pos] == 'bb':
+                cell_content[pos] = cell_content[pos].rjust(3)
+            else:
+                cell_content[pos] = cell_content[pos].center(3)
+
+        middle = '|'.join([cell_content[i] for i in range(1, self.board_off)])
+        encoding = '|%s|  |%s|  |%s|' % (cell_content[0], middle, cell_content[self.board_off])
+        return encoding
+
     def __repr__(self):
-        return self.encode()
+        return self.human_readable_board_config()
 
     def __str__(self):
         return self.board_config_and_roll()
@@ -569,6 +609,7 @@ class MiniGammonState(State):
         return cls.NUM_HIDDEN_UNITS
 
     def encode_network_input(self):
+        # import pdb; pdb.set_trace()
         inputdim = self.get_network_inputdim()
         network_in = [0] * inputdim
         for player in [PLAYER_WHITE, PLAYER_BLACK]:
@@ -585,58 +626,16 @@ class MiniGammonState(State):
         network_in[turn_offset + self.player_to_move] = 1
         return network_in
 
-    def print_state(self):
-        encoding = self.encode()
-        print '#   0      1   2   3   4   5   6   7   8      9  '
-        print '# +---+  +---+---+---+---+---+---+---+---+  +---+'
-        print '# %s' % encoding
-        print '# +---+  +---+---+---+---+---+---+---+---+  +---+'
-        print '#                                                '
-
-    def encode(self):
-        if self.is_graph_based:
-            return self.GAME_GRAPH.get_node_name(self.current_g_id)[2:]
-        cell_content = [''] * (self.board_off + 1)
-        for player in [PLAYER_WHITE, PLAYER_BLACK]:
-            for checker in self.action_object.get_all_checkers():
-                pos = self.pos[player][checker]
-                if player == PLAYER_BLACK:
-                    pos = self.flip_pos(pos)
-                letter = PLAYER_NAME[player].lower()[0]
-                cell_content[pos] += letter
-
-        for pos in range(self.board_off + 1):
-            if cell_content[pos] == 'ww':
-                cell_content[pos] = cell_content[pos].ljust(3)
-            elif cell_content[pos] == 'bb':
-                cell_content[pos] = cell_content[pos].rjust(3)
-            else:
-                cell_content[pos] = cell_content[pos].center(3)
-
-        # TODO: Make this work independently of board size.
-        encoding = '|%s|  |%s|%s|%s|%s|%s|%s|%s|%s|  |%s|' % (
-            cell_content[0], cell_content[1], cell_content[2], cell_content[3],
-            cell_content[4], cell_content[5], cell_content[6], cell_content[7],
-            cell_content[8], cell_content[9])
-        return encoding
-
     def board_config(self):
         if self.is_graph_based:
             return self.GAME_GRAPH.get_node_name(self.current_g_id)
         else:
-            return '%d-%d%d%d%d' % (self.player_to_move,
+            return '%s-%d%d%d%d' % (PLAYER_NAME_SHORT[self.player_to_move],
                                     self.pos[0][0], self.pos[0][1],
                                     self.pos[1][0], self.pos[1][1])
 
     def board_config_and_roll(self):
-        if self.is_graph_based:
-            return '%s-%d' % (self.GAME_GRAPH.get_node_name(self.current_g_id),
-                              self.roll)
-        else:
-            return '%d-%d%d%d%d-%d' % (self.player_to_move,
-                                       self.pos[0][0], self.pos[0][1],
-                                       self.pos[1][0], self.pos[1][1],
-                                       self.roll)
+        return '%s-%d' % (self.board_config(), self.roll)
 
 
 class NannonState(State):
@@ -793,61 +792,17 @@ class NannonState(State):
         network_in[turn_offset + self.player_to_move] = 1
         return network_in
 
-    def print_state(self):
-        encoding = self.encode()
-        print '#   0      1   2   3   4   5   6      7  '
-        print '# +---+  +---+---+---+---+---+---+  +---+'
-        print '# %s' % encoding
-        print '# +---+  +---+---+---+---+---+---+  +---+'
-        print '#                                        '
-
-    def encode(self):
-        if self.is_graph_based:
-            return self.GAME_GRAPH.get_node_name(self.current_g_id)[2:]
-        else:
-            cell_content = [''] * (self.board_off + 1)
-            for player in [PLAYER_WHITE, PLAYER_BLACK]:
-                for checker in self.action_object.get_all_checkers():
-                    pos = self.pos[player][checker]
-                    if player == PLAYER_BLACK:
-                        pos = self.flip_pos(pos)
-                    letter = PLAYER_NAME[player].lower()[0]
-                    cell_content[pos] += letter
-
-            for pos in range(self.board_off + 1):
-                if cell_content[pos] == 'ww':
-                    cell_content[pos] = cell_content[pos].ljust(3)
-                elif cell_content[pos] == 'bb':
-                    cell_content[pos] = cell_content[pos].rjust(3)
-                else:
-                    cell_content[pos] = cell_content[pos].center(3)
-
-            # TODO: Make this work independently of board size.
-            encoding = '|%s|  |%s|%s|%s|%s|%s|%s|  |%s|' % (
-                cell_content[0], cell_content[1], cell_content[2],
-                cell_content[3], cell_content[4], cell_content[5],
-                cell_content[6], cell_content[7])
-            return encoding
-
     def board_config(self):
         if self.is_graph_based:
             return self.GAME_GRAPH.get_node_name(self.current_g_id)
         else:
-            return '%d-%d%d%d-%d%d%d' % (
-                self.player_to_move,
+            return '%s-%d%d%d-%d%d%d' % (
+                PLAYER_NAME_SHORT[self.player_to_move],
                 self.pos[0][0], self.pos[0][1], self.pos[0][2],
                 self.pos[1][0], self.pos[1][1], self.pos[1][2])
 
     def board_config_and_roll(self):
-        if self.is_graph_based:
-            return '%s-%d' % (self.GAME_GRAPH.get_node_name(self.current_g_id),
-                              self.roll)
-        else:
-            return '%d-%d%d%d-%d%d%d-%d' % (
-                self.player_to_move,
-                self.pos[0][0], self.pos[0][1], self.pos[0][2],
-                self.pos[1][0], self.pos[1][1], self.pos[1][2],
-                self.roll)
+        return '%s-%d' % (self.board_config(), self.roll)
 
 
 class MidGammonState(State):
@@ -995,61 +950,17 @@ class MidGammonState(State):
         network_in[turn_offset + self.player_to_move] = 1
         return network_in
 
-    def print_state(self):
-        encoding = self.encode()
-        print '#   0       1    2    3    4    5    6    7    8    9    10   11   12      13  '
-        print '# +----+  +----+----+----+----+----+----+----+----+----+----+----+----+  +----+'
-        print '# %s' % encoding
-        print '# +----+  +----+----+----+----+----+----+----+----+----+----+----+----+  +----+'
-        print '#                                                                              '
-
-    def encode(self):
-        if self.is_graph_based:
-            return self.GAME_GRAPH.get_node_name(self.current_g_id)[2:]
-        cell_content = [''] * (self.board_off + 1)
-        for player in [PLAYER_WHITE, PLAYER_BLACK]:
-            for checker in self.action_object.get_all_checkers():
-                pos = self.pos[player][checker]
-                if player == PLAYER_BLACK:
-                    pos = self.flip_pos(pos)
-                letter = PLAYER_NAME[player].lower()[0]
-                cell_content[pos] += letter
-
-        for pos in range(self.board_off + 1):
-            cell_content[pos] = cell_content[pos].center(4)
-
-        # encoding = '|%s|  |%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|  |%s|' % (
-        #         cell_content[0], cell_content[1], cell_content[2],
-        #         cell_content[3], cell_content[4], cell_content[5],
-        #         cell_content[6], cell_content[7], cell_content[8],
-        #         cell_content[9], cell_content[10], cell_content[11],
-        #         cell_content[12], cell_content[13])
-        # TODO: Make this work independently of board size.
-        encoding = '|%s|  |%s|%s|%s|%s|%s|%s|%s|%s|  |%s|' % (
-            cell_content[0], cell_content[1], cell_content[2], cell_content[3],
-            cell_content[4], cell_content[5], cell_content[6], cell_content[7],
-            cell_content[8], cell_content[9])
-        return encoding
-
     def board_config(self):
         if self.is_graph_based:
             return self.GAME_GRAPH.get_node_name(self.current_g_id)
         else:
-            return '%d-%d%d%d%d%d%d%d%d' % (
-                self.player_to_move,
+            return '%s-%d%d%d%d%d%d%d%d' % (
+                PLAYER_NAME_SHORT[self.player_to_move],
                 self.pos[0][0], self.pos[0][1], self.pos[0][2], self.pos[0][3],
                 self.pos[1][0], self.pos[1][1], self.pos[1][2], self.pos[1][3])
 
     def board_config_and_roll(self):
-        if self.is_graph_based:
-            return '%s-%d' % (self.GAME_GRAPH.get_node_name(self.current_g_id),
-                              self.roll)
-        else:
-            return '%d-%d%d%d%d%d%d%d%d-%d' % (
-                self.player_to_move,
-                self.pos[0][0], self.pos[0][1], self.pos[0][2], self.pos[0][3],
-                self.pos[1][0], self.pos[1][1], self.pos[1][2], self.pos[1][3],
-                self.roll)
+        return '%s-%d' % (self.board_config(), self.roll)
 
 
 class NohitGammonState(State):
@@ -1184,62 +1095,17 @@ class NohitGammonState(State):
         network_in[turn_offset + self.player_to_move] = 1
         return network_in
 
-    def print_state(self):
-        encoding = self.encode()
-        print '#   0       1    2    3    4    5    6    7    8    9    10   11   12      13  '
-        print '# +----+  +----+----+----+----+----+----+----+----+----+----+----+----+  +----+'
-        print '# %s' % encoding
-        print '# +----+  +----+----+----+----+----+----+----+----+----+----+----+----+  +----+'
-        print '#                                                                              '
-
-    def encode(self):
-        if self.is_graph_based:
-            return self.GAME_GRAPH.get_node_name(self.current_g_id)[2:]
-        cell_content = [''] * (self.board_off + 1)
-        for player in [PLAYER_WHITE, PLAYER_BLACK]:
-            for checker in self.action_object.get_all_checkers():
-                pos = self.pos[player][checker]
-                if player == PLAYER_BLACK:
-                    pos = self.flip_pos(pos)
-                letter = PLAYER_NAME[player].lower()[0]
-                cell_content[pos] += letter
-
-        for pos in range(self.board_off + 1):
-            cell_content[pos] = cell_content[pos].center(4)
-
-        # encoding = '|%s|  |%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|  |%s|' % (
-        #         cell_content[0], cell_content[1], cell_content[2],
-        #         cell_content[3], cell_content[4], cell_content[5],
-        #         cell_content[6], cell_content[7], cell_content[8],
-        #         cell_content[9], cell_content[10], cell_content[11],
-        #         cell_content[12], cell_content[13])
-        # TODO: Make this work independently of board size.
-        encoding = '|%s|  |%s|%s|%s|%s|%s|%s|%s|%s|  |%s|' % (
-            cell_content[0], cell_content[1], cell_content[2],
-            cell_content[3], cell_content[4], cell_content[5],
-            cell_content[6], cell_content[7], cell_content[8],
-            cell_content[9])
-        return encoding
-
     def board_config(self):
         if self.is_graph_based:
             return self.GAME_GRAPH.get_node_name(self.current_g_id)
         else:
-            return '%d-%d%d%d%d%d%d%d%d' % (
-                self.player_to_move,
+            return '%s-%d%d%d%d%d%d%d%d' % (
+                PLAYER_NAME_SHORT[self.player_to_move],
                 self.pos[0][0], self.pos[0][1], self.pos[0][2], self.pos[0][3],
                 self.pos[1][0], self.pos[1][1], self.pos[1][2], self.pos[1][3])
 
     def board_config_and_roll(self):
-        if self.is_graph_based:
-            return '%s-%d' % (self.GAME_GRAPH.get_node_name(self.current_g_id),
-                              self.roll)
-        else:
-            return '%d-%d%d%d%d%d%d%d%d-%d' % (
-                self.player_to_move,
-                self.pos[0][0], self.pos[0][1], self.pos[0][2], self.pos[0][3],
-                self.pos[1][0], self.pos[1][1], self.pos[1][2], self.pos[1][3],
-                self.roll)
+        return '%s-%d' % (self.board_config(), self.roll)
 
 
 class TwoDiceMiniState(State):
@@ -1451,60 +1317,17 @@ class TwoDiceMiniState(State):
         network_in[turn_offset + self.player_to_move] = 1
         return network_in
 
-    def print_state(self):
-        encoding = self.encode()
-        print '#   0       1    2    3    4    5    6       7   '
-        print '# +----+  +----+----+----+----+----+----+  +----+'
-        print '# %s' % encoding
-        print '# +----+  +----+----+----+----+----+----+  +----+'
-        print '#                                                '
-
-    def encode(self):
-        if self.is_graph_based:
-            return self.GAME_GRAPH.get_node_name(self.current_g_id)[2:]
-        cell_content = [''] * (self.board_off + 1)
-        for player in [PLAYER_WHITE, PLAYER_BLACK]:
-            for checker in range(self.TRUE_NUM_CHECKERS):
-                pos = self.pos[player][checker]
-                if player == PLAYER_BLACK:
-                    pos = self.flip_pos(pos)
-                letter = PLAYER_NAME[player].lower()[0]
-                cell_content[pos] += letter
-
-        for pos in range(self.board_off + 1):
-            cell_content[pos] = cell_content[pos].center(4)
-
-        # encoding = '|%s|  |%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|  |%s|' % (
-        #         cell_content[0], cell_content[1], cell_content[2],
-        #         cell_content[3], cell_content[4], cell_content[5],
-        #         cell_content[6], cell_content[7], cell_content[8],
-        #         cell_content[9], cell_content[10], cell_content[11],
-        #         cell_content[12], cell_content[13])
-        # TODO: Make this work independently of board size.
-        encoding = '|%s|  |%s|%s|%s|%s|%s|%s|  |%s|' % (
-            cell_content[0], cell_content[1], cell_content[2], cell_content[3],
-            cell_content[4], cell_content[5], cell_content[6], cell_content[7])
-        return encoding
-
     def board_config(self):
         if self.is_graph_based:
             return self.GAME_GRAPH.get_node_name(self.current_g_id)
         else:
-            return '%d-%d%d%d%d%d%d%d%d' % (
-                self.player_to_move,
+            return '%s-%d%d%d%d%d%d%d%d' % (
+                PLAYER_NAME_SHORT[self.player_to_move],
                 self.pos[0][0], self.pos[0][1], self.pos[0][2], self.pos[0][3],
                 self.pos[1][0], self.pos[1][1], self.pos[1][2], self.pos[1][3])
 
     def board_config_and_roll(self):
-        if self.is_graph_based:
-            return '%s-%d' % (self.GAME_GRAPH.get_node_name(self.current_g_id),
-                              self.roll)
-        else:
-            return '%d-%d%d%d%d%d%d%d%d-%d' % (
-                self.player_to_move,
-                self.pos[0][0], self.pos[0][1], self.pos[0][2], self.pos[0][3],
-                self.pos[1][0], self.pos[1][1], self.pos[1][2], self.pos[1][3],
-                self.roll)
+        return '%s-%d' % (self.board_config(), self.roll)
 
 
 class NimState(State):
@@ -1626,11 +1449,10 @@ class NimState(State):
         return network_in
 
     def print_state(self):
-        encoding = self.encode()
-        print '# %s' % encoding
-        print '#                                                '
+        print '# %s  (%s)' % (self.human_readable_board_config(), self.board_config())
+        print '# '
 
-    def encode(self):
+    def human_readable_board_config(self):
         if self.is_graph_based:
             return self.GAME_GRAPH.get_node_name(self.current_g_id)[2:]
         return str(self.pos)
@@ -1639,19 +1461,11 @@ class NimState(State):
         if self.is_graph_based:
             return self.GAME_GRAPH.get_node_name(self.current_g_id)
         else:
-            # return '%d-%d%d%d%d' % (self.player_to_move,
-            #                         self.pos[0], self.pos[1],
-            #                         self.pos[2], self.pos[3])
-            return ('%d-' % self.player_to_move) + ''.join([str(x) for x in self.pos])
+            return '%s-%s' % (PLAYER_NAME_SHORT[self.player_to_move],
+                              ''.join([str(x) for x in self.pos]))
 
     def board_config_and_roll(self):
-        if self.is_graph_based:
-            return '%s-%d' % (self.GAME_GRAPH.get_node_name(self.current_g_id),
-                              self.roll)
-        else:
-            return '%d-%s-%d' % (self.player_to_move,
-                                 ''.join([str(x) for x in self.pos]),
-                                 self.roll)
+        return '%s-%d' % (self.board_config(), self.roll)
 
 
 class Game(object):
