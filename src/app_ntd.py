@@ -9,13 +9,14 @@ from pybrain.datasets.supervised import SupervisedDataSet  # pylint: disable=imp
 from pybrain.supervised.trainers.backprop import BackpropTrainer  # pylint: disable=import-error
 
 from common import (FILE_PREFIX_NTD, PLAYER_WHITE, REWARD_LOSE, REWARD_WIN,
-                    Experiment, ExpParams, make_data_folders, other_player)
-from domain import AgentNeural, GameSet
+                    AgentNeural, Experiment, ExpParams, GameSet,
+                    make_data_folders, other_player)
 from params import (ALTERNATE_SEATS, NTD_ALPHA, NTD_EPSILON, NTD_GAMMA,
                     NTD_LAMBDA, NTD_LEARNING_RATE, NTD_NETWORK_INIT_WEIGHTS,
                     NTD_NUM_EVAL_GAMES, NTD_NUM_ITERATIONS,
                     NTD_NUM_TRAINING_GAMES, NTD_TRAIN_EPOCHS,
-                    NTD_USE_ALPHA_ANNEALING)
+                    NTD_USE_ALPHA_ANNEALING, PRINT_GAME_DETAIL)
+from state_graph import VAL_ATTR
 
 
 class AgentNTD(AgentNeural):
@@ -51,7 +52,9 @@ class AgentNTD(AgentNeural):
         self.network_inputs = {}
         self.network_outputs = {}
 
+        # TODO: Merge this functionality with COLLECT_STATS logic.
         self.traj_count = {}
+        self.state_visit_count = {}
 
         if load_knowledge:
             raise ValueError('AgentNTD does not support load_knowledge.')
@@ -103,8 +106,9 @@ class AgentNTD(AgentNeural):
             current_value = self.get_network_value(si)
             new_value = [a + b for a, b in zip(current_value, self.updates[si])]
             dataset.addSample(network_in, new_value)
-            # print 'updating %s from [%.2f, %.2f] to [%.2f, %.2f]' % (si,
-            #     current_value[0], current_value[1], new_value[0], new_value[1])
+            if PRINT_GAME_DETAIL:
+                print 'updating %s from [%.2f, %.2f] to [%.2f, %.2f]' % (
+                    si, current_value[0], current_value[1], new_value[0], new_value[1])
         if dataset:  # len(dataset) > 0:
             self.trainer.setData(dataset)
             self.trainer.trainEpochs(NTD_TRAIN_EPOCHS)
@@ -182,6 +186,8 @@ class AgentNTD(AgentNeural):
         # ap = action
 
         self.episode_traj += ' -> ' + state_str
+        self.state_visit_count[state_str] = (
+            self.state_visit_count.get(state_str, 0) + 1)
 
         if s is not None:
             # update e
@@ -288,12 +294,34 @@ class AgentNTD(AgentNeural):
             print "%s: %s" % (key, value)
 
     def probe_network(self):
+        exp_params = ExpParams.get_exp_params_from_command_line_args()
+        graph = exp_params.state_class.GAME_GRAPH
+
         print "Network predictions:"
+        state_values = {} # Network predictions.
+        true_values = {} # True values obtained from the graph using value iteration.
         for state_str in sorted(self.network_inputs.iterkeys()):
             # state_value = self.network_outputs[state_str]
             state_value = self.network.activate(self.network_inputs[state_str])
-            abs_value = state_value[0] - state_value[1]
-            print "%s -> %s (%.2f)" % (state_str, state_value, abs_value)
+            state_values[state_str] = state_value
+            node_id = graph.get_node_id(state_str)
+            true_value = graph.get_attr(node_id, VAL_ATTR)
+            true_values[state_str] = true_value
+            # print "%s -> %s (%.2f)" % (state_str, state_value, abs_value)
+        for state_str, true_value in sorted(true_values.iteritems(),
+                                            key=lambda (k, v): (v, k),
+                                            reverse=True):
+            state_value = state_values[state_str]
+            # Reward for white win is [1, 0],
+            # Reward for black win is [0, 1],
+            # state_value[0] - state_value[1] ranges from -1 to +1, although
+            # it can exceed those bounds when the network outputs are
+            # outside the range [0, 1].
+            # The following formula is meant to scale the difference to range [0, 1].
+            abs_value = (state_value[0] - state_value[1]) / 2.0 + 0.5
+            print "%s: true: %+.2f prediction: %+.2f (%+.2f, %+.2f) visited: %d" % (
+                state_str, true_value, abs_value, state_values[state_str][0],
+                state_values[state_str][1], self.state_visit_count.get(state_str, 0))
 
     def print_traj_counts(self):
         print "Trajectories in training:"
@@ -306,7 +334,7 @@ class AgentNTD(AgentNeural):
         # Reset after each query.
         self.traj_count = {}
 
-    def print_values(self):
+    def print_learner_state(self):
         self.print_visit_count()
         self.print_e()
         self.probe_network()
@@ -341,7 +369,7 @@ if __name__ == '__main__':
             count_wins = game_set.run()
             win_rate = float(count_wins[0]) / NTD_NUM_EVAL_GAMES
             # Report some useful information about the state of the learner.
-            agent_ntd1.print_values()
+            agent_ntd1.print_learner_state()
             print 'Win rate against evaluation opponent: %.2f' % win_rate
             f.write('%d %f\n' % (i, win_rate))
         agent_ntd1.resume_learning()

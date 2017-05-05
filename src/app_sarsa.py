@@ -7,10 +7,10 @@ Created on Dec 10, 2011
 import pickle
 import random
 
+from app_random_games import AgentRandom
 from common import (FILE_PREFIX_SARSA, FOLDER_QTABLE_VS_RANDOM,
-                    FOLDER_QTABLE_VS_SELF, Experiment, ExpParams,
-                    make_data_folders)
-from domain import Agent, AgentRandom, Game, GameSet
+                    FOLDER_QTABLE_VS_SELF, Agent, Experiment, ExpParams, Game,
+                    GameSet, make_data_folders)
 from params import (SARSA_ALPHA, SARSA_EPSILON, SARSA_GAMMA, SARSA_LAMBDA,
                     SARSA_MIN_ALPHA, SARSA_NUM_EPISODES_PER_ITERATION,
                     SARSA_NUM_EVAL_EPISODES, SARSA_NUM_TRAINING_ITERATIONS,
@@ -304,7 +304,7 @@ class SarsaLambdaAlg(object):
         for key, value in sorted(self.visit_count.iteritems(), key=lambda (k, v): (v, k)):
             print "%s: %s" % (key, value)
 
-    def print_values(self):
+    def print_learner_state(self):
         self.print_visit_count()
         self.print_e()
         self.print_Q()
@@ -350,14 +350,14 @@ if __name__ == '__main__':
         game_set = GameSet(exp_params, SARSA_NUM_EPISODES_PER_ITERATION,
                            agent_sarsa, agent_opponent)
         count_wins = game_set.run()
-        # agent_sarsa.algorithm.print_values()
+        # agent_sarsa.algorithm.print_learner_state()
         print 'Win rate in training: %.2f' % (float(count_wins[0]) /
                                               SARSA_NUM_EPISODES_PER_ITERATION)
 
     if SARSA_SAVE_TABLES and exp_params.is_first_trial():
         print 'Saving RL table...'
         agent_sarsa.algorithm.save_knowledge()
-        agent_sarsa.algorithm.print_values()
+        agent_sarsa.algorithm.print_learner_state()
 
     # if SARSA_SAVE_STATE_VALUES_IN_GRAPH and exp_params.is_graph_based() and \
     #         exp_params.is_first_trial():

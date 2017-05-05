@@ -7,8 +7,8 @@ Created on Dec 9, 2011
 import random
 
 from common import (FILE_PREFIX_HC, FILE_PREFIX_HC_CHALLENGE, PLAYER_BLACK,
-                    PLAYER_WHITE, Experiment, ExpParams, make_data_folders)
-from domain import AgentNeural, GameSet
+                    PLAYER_WHITE, AgentNeural, Experiment, ExpParams, GameSet,
+                    make_data_folders)
 from params import (HC_CHALLENGER_NEEDS_TO_WIN,
                     HC_EVALUATE_EVERY_N_GENERATIONS, HC_MUTATE_WEIGHT_SIGMA,
                     HC_NUM_CHALLENGE_GAMES, HC_NUM_EVAL_GAMES,

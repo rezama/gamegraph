@@ -4,10 +4,16 @@ Created on Sep 17, 2012
 @author: reza
 '''
 
-from common import (FOLDER_DOMAINSTATS, PLAYER_BLACK, PLAYER_WHITE, Experiment,
-                    ExpParams, make_data_folders)
-from domain import AgentRandom, GameSet
+from common import (FOLDER_DOMAINSTATS, PLAYER_BLACK, PLAYER_WHITE, Agent,
+                    Experiment, ExpParams, GameSet, make_data_folders)
 from params import COLLECT_STATS, NUM_STATS_GAMES, SAVE_STATS
+
+
+class AgentRandom(Agent):
+
+    def select_action(self):
+        return self.state.action_object.random_action(self.state)
+
 
 if __name__ == '__main__':
     make_data_folders()

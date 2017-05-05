@@ -5,9 +5,9 @@ Created on Sep 20, 2012
 '''
 import random
 
+from app_random_games import AgentRandom
 from common import (FOLDER_DOMAINSTATS, PLAYER_BLACK, PLAYER_WHITE, VAL_ATTR,
-                    Experiment, ExpParams, make_data_folders)
-from domain import Agent, AgentRandom, GameSet
+                    Agent, Experiment, ExpParams, GameSet, make_data_folders)
 from params import COLLECT_STATS, NUM_STATS_GAMES, SAVE_STATS
 
 
