@@ -342,7 +342,7 @@ class StateGraph(object):
                     if residual > max_residual:
                         max_residual = residual
                     self.node_attrs[node_id][VAL_ATTR] = new_state_value
-            print 'maximum residual: %.4f' % max_residual
+            print 'maximum residual: %.5f' % max_residual
             if max_residual < VALUE_ITER_MIN_RESIDUAL:
                 cont = False
         print 'Done.'

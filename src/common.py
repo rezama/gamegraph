@@ -18,7 +18,7 @@ from params import (ALTERNATE_SEATS, EVAL_OPPONENT, EVAL_OPPONENT_OPTIMAL,
                     GAMESET_PROGRESS_REPORT_USE_GZIP,
                     GAMESET_RECENT_WINNERS_LIST_SIZE, MAX_MOVES_PER_GAME,
                     PRINT_GAME_DETAIL, PRINT_GAME_RESULTS, SAVE_STATS,
-                    USE_SEEDS)
+                    TRAIN_BUDDY, TRAIN_BUDDY_SELF, USE_SEEDS)
 
 PLAYER_WHITE = 0
 PLAYER_BLACK = 1
@@ -27,6 +27,8 @@ PLAYER_NAME = {}
 PLAYER_NAME[PLAYER_WHITE] = 'White'
 PLAYER_NAME[PLAYER_BLACK] = 'Black'
 
+# Note: These literals are used in application logic, using expressions like:
+# if state_str.startswith(PLAYER_NAME_SHORT[PLAYER_WHITE])...
 PLAYER_NAME_SHORT = {}
 PLAYER_NAME_SHORT[PLAYER_WHITE] = 'w'
 PLAYER_NAME_SHORT[PLAYER_BLACK] = 'b'
@@ -64,8 +66,7 @@ FOLDER_AVG = '../data/avg'
 FOLDER_DOMAINSTATS = '../data/domainstats'
 FOLDER_GRAPH = '../data/graph'
 SUFFIX_GRAPH_LOCK = '-lock'
-FOLDER_QTABLE_VS_SELF = '../data/q-table/vsself'
-FOLDER_QTABLE_VS_RANDOM = '../data/q-table/vsrandom'
+FOLDER_QTABLE = '../data/q-table'
 FOLDER_PLOTS = '../data/plots'
 
 # Folders containing scripts.
@@ -82,8 +83,7 @@ FILE_PREFIX_HC_CHALLENGE = 'hc-challenge'
 
 def make_data_folders():
     for path in [FOLDER_TRIALS, FOLDER_AVG, FOLDER_DOMAINSTATS, FOLDER_GRAPH,
-                 FOLDER_QTABLE_VS_SELF, FOLDER_QTABLE_VS_RANDOM,
-                 FOLDER_PLOTS]:
+                 FOLDER_QTABLE, FOLDER_PLOTS]:
         try:
             os.makedirs(path)
         except OSError:  # Already exists.
@@ -178,10 +178,10 @@ class AgentNeural(Agent):
         if init_weights is not None:
             self.network.params[:] = [init_weights] * len(self.network.params)
 
-    def get_state_value(self, state):
+    def get_scalar_Q_value(self, state, action):
         raise NotImplementedError
 
-    def select_action(self):
+    def select_action_with_epsilon(self, epsilon):
         do_choose_roll = False
         # if self.state.exp_params.choose_roll > 0.0:
         #     r = random.random()
@@ -190,28 +190,45 @@ class AgentNeural(Agent):
         if self.state.stochastic_p < self.state.exp_params.choose_roll:
             do_choose_roll = True
 
+        do_random_action = False
+        if random.random() < epsilon:
+            do_random_action = True
+
         roll_range = [self.state.roll]
         if do_choose_roll:
             roll_range = self.state.die_object.get_all_sides()
 
         action_values = []
-
         for replace_roll in roll_range:
             self.state.roll = replace_roll
             for action in self.state.action_object.get_all_checkers():
                 move_outcome = self.state.get_move_outcome(action)
                 if move_outcome is not None:
-                    move_value = self.get_state_value(move_outcome)
+                    move_value = self.get_scalar_Q_value(self.state, action)
                     # insert a random number to break the ties
                     action_values.append(((move_value, random.random()),
                                           (replace_roll, action)))
 
         if action_values:  # len(action_values) > 0:
-            action_values_sorted = sorted(action_values, reverse=True)
-            best_roll = action_values_sorted[0][1][0]
+            if TRAIN_BUDDY == TRAIN_BUDDY_SELF:
+                # If playing for white, pick the action with highest reward for white.
+                # If playing for black, pick the action with lowest reward for white.
+                reverse = self.state.player_to_move == PLAYER_WHITE
+            else:
+                # When TRAIN_BUDDY != TRAIN_BUDDY_SELF, the agent maintains
+                # state values for white and black players from their own
+                # perspectives.  So, regardless of player's color, we need
+                # to pick actions leading to states with higher values.
+                reverse = True
+            action_values_sorted = sorted(action_values, reverse=reverse)
+            if do_random_action:
+                index = random.randint(0, len(action_values) - 1)
+            else:
+                index = 0
+            best_roll = action_values_sorted[index][1][0]
             # set the best roll there
             self.state.roll = best_roll
-            action = action_values_sorted[0][1][1]
+            action = action_values_sorted[index][1][1]
         else:
             action = self.state.action_object.action_forfeit_move
             # if (action != self.state.action_object.action_forfeit_move or
@@ -340,6 +357,7 @@ class GameSet(object):
         players = [self.agent1, self.agent2]
         seats_reversed = False
         count_wins = [0, 0]
+        wins_by_color = [0, 0]
         recent_winners = []  # 0 for agent1, 1 for agent2
 
         player_to_start_game = PLAYER_WHITE
@@ -361,6 +379,7 @@ class GameSet(object):
             game = Game(self.exp_params, game_number,
                         players[0], players[1], player_to_start_game)
             winner = game.play()  # 0 for white, 1 for black.
+            wins_by_color[winner] += 1
             if seats_reversed:
                 winner_agent = other_player(winner)
             else:
@@ -387,7 +406,7 @@ class GameSet(object):
         if self.progress_filename is not None:
             f.close()
 
-        return count_wins
+        return count_wins + wins_by_color
 
     def get_sum_count_plies(self):
         return self.sum_count_plies
@@ -615,3 +634,8 @@ class Experiment(object):
                 state_class.states_sorted_by_ply_visit_count_over_avg_num_plies[i])
             f.write('%d: %f\n' % (i, state_sorted_by_ply_visit_count_over_avg_num_plies))
         f.close()
+
+
+class PrettyFloat(float):
+    def __repr__(self):
+        return "%+0.2f" % self

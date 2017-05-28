@@ -8,14 +8,14 @@ import pickle
 import random
 
 from app_random_games import AgentRandom
-from common import (FILE_PREFIX_SARSA, FOLDER_QTABLE_VS_RANDOM,
-                    FOLDER_QTABLE_VS_SELF, Agent, Experiment, ExpParams, Game,
-                    GameSet, make_data_folders)
+from common import (FILE_PREFIX_SARSA, FOLDER_QTABLE, PLAYER_NAME_SHORT,
+                    PLAYER_WHITE, REWARD_LOSE, REWARD_WIN, Agent, Experiment,
+                    ExpParams, Game, GameSet, make_data_folders, other_player)
 from params import (SARSA_ALPHA, SARSA_EPSILON, SARSA_GAMMA, SARSA_LAMBDA,
-                    SARSA_MIN_ALPHA, SARSA_NUM_EPISODES_PER_ITERATION,
-                    SARSA_NUM_EVAL_EPISODES, SARSA_NUM_TRAINING_ITERATIONS,
-                    SARSA_OPTIMISTIC_INIT, SARSA_SAVE_TABLES,
-                    SARSA_TRAIN_AGAINST_SELF, SARSA_USE_ALPHA_ANNEALING)
+                    SARSA_NUM_EPISODES_PER_ITERATION, SARSA_NUM_EVAL_EPISODES,
+                    SARSA_NUM_TRAINING_ITERATIONS, SARSA_OPTIMISTIC_INIT,
+                    SARSA_SAVE_TABLES, SARSA_USE_ALPHA_ANNEALING, TRAIN_BUDDY,
+                    TRAIN_BUDDY_COPY, TRAIN_BUDDY_RANDOM, TRAIN_BUDDY_SELF)
 
 
 class AgentSarsa(Agent):
@@ -79,25 +79,51 @@ class SarsaLambdaAlg(object):
         self.Q_save = {}
         self.e = {}
         self.visit_count = {}
+        self.processed_final_reward = False  # Useful with TRAIN_BUDDY_SELF.
 
         if SARSA_OPTIMISTIC_INIT:
             self.default_q = Game.get_max_episode_reward()  # * 1.1
         else:
             self.default_q = Game.get_min_episode_reward()
 
-    def begin_episode(self, state):  #pylint: disable=unused-argument
+    def get_default_q(self, state_str):
+        # If not training against self, initialize all state values similarly.
+        if TRAIN_BUDDY != TRAIN_BUDDY_SELF:
+            # Winning player will receive a 1.0 be it white or black.
+            return self.default_q
+
+        # If training against self, initialize white states to 1.0 and black
+        # states to 0.0.  This amounts to an optimistic initialization for both
+        # players.
+        if state_str.startswith(PLAYER_NAME_SHORT[PLAYER_WHITE]):
+            # If it's white's turn to move, optimistically assume the highest reward.
+            return self.default_q
+        else:
+            # If it's black's turn to move, optimistically assume the lowest reward for white.
+            return Game.get_min_episode_reward()
+
+    def begin_episode(self, state):  # pylint: disable=unused-argument
         self.e = {}
         self.state_str = None
         self.last_state_str = None
         self.last_action = None
+        self.processed_final_reward = False
 
     def end_episode(self, state, reward):
-        if self.is_learning:
-            # assert state.is_final()
-            # Bad assertion: State should be final, unless when the game is
-            # ended because of too many moves.
+        if self.is_learning and not self.processed_final_reward:
+            if TRAIN_BUDDY == TRAIN_BUDDY_SELF:
+                # Ignore the reward parameter and construct own reward signal
+                # corresponding to the probability of white winning.
+                winner = other_player(state.player_to_move)
+                if winner == PLAYER_WHITE:
+                    reward_for_white = REWARD_WIN
+                else:
+                    reward_for_white = REWARD_LOSE
+                # Overwriting reward.
+                reward = reward_for_white
 
             self.sarsa_step(state, action=None, reward=reward)
+            self.processed_final_reward = True
 
     def sarsa_step(self, state, action, reward=0):
         """Updates the underlying model after every transition.
@@ -136,11 +162,11 @@ class SarsaLambdaAlg(object):
 
             # See: https://en.wikipedia.org/wiki/State-Action-Reward-State-Action
             if state.is_final():
-                delta = reward - self.Q.get((s, a), self.default_q)
+                delta = reward - self.Q.get((s, a), self.get_default_q(s))
             else:
                 delta = (reward +
-                         self.gamma * self.Q.get((sp, ap), self.default_q) -
-                         self.Q.get((s, a), self.default_q))
+                         self.gamma * self.Q.get((sp, ap), self.get_default_q(sp)) -
+                         self.Q.get((s, a), self.get_default_q(s)))
 
             self.update_values(delta)
 
@@ -154,54 +180,68 @@ class SarsaLambdaAlg(object):
     def select_action(self, state):
         self.state_str = str(state)
 
-        if self.is_learning and (random.random() < self.epsilon):
-            action = state.action_object.random_action(state)
+        do_choose_roll = False
+        # if state.exp_params.choose_roll > 0.0:
+        #     r = random.random()
+        #     if r < state.exp_params.choose_roll:
+        #         do_choose_roll = True
+        if state.stochastic_p < state.exp_params.choose_roll:
+            do_choose_roll = True
+
+        if self.is_learning:
+            epsilon = self.epsilon
         else:
-            do_choose_roll = False
-            # if state.exp_params.choose_roll > 0.0:
-            #     r = random.random()
-            #     if r < state.exp_params.choose_roll:
-            #         do_choose_roll = True
-            if state.stochastic_p < state.exp_params.choose_roll:
-                do_choose_roll = True
+            epsilon = 0
 
-            roll_range = [state.roll]
-            if do_choose_roll:
-                roll_range = state.die_object.get_all_sides()
+        do_random_action = False
+        if random.random() < epsilon:
+            do_random_action = True
 
-            action_values = []
+        roll_range = [state.roll]
+        if do_choose_roll:
+            roll_range = state.die_object.get_all_sides()
 
-            for replace_roll in roll_range:
-                state.roll = replace_roll
-                self.state_str = str(state)
-                for checker in state.action_object.get_all_checkers():
-                    move_outcome = state.get_move_outcome(checker)
-                    if move_outcome is not None:
-                        move_value = self.Q.get((self.state_str, checker), self.default_q)
-                        # insert a random number to break the ties
-                        action_values.append(((move_value, random.random()),
-                                              (replace_roll, checker)))
+        action_values = []
 
-            if action_values:  # len(action_values) > 0:
-                # reverse = state.player_to_move == PLAYER_WHITE
-                # The Sarsa agent maintains (in Q table) state values for white
-                # and black players from their own perspectives.  So, regardless
-                # of player's color, we need to pick actions leading to states
-                # with higher values.
-                action_values_sorted = sorted(action_values, reverse=True)
-                best_roll = action_values_sorted[0][1][0]
-                # set the best roll there
-                state.roll = best_roll
-                self.state_str = str(state)
-                action = action_values_sorted[0][1][1]
+        for replace_roll in roll_range:
+            state.roll = replace_roll
+            self.state_str = str(state)
+            for checker in state.action_object.get_all_checkers():
+                move_outcome = state.get_move_outcome(checker)
+                if move_outcome is not None:
+                    move_value = self.Q.get((self.state_str, checker),
+                                            self.get_default_q(self.state_str))
+                    # insert a random number to break the ties
+                    action_values.append(((move_value, random.random()),
+                                          (replace_roll, checker)))
+
+        if action_values:  # len(action_values) > 0:
+            if TRAIN_BUDDY == TRAIN_BUDDY_SELF:
+                reverse = state.player_to_move == PLAYER_WHITE
             else:
-                action = state.action_object.action_forfeit_move
+                # When TRAIN_BUDDY != TRAIN_BUDDY_SELF, the agent maintains (in
+                # Q table) state values for white and black players from their
+                # own perspectives.  So, regardless of player's color, we need
+                # to pick actions leading to states with higher values.
+                reverse = True
+            action_values_sorted = sorted(action_values, reverse=reverse)
+            if do_random_action:
+                index = random.randint(0, len(action_values) - 1)
+            else:
+                index = 0
+            best_roll = action_values_sorted[index][1][0]
+            # set the best roll there
+            state.roll = best_roll
+            self.state_str = str(state)
+            action = action_values_sorted[index][1][1]
+        else:
+            action = state.action_object.action_forfeit_move
 
-                # if (action != state.action_object.action_forfeit_move or
-                #         state.can_forfeit_move()):
-                #     done = True
-                # else:
-                #     state.reroll_dice()
+            # if (action != state.action_object.action_forfeit_move or
+            #         state.can_forfeit_move()):
+            #     done = True
+            # else:
+            #     state.reroll_dice()
 
         # Update values.
         if self.is_learning:
@@ -221,7 +261,7 @@ class SarsaLambdaAlg(object):
                 action_value = self.Q.get((state_str, action), INVALID_ACTION_VALUE)
                 # insert a random number to break the ties
                 action_values.append(((action_value, random.random()), action))
-
+            # TODO: Always sorting with reverse=True is wrong.
             action_values_sorted = sorted(action_values, reverse=True)
             best_action_value = action_values_sorted[0][0][0]
 
@@ -239,19 +279,15 @@ class SarsaLambdaAlg(object):
         for (si, ai) in self.e.iterkeys():
             if SARSA_USE_ALPHA_ANNEALING:
                 alpha = 1.0 / self.visit_count.get((si, ai), 1)
-                alpha = max(alpha, SARSA_MIN_ALPHA)
+                alpha = max(alpha, SARSA_ALPHA)
             if self.e[(si, ai)] != 0.0:
                 change = alpha * delta * self.e[(si, ai)]
-                self.Q[(si, ai)] = self.Q.get((si, ai), self.default_q) + change
+                self.Q[(si, ai)] = self.Q.get((si, ai), self.get_default_q(si)) + change
 
     @classmethod
     def get_knowledge_filename(cls):
         exp_params = ExpParams.get_exp_params_from_command_line_args()
-        if SARSA_TRAIN_AGAINST_SELF:
-            table_folder = FOLDER_QTABLE_VS_SELF
-        else:
-            table_folder = FOLDER_QTABLE_VS_RANDOM
-        filename = exp_params.get_custom_filename_no_trial(table_folder,
+        filename = exp_params.get_custom_filename_no_trial(FOLDER_QTABLE,
                                                            FILE_PREFIX_SARSA)
         return filename
 
@@ -280,13 +316,17 @@ class SarsaLambdaAlg(object):
     #     self.Q = copy.deepcopy(self.Q_save)
 
     def print_Q(self):
-        Q_keys = self.Q.keys()
-        Q_keys.sort()
         print "Q:"
+        # Q_keys = self.Q.keys()
+        # Q_keys.sort()
         # for key in Q_keys:
         #     print "Q%s -> %.2f" % (key, self.Q[key])
-        for key, value in sorted(self.Q.iteritems(), key=lambda (k, v): (v, k)):
-            print "%s: %s" % (key, value)
+        # for key, value in sorted(self.Q.iteritems(), key=lambda (k, v): (v, k)):
+        #     print "%s: %s" % (key, value)
+        for (si, ai), visit_count in sorted(self.visit_count.iteritems(),
+                                            key=lambda (k, v): (v, k)):
+            value = self.Q.get((si, ai), self.get_default_q(str(si)))
+            print "%s: %+.2f, visited: %d" % ((si, ai), value, visit_count)
 
     def print_e(self):
         e_keys = self.e.keys()
@@ -318,14 +358,17 @@ if __name__ == '__main__':
     f = open(filename, 'w')
 
     agent_sarsa = AgentSarsa(exp_params.state_class)
-    if SARSA_TRAIN_AGAINST_SELF:
-        agent_opponent = AgentSarsa(exp_params.state_class)
-        # # use this for evaluating against pre-trained version of self:
-        # agent_opponent = AgentSarsa(exp_params.state_class, load_knowledge=True)
-    else:
-        agent_opponent = AgentRandom(exp_params.state_class)
+    if TRAIN_BUDDY == TRAIN_BUDDY_SELF:
+        agent_train_buddy = agent_sarsa
+    elif TRAIN_BUDDY == TRAIN_BUDDY_COPY:
+        # agent_train_buddy = AgentSarsa(exp_params.state_class)
+        agent_train_buddy = AgentSarsa(exp_params.state_class)
+        # # Use this for evaluating against pre-trained version of self:
+        # agent_train_buddy = AgentSarsa(exp_params.state_class, load_knowledge=True)
+    elif TRAIN_BUDDY == TRAIN_BUDDY_RANDOM:
+        agent_train_buddy = AgentRandom(exp_params.state_class)
     agent_eval = Experiment.create_eval_opponent_agent(exp_params)
-    print 'Training opponent is: %s' % agent_opponent
+    print 'Training buddy is: %s' % agent_train_buddy
     print 'Evaluation opponent is: %s' % agent_eval
 
     for i in range(SARSA_NUM_TRAINING_ITERATIONS):
@@ -333,8 +376,8 @@ if __name__ == '__main__':
         print 'Evaluating (%d games)...' % SARSA_NUM_EVAL_EPISODES
 
         agent_sarsa.pause_learning()
-        game_set = GameSet(exp_params, SARSA_NUM_EVAL_EPISODES,
-                           agent_sarsa, agent_eval)
+        game_set = GameSet(exp_params, SARSA_NUM_EVAL_EPISODES, agent_sarsa,
+                           agent_eval)
         count_wins = game_set.run()
         agent_sarsa.resume_learning()
         win_rate = float(count_wins[0]) / SARSA_NUM_EVAL_EPISODES
@@ -348,9 +391,9 @@ if __name__ == '__main__':
         #                                p, reentry_offset,
         #                                print_learning_progress = True)
         game_set = GameSet(exp_params, SARSA_NUM_EPISODES_PER_ITERATION,
-                           agent_sarsa, agent_opponent)
+                           agent_sarsa, agent_train_buddy)
         count_wins = game_set.run()
-        # agent_sarsa.algorithm.print_learner_state()
+        agent_sarsa.algorithm.print_learner_state()
         print 'Win rate in training: %.2f' % (float(count_wins[0]) /
                                               SARSA_NUM_EPISODES_PER_ITERATION)
 

@@ -348,7 +348,7 @@ class MiniGammonState(State):
     BOARD_SIZE = 8
     NUM_CHECKERS = 2
     NUM_DIE_SIDES = 2
-    NUM_HIDDEN_UNITS = 10
+    NUM_HIDDEN_UNITS = 20
 
     def __init__(self, exp_params, player_to_move):
         super(MiniGammonState, self).__init__(exp_params, self.BOARD_SIZE,
@@ -446,14 +446,17 @@ class MiniGammonState(State):
 
     @classmethod
     def get_network_inputdim(cls):
-        return (cls.BOARD_SIZE + 2) * 4   + 2
-        # 10 points: |1w |2w |1b |2b      |white's turn |black's turn
+        # pylint: disable=line-too-long
+        return (cls.BOARD_SIZE + 2) * (cls.NUM_CHECKERS * 2) + cls.NUM_DIE_SIDES + cls.NUM_CHECKERS + 1 + 2
+        # pylint: disable=line-too-long
+        #     |bar| |.|...|.| |off| x |1w|2w|1b|2b|            roll                actions (+forfeit)     whose turn
+        # pylint: enable=line-too-long
 
     @classmethod
     def get_network_hiddendim(cls):
         return cls.NUM_HIDDEN_UNITS
 
-    def encode_network_input(self):
+    def encode_network_input(self, action):
         # import pdb; pdb.set_trace()
         inputdim = self.get_network_inputdim()
         network_in = [0] * inputdim
@@ -467,7 +470,12 @@ class MiniGammonState(State):
                     network_in[offset + 1] = 1
                 else:
                     network_in[offset] = 1
-        turn_offset = inputdim - 2
+        roll_offset = (self.BOARD_SIZE + 2) * (self.NUM_CHECKERS * 2)
+        network_in[roll_offset + self.roll - 1] = 1  # roll starts at 1
+        action_offset = roll_offset + self.NUM_DIE_SIDES
+        network_in[action_offset + action] = 1
+        turn_offset = action_offset + self.NUM_CHECKERS + 1
+        assert turn_offset == inputdim - 2
         network_in[turn_offset + self.player_to_move] = 1
         return network_in
 
@@ -606,14 +614,17 @@ class NannonState(State):
 
     @classmethod
     def get_network_inputdim(cls):
-        return (cls.BOARD_SIZE) * 2 + (6 * 2)               + 2
-        # 6 points: |1w |1b / 0-3 checkers on bar and off / |white's turn |black's turn
+        # pylint: disable=line-too-long
+        return cls.BOARD_SIZE * 2 + 2 * 6                   + cls.NUM_DIE_SIDES + cls.NUM_CHECKERS + 1 + 2
+        # pylint: disable=line-too-long
+        # |.|.|.|.|.|.| x |1w|1b|  |bar|,|off|:0-3 checkers   roll                actions (+forfeit)     whose turn
+        # pylint: enable=line-too-long
 
     @classmethod
     def get_network_hiddendim(cls):
         return cls.NUM_HIDDEN_UNITS
 
-    def encode_network_input(self):
+    def encode_network_input(self, action):
         inputdim = self.get_network_inputdim()
         network_in = [0] * inputdim
         for player in [PLAYER_WHITE, PLAYER_BLACK]:
@@ -632,8 +643,12 @@ class NannonState(State):
                 while network_in[offset] == 1:
                     offset += 1
                 network_in[offset] = 1
-
-        turn_offset = inputdim - 2
+        roll_offset = self.BOARD_SIZE * 2 + 2 * 6
+        network_in[roll_offset + self.roll - 1] = 1  # roll starts at 1
+        action_offset = roll_offset + self.NUM_DIE_SIDES
+        network_in[action_offset + action] = 1
+        turn_offset = action_offset + self.NUM_CHECKERS + 1
+        assert turn_offset == inputdim - 2
         network_in[turn_offset + self.player_to_move] = 1
         return network_in
 
@@ -773,14 +788,17 @@ class MidGammonState(State):
 
     @classmethod
     def get_network_inputdim(cls):
-        return (cls.BOARD_SIZE + 2) * 8 + 2
-        # 10 points: |1w |2w |1b |2b |white's turn |black's turn
+        # pylint: disable=line-too-long
+        return (cls.BOARD_SIZE + 2) * (cls.NUM_CHECKERS * 2) + cls.NUM_DIE_SIDES + cls.NUM_CHECKERS + 1 + 2
+        # pylint: disable=line-too-long
+        #     |bar| |.|...|.| |off| x |1w|2w|1b|2b|            roll                actions (+forfeit)     whose turn
+        # pylint: enable=line-too-long
 
     @classmethod
     def get_network_hiddendim(cls):
         return cls.NUM_HIDDEN_UNITS
 
-    def encode_network_input(self):
+    def encode_network_input(self, action):
         inputdim = self.get_network_inputdim()
         network_in = [0] * inputdim
         for player in [PLAYER_WHITE, PLAYER_BLACK]:
@@ -791,7 +809,12 @@ class MidGammonState(State):
                 while network_in[offset] == 1:
                     offset += 1
                 network_in[offset] = 1
-        turn_offset = inputdim - 2
+        roll_offset = (self.BOARD_SIZE + 2) * (self.NUM_CHECKERS * 2)
+        network_in[roll_offset + self.roll - 1] = 1  # roll starts at 1
+        action_offset = roll_offset + self.NUM_DIE_SIDES
+        network_in[action_offset + action] = 1
+        turn_offset = action_offset + self.NUM_CHECKERS + 1
+        assert turn_offset == inputdim - 2
         network_in[turn_offset + self.player_to_move] = 1
         return network_in
 
@@ -918,14 +941,17 @@ class NohitGammonState(State):
 
     @classmethod
     def get_network_inputdim(cls):
-        return (cls.BOARD_SIZE + 2) * 8 + 2
-        # 10 points: |1w |2w |1b |2b    |white's turn |black's turn
+        # pylint: disable=line-too-long
+        return (cls.BOARD_SIZE + 2) * (cls.NUM_CHECKERS * 2) + cls.NUM_DIE_SIDES + cls.NUM_CHECKERS + 1 + 2
+        # pylint: disable=line-too-long
+        #     |bar| |.|...|.| |off| x |1w|2w|1b|2b|            roll                actions (+forfeit)     whose turn
+        # pylint: enable=line-too-long
 
     @classmethod
     def get_network_hiddendim(cls):
         return cls.NUM_HIDDEN_UNITS
 
-    def encode_network_input(self):
+    def encode_network_input(self, action):
         inputdim = self.get_network_inputdim()
         network_in = [0] * inputdim
         for player in [PLAYER_WHITE, PLAYER_BLACK]:
@@ -936,7 +962,12 @@ class NohitGammonState(State):
                 while network_in[offset] == 1:
                     offset += 1
                 network_in[offset] = 1
-        turn_offset = inputdim - 2
+        roll_offset = (self.BOARD_SIZE + 2) * (self.NUM_CHECKERS * 2)
+        network_in[roll_offset + self.roll - 1] = 1  # roll starts at 1
+        action_offset = roll_offset + self.NUM_DIE_SIDES
+        network_in[action_offset + action] = 1
+        turn_offset = action_offset + self.NUM_CHECKERS + 1
+        assert turn_offset == inputdim - 2
         network_in[turn_offset + self.player_to_move] = 1
         return network_in
 
@@ -965,12 +996,14 @@ class TwoDiceMiniState(State):
 
     DOMAIN_NAME = 'twodicemini'
 
-    TRUE_NUM_CHECKERS = 4
-    TRUE_NUM_DICE_SIDES = 2
+    REAL_NUM_CHECKERS = 4
+    REAL_NUM_DICE_SIDES = 2
 
     BOARD_SIZE = 7
-    NUM_CHECKERS = TRUE_NUM_CHECKERS * TRUE_NUM_CHECKERS
-    NUM_DIE_SIDES = TRUE_NUM_DICE_SIDES * TRUE_NUM_DICE_SIDES
+    # Picking 2 of the n checkers to move is simulated by picking 1 of n^2 virtual checkers.
+    NUM_CHECKERS = REAL_NUM_CHECKERS * REAL_NUM_CHECKERS
+    # Rolling 2 dice each with s sides is simulated by a virtual die with s^2 sides.
+    NUM_DIE_SIDES = REAL_NUM_DICE_SIDES * REAL_NUM_DICE_SIDES
     NUM_HIDDEN_UNITS = 10
 
     def __init__(self, exp_params, player_to_move):
@@ -1000,7 +1033,7 @@ class TwoDiceMiniState(State):
         else:
             sum_checker_pos = sum(self.pos[player])
             return (sum_checker_pos == self.action_object.get_num_checkers() /
-                    self.TRUE_NUM_CHECKERS * self.board_off)
+                    self.REAL_NUM_CHECKERS * self.board_off)
 
     def move(self, checker):
         success = False
@@ -1027,10 +1060,10 @@ class TwoDiceMiniState(State):
                 opponent_actual_checker_pos = [self.board_off - x
                                                for x in self.pos[opponent]]
 
-                roll1 = int((self.roll - 1) / self.TRUE_NUM_DICE_SIDES) + 1
-                roll2 = ((self.roll - 1) % self.TRUE_NUM_DICE_SIDES) + 1
-                checker1 = int(checker / self.TRUE_NUM_CHECKERS)
-                checker2 = checker % self.TRUE_NUM_CHECKERS
+                roll1 = int((self.roll - 1) / self.REAL_NUM_DICE_SIDES) + 1
+                roll2 = ((self.roll - 1) % self.REAL_NUM_DICE_SIDES) + 1
+                checker1 = int(checker / self.REAL_NUM_CHECKERS)
+                checker2 = checker % self.REAL_NUM_CHECKERS
 
                 checker1_pos = self.pos[player][checker1]
                 checker1_target = checker1_pos + roll1
@@ -1140,25 +1173,33 @@ class TwoDiceMiniState(State):
 
     @classmethod
     def get_network_inputdim(cls):
-        return (cls.BOARD_SIZE + 2) * 8 + 2
-        # 10 points: |1w |2w |1b |2b    |white's turn |black's turn
+        # pylint: disable=line-too-long
+        return (cls.BOARD_SIZE + 2) * (cls.REAL_NUM_CHECKERS * 2) + cls.NUM_DIE_SIDES + cls.NUM_CHECKERS + 1 + 2
+        # pylint: disable=line-too-long
+        #     |bar| |.|...|.| |off| x |1-4w|1-4b|                   roll                actions (+forfeit)     whose turn
+        # pylint: enable=line-too-long
 
     @classmethod
     def get_network_hiddendim(cls):
         return cls.NUM_HIDDEN_UNITS
 
-    def encode_network_input(self):
+    def encode_network_input(self, action):
         inputdim = self.get_network_inputdim()
         network_in = [0] * inputdim
         for player in [PLAYER_WHITE, PLAYER_BLACK]:
-            for checker in range(self.TRUE_NUM_CHECKERS):
+            for checker in range(self.REAL_NUM_CHECKERS):
                 pos = self.pos[player][checker]
                 offset = pos * 8 + player * 4
                 # Seeing a second checker on the same point?
                 while network_in[offset] == 1:
                     offset += 1
                 network_in[offset] = 1
-        turn_offset = inputdim - 2
+        roll_offset = (self.BOARD_SIZE + 2) * (self.REAL_NUM_CHECKERS * 2)
+        network_in[roll_offset + self.roll - 1] = 1  # roll starts at 1
+        action_offset = roll_offset + self.NUM_DIE_SIDES
+        network_in[action_offset + action] = 1
+        turn_offset = action_offset + self.NUM_CHECKERS + 1
+        assert turn_offset == inputdim - 2
         network_in[turn_offset + self.player_to_move] = 1
         return network_in
 
@@ -1273,14 +1314,15 @@ class NimState(State):
 
     @classmethod
     def get_network_inputdim(cls):
-        return (cls.TOTAL_TOKENS) + cls.NUM_HEAPS + 2
-        #                         | white's turn |black's turn
+        return cls.TOTAL_TOKENS + cls.NUM_DIE_SIDES + cls.NUM_CHECKERS + 1 + 2
+        #      how many left      roll                actions (+forfeit)     whose turn
 
     @classmethod
     def get_network_hiddendim(cls):
         return cls.NUM_HIDDEN_UNITS
 
-    def encode_network_input(self):
+    def encode_network_input(self, action):
+        # import pdb; pdb.set_trace()
         inputdim = self.get_network_inputdim()
         network_in = [0] * inputdim
         offset = 0
@@ -1289,7 +1331,12 @@ class NimState(State):
 #            if tokens_in_heap > 0:
             network_in[offset + tokens_in_heap] = 1
             offset += self.SIZE_HEAPS[heap] + 1
-        turn_offset = inputdim - 2
+        roll_offset = self.TOTAL_TOKENS
+        network_in[roll_offset + self.roll - 1] = 1  # roll starts at 1
+        action_offset = roll_offset + self.NUM_DIE_SIDES
+        network_in[action_offset + action] = 1
+        turn_offset = action_offset + self.NUM_CHECKERS + 1
+        assert turn_offset == inputdim - 2
         network_in[turn_offset + self.player_to_move] = 1
         return network_in
 
