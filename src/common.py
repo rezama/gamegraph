@@ -9,6 +9,7 @@ import os
 import random
 import sys
 
+import numpy as np
 from pybrain.structure.modules.sigmoidlayer import SigmoidLayer  # pylint: disable=import-error
 from pybrain.tools.shortcuts import buildNetwork  # pylint: disable=import-error
 
@@ -177,51 +178,82 @@ class AgentNeural(Agent):
                                     bias=True)
         if init_weights is not None:
             self.network.params[:] = [init_weights] * len(self.network.params)
+        self.astar_value = {}
+
+    def get_Q_value(self, state, action):
+        raise NotImplementedError
 
     def get_scalar_Q_value(self, state, action):
         raise NotImplementedError
 
-    def select_action_with_epsilon(self, epsilon):
-        do_choose_roll = False
-        # if self.state.exp_params.choose_roll > 0.0:
-        #     r = random.random()
-        #     if r < self.state.exp_params.choose_roll:
-        #         do_choose_roll = True
-        if self.state.stochastic_p < self.state.exp_params.choose_roll:
-            do_choose_roll = True
+    def select_action_super(self, choose_random_action):
+        can_choose_roll = (True if self.state.stochastic_p < self.state.exp_params.choose_roll
+                           else False)
 
-        do_random_action = False
-        if random.random() < epsilon:
-            do_random_action = True
+        if TRAIN_BUDDY == TRAIN_BUDDY_SELF:
+            # If playing for white, pick the action with highest reward for white.
+            # If playing for black, pick the action with lowest reward for white.
+            reverse = self.state.player_to_move == PLAYER_WHITE
+        else:
+            # When TRAIN_BUDDY != TRAIN_BUDDY_SELF, the agent maintains
+            # state values for white and black players from their own
+            # perspectives.  So, regardless of player's color, we need
+            # to pick actions leading to states with higher values.
+            reverse = True
 
-        roll_range = [self.state.roll]
-        if do_choose_roll:
-            roll_range = self.state.die_object.get_all_sides()
+        all_rolls = self.state.die_object.get_all_sides()
+        avail_rolls = all_rolls if can_choose_roll else [self.state.roll]
 
-        action_values = []
-        for replace_roll in roll_range:
+        action_values = []  # For all avail_rolls: (roll, action) -> value.
+        roll_values = [None] * len(all_rolls)  # For all rolls: roll -> value.
+        scalar_roll_values = [None] * len(all_rolls)
+        for replace_roll in all_rolls:
+            roll_index = replace_roll - 1
             self.state.roll = replace_roll
             for action in self.state.action_object.get_all_checkers():
                 move_outcome = self.state.get_move_outcome(action)
                 if move_outcome is not None:
-                    move_value = self.get_scalar_Q_value(self.state, action)
-                    # insert a random number to break the ties
-                    action_values.append(((move_value, random.random()),
-                                          (replace_roll, action)))
+                    move_value = self.get_Q_value(self.state, action)
+                    scalar_move_value = self.get_scalar_Q_value(self.state, action)
+                    if roll_values[roll_index] is None:
+                        roll_values[roll_index] = move_value
+                        scalar_roll_values[roll_index] = scalar_move_value
+                    else:
+                        if reverse:  # We want the action with highest value.
+                            if scalar_move_value > scalar_roll_values[roll_index]:
+                                scalar_roll_values[roll_index] = scalar_move_value
+                                roll_values[roll_index] = move_value
+                        else:
+                            if scalar_move_value < roll_values[roll_index]:
+                                scalar_roll_values[roll_index] = scalar_move_value
+                                roll_values[roll_index] = move_value
+                    # Consider this roll-action for choosing the best action
+                    # only if the associated roll is available to the agent.
+                    if replace_roll in avail_rolls:
+                        # insert a random number to break the ties
+                        action_values.append(((scalar_move_value, random.random()),
+                                              (replace_roll, action)))
 
+        # Compute max_b Q(s, b), for undetermined roll, under current
+        # choose_roll probability.
+        # First have to remove Nones for rolls that are not legal.
+        legal_roll_values = [v for v in roll_values if v is not None]
+        legal_scalar_roll_values = [v for v in scalar_roll_values if v is not None]
+        avg_roll_value = np.mean(np.array(legal_roll_values), axis=0)
+        preferred_roll_value = (max(legal_scalar_roll_values) if reverse
+                                else min(legal_scalar_roll_values))
+        preferred_roll_index = legal_scalar_roll_values.index(preferred_roll_value)
+        value_with_choose_roll = (self.state.exp_params.choose_roll *
+                                  legal_roll_values[preferred_roll_index])
+        value_with_random_roll = (1 - self.state.exp_params.choose_roll) * avg_roll_value
+        astar_value = value_with_random_roll + value_with_choose_roll
+        state_str_no_roll = str(self.state)[:-2]
+        self.astar_value[state_str_no_roll] = astar_value
+
+        # Select best action.
         if action_values:  # len(action_values) > 0:
-            if TRAIN_BUDDY == TRAIN_BUDDY_SELF:
-                # If playing for white, pick the action with highest reward for white.
-                # If playing for black, pick the action with lowest reward for white.
-                reverse = self.state.player_to_move == PLAYER_WHITE
-            else:
-                # When TRAIN_BUDDY != TRAIN_BUDDY_SELF, the agent maintains
-                # state values for white and black players from their own
-                # perspectives.  So, regardless of player's color, we need
-                # to pick actions leading to states with higher values.
-                reverse = True
             action_values_sorted = sorted(action_values, reverse=reverse)
-            if do_random_action:
+            if choose_random_action:
                 index = random.randint(0, len(action_values) - 1)
             else:
                 index = 0
@@ -231,11 +263,10 @@ class AgentNeural(Agent):
             action = action_values_sorted[index][1][1]
         else:
             action = self.state.action_object.action_forfeit_move
-            # if (action != self.state.action_object.action_forfeit_move or
-            #         self.state.can_forfeit_move()):
-            #     return action
-            # else:
-            #     self.state.reroll_dice()
+            # Cache network values for action_forfeit_move, since the
+            # calculations for astar_value[...] never fetch
+            # Q(s, action_forfeit_move).
+            self.get_Q_value(self.state, action)
 
         return action
 

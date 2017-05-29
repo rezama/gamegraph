@@ -3,6 +3,7 @@ Created on Dec 9, 2011
 
 @author: reza
 '''
+import random
 import numpy as np
 from pybrain.datasets.supervised import SupervisedDataSet  # pylint: disable=import-error
 from pybrain.supervised.trainers.backprop import BackpropTrainer  # pylint: disable=import-error
@@ -11,8 +12,9 @@ from app_random_games import AgentRandom
 from common import (FILE_PREFIX_NTD, PLAYER_WHITE, REWARD_LOSE, REWARD_WIN,
                     AgentNeural, Experiment, ExpParams, GameSet, PrettyFloat,
                     make_data_folders, other_player)
-from params import (NTD_ALPHA, NTD_EPSILON, NTD_EPSILON_ANNEAL_TIME,
-                    NTD_EPSILON_END, NTD_EPSILON_START, NTD_GAMMA, NTD_LAMBDA,
+from params import (ALGO, ALGO_Q_LEARNING, ALGO_SARSA, NTD_ALPHA, NTD_EPSILON,
+                    NTD_EPSILON_ANNEAL_TIME, NTD_EPSILON_END,
+                    NTD_EPSILON_START, NTD_GAMMA, NTD_LAMBDA,
                     NTD_LEARNING_RATE, NTD_NETWORK_INIT_WEIGHTS,
                     NTD_NUM_EVAL_GAMES, NTD_NUM_ITERATIONS, NTD_NUM_OUTPUTS,
                     NTD_NUM_TRAINING_GAMES, NTD_TRAIN_EPOCHS,
@@ -47,14 +49,18 @@ class AgentNTD(AgentNeural):
         self.last_state_str = None
         # self.last_state_in = None
         self.last_action = None
+        # Since we apply updates with one step delay, need to remember Whether
+        # the action in previous time step was exploratory.
+        self.was_last_action_random = False
+
         self.processed_final_reward = False
-        # self.last_played_as = None
         self.episode_traj = ''
 
         self.is_learning = True
-
         self.e = {}
         self.updates = {}
+        # astar_value[s'] = argmax_b Q(s', b) for undetermined roll.
+        self.astar_value = {}
         # Used for alpha annealing.  Note that the roll value that is recorded
         # reflects the roll chosen by the agent, not the original random roll.
         # So, including the roll makes sense for calculating the updates, which
@@ -77,6 +83,7 @@ class AgentNTD(AgentNeural):
 
     def begin_episode(self):
         self.e = {}
+        self.astar_value = {}
         self.updates = {}
         self.network_outputs = {}
         self.visited_in_episode = {}
@@ -104,7 +111,7 @@ class AgentNTD(AgentNeural):
             else:
                 rewards = np.array([reward])
 
-            self.ntd_step(action=None, rewards=rewards)
+            self.ntd_step(action=None, is_action_random=False, rewards=rewards)
 
             if PRINT_GAME_RESULTS:
                 print 'Episode traj: %s' % self.episode_traj
@@ -222,13 +229,14 @@ class AgentNTD(AgentNeural):
             self.network_outputs[state_action_str] = self.network.activate(network_in)
             return self.network_outputs[state_action_str]
 
-    def ntd_step(self, action, rewards=None):
+    def ntd_step(self, action, is_action_random, rewards=None):
         """Updates the underlying model after every transition.
 
         This method is called in self.select_action() and self.end_episode().
 
         Args:
             action: Action taken by the agent.
+            is_action_random: Whether action was an exploratory action.
             rewards: List of reward components received from the environment.
 
         Returns:
@@ -251,8 +259,12 @@ class AgentNTD(AgentNeural):
 
         if s is not None:
             # update e
-            for key in self.e.iterkeys():
-                self.e[key] *= (self.gamma * self.lamda)
+            if ALGO == ALGO_Q_LEARNING and self.was_last_action_random:
+                # Q(lambda): Set all traces to zero.
+                self.e = {}
+            else:
+                for key in self.e.iterkeys():
+                    self.e[key] *= (self.gamma * self.lamda)
 
             # replacing traces
             self.e[(s, a)] = 1.0
@@ -261,6 +273,7 @@ class AgentNTD(AgentNeural):
                 if other_action != a:
                     if (s, other_action) in self.e:
                         self.e[(s, other_action)] = 0
+
             s_a = '%s-%s' % (s, a)
             if self.state.is_final():
                 # delta = reward - self.Q.get((s, a), self.default_q)
@@ -276,7 +289,14 @@ class AgentNTD(AgentNeural):
                 # In our domains, only the very last state transition receives
                 # a reward.
                 assert all(v == 0 for v in rewards)
-                delta = (rewards + self.gamma * self.get_network_value(sp, ap) -
+                if ALGO == ALGO_SARSA:
+                    # Just consider the action we took in sp.
+                    next_state_v = self.get_network_value(sp, ap)
+                elif ALGO == ALGO_Q_LEARNING:
+                    # Consider the best we could do from sp.
+                    next_state_v = self.astar_value[str(sp)[:-2]]  # state_str_no_roll
+
+                delta = (rewards + self.gamma * next_state_v -
                          self.get_network_value(None, None, s_a))
 
             self.update_values(delta)
@@ -289,6 +309,7 @@ class AgentNTD(AgentNeural):
         self.last_state_str = str(self.state)
         # self.last_state_in = self.state_in
         self.last_action = action
+        self.was_last_action_random = is_action_random
         if action is not None:  # end_episode calls this with action=None.
             key = (self.last_state_str, self.last_action)
             if key not in self.visited_in_episode:
@@ -324,12 +345,14 @@ class AgentNTD(AgentNeural):
         else:
             epsilon = 0
 
+        choose_random_action = True if random.random() < epsilon else False
+
         # Select the best action
-        action = self.select_action_with_epsilon(epsilon)
+        action = self.select_action_super(choose_random_action=choose_random_action)
 
         # Update values.
         if self.is_learning:
-            self.ntd_step(action)
+            self.ntd_step(action, is_action_random=choose_random_action)
 
         return action
 
@@ -373,21 +396,21 @@ class AgentNTD(AgentNeural):
         graph = exp_params.state_class.GAME_GRAPH
 
         print "Network predictions:"
-        state_values = {} # Network predictions.
+        network_predictions = {} # Network predictions.
         true_values = {} # True values obtained from the graph using value iteration.
-        for state_str in sorted(self.network_inputs.iterkeys()):
+        for state_roll_action_str in sorted(self.network_inputs.iterkeys()):
             # state_value = self.network_outputs[state_str]
-            state_value = self.network.activate(self.network_inputs[state_str])
-            state_values[state_str] = state_value
-            node_id = graph.get_node_id(state_str[:-4])  # Removes roll and player with turn.
+            state_roll_action_value = self.network.activate(
+                self.network_inputs[state_roll_action_str])
+            network_predictions[state_roll_action_str] = state_roll_action_value
+            node_id = graph.get_node_id(state_roll_action_str[:-4])  # Removes roll and action.
             true_value = graph.get_attr(node_id, VAL_ATTR)
-            true_values[state_str] = true_value
+            true_values[state_roll_action_str] = true_value
             # print "%s -> %s (%.2f)" % (state_str, state_value, abs_value)
         for (si, ai), _ in sorted(self.visit_count.iteritems(),
                                   key=lambda (k, v): (v, k)):
-            state_str = '%s-%s' % (si, ai)
-            true_value = true_values[state_str]
-            state_value = state_values[state_str]
+            state_roll_action_str = '%s-%s' % (si, ai)
+            true_value = true_values[state_roll_action_str]
             # Reward for white win is [1, 0],
             # Reward for black win is [0, 1],
             # state_value[0] - state_value[1] ranges from -1 to +1, although
@@ -395,7 +418,8 @@ class AgentNTD(AgentNeural):
             # outside the range [0, 1].
             # The following formula is meant to scale the difference to range [0, 1].
             print "(%s, %s): opt. val. for white: %+.2f prediction: %s visited: %d" % (
-                si, ai, true_value, map(PrettyFloat, state_values[state_str]),
+                si, ai, true_value,
+                map(PrettyFloat, network_predictions[state_roll_action_str]),
                 self.visit_count.get((si, ai), 0))
         print ('Note: optimal values for white are based on the board '
                'positions only and ignore the current roll.')

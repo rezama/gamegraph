@@ -11,11 +11,11 @@ from app_random_games import AgentRandom
 from common import (FILE_PREFIX_SARSA, FOLDER_QTABLE, PLAYER_NAME_SHORT,
                     PLAYER_WHITE, REWARD_LOSE, REWARD_WIN, Agent, Experiment,
                     ExpParams, Game, GameSet, make_data_folders, other_player)
-from params import (SARSA_ALPHA, SARSA_EPSILON, SARSA_GAMMA, SARSA_LAMBDA,
+from params import (ALGO, ALGO_Q_LEARNING, ALGO_SARSA, SARSA_ALPHA,
+                    SARSA_EPSILON, SARSA_GAMMA, SARSA_LAMBDA,
                     SARSA_NUM_EPISODES_PER_ITERATION, SARSA_NUM_EVAL_EPISODES,
                     SARSA_NUM_TRAINING_ITERATIONS, SARSA_OPTIMISTIC_INIT,
-                    SARSA_SAVE_TABLES, SARSA_USE_ALPHA_ANNEALING, TD_ALGO,
-                    TD_ALGO_Q_LEARNING, TD_ALGO_SARSA, TRAIN_BUDDY,
+                    SARSA_SAVE_TABLES, SARSA_USE_ALPHA_ANNEALING, TRAIN_BUDDY,
                     TRAIN_BUDDY_COPY, TRAIN_BUDDY_RANDOM, TRAIN_BUDDY_SELF)
 
 
@@ -80,8 +80,8 @@ class SarsaLambdaAlg(object):
 
         self.is_learning = True
         self.Q = {}
-        # astar_cache[s'] = argmax_b Q(s', b) for undetermined roll.
-        self.astar_cache = {}
+        # astar_value[s'] = argmax_b Q(s', b) for undetermined roll.
+        self.astar_value = {}
         # self.Q_save = {}
         self.e = {}
         self.visit_count = {}
@@ -158,7 +158,7 @@ class SarsaLambdaAlg(object):
 
         if s is not None:
             # update e
-            if TD_ALGO == TD_ALGO_Q_LEARNING and self.was_last_action_random:
+            if ALGO == ALGO_Q_LEARNING and self.was_last_action_random:
                 # Q(lambda): Set all traces to zero.
                 self.e = {}
             else:
@@ -173,15 +173,14 @@ class SarsaLambdaAlg(object):
                     if (s, other_action) in self.e:
                         self.e[(s, other_action)] = 0
 
-
             # See: https://en.wikipedia.org/wiki/State-Action-Reward-State-Action
             if state.is_final():
                 delta = reward - self.Q.get((s, a), self.get_default_q(s))
             else:
-                if TD_ALGO == TD_ALGO_SARSA:
+                if ALGO == ALGO_SARSA:
                     # Just consider the action we took in sp.
                     next_state_v = self.Q.get((sp, ap), self.get_default_q(sp))
-                elif TD_ALGO == TD_ALGO_Q_LEARNING:
+                elif ALGO == ALGO_Q_LEARNING:
                     # Consider the best we could do from sp.
                     next_state_v = self.astar_value[sp[:-2]]  # state_str_no_roll
                 delta = (reward +
@@ -201,22 +200,11 @@ class SarsaLambdaAlg(object):
     def select_action(self, state):
         self.state_str = str(state)
 
-        do_choose_roll = False
-        # if state.exp_params.choose_roll > 0.0:
-        #     r = random.random()
-        #     if r < state.exp_params.choose_roll:
-        #         do_choose_roll = True
-        if state.stochastic_p < state.exp_params.choose_roll:
-            do_choose_roll = True
+        can_choose_roll = (True if state.stochastic_p < state.exp_params.choose_roll
+                           else False)
 
-        if self.is_learning:
-            epsilon = self.epsilon
-        else:
-            epsilon = 0
-
-        do_random_action = False
-        if random.random() < epsilon:
-            do_random_action = True
+        epsilon = self.epsilon if self.is_learning else 0
+        choose_random_action = True if random.random() < epsilon else False
 
         if TRAIN_BUDDY == TRAIN_BUDDY_SELF:
             reverse = state.player_to_move == PLAYER_WHITE
@@ -228,7 +216,7 @@ class SarsaLambdaAlg(object):
             reverse = True
 
         all_rolls = state.die_object.get_all_sides()
-        avail_rolls = all_rolls if do_choose_roll else [state.roll]
+        avail_rolls = all_rolls if can_choose_roll else [state.roll]
 
         action_values = []  # For all avail_rolls: (roll, action) -> value.
         roll_values = [None] * len(all_rolls)  # For all rolls: roll -> value.
@@ -250,6 +238,8 @@ class SarsaLambdaAlg(object):
                         else:
                             if move_value < roll_values[roll_index]:
                                 roll_values[roll_index] = move_value
+                    # Consider this roll-action for choosing the best action
+                    # only if the associated roll is available to the agent.
                     if replace_roll in avail_rolls:
                         # insert a random number to break the ties
                         action_values.append(((move_value, random.random()),
@@ -270,10 +260,10 @@ class SarsaLambdaAlg(object):
         state_str_no_roll = str(state)[:-2]
         self.astar_value[state_str_no_roll] = astar_value
 
-        # Get best action
+        # Select best action.
         if action_values:  # len(action_values) > 0:
             action_values_sorted = sorted(action_values, reverse=reverse)
-            if do_random_action:
+            if choose_random_action:
                 index = random.randint(0, len(action_values) - 1)
             else:
                 index = 0
@@ -293,7 +283,7 @@ class SarsaLambdaAlg(object):
 
         # Update values.
         if self.is_learning:
-            self.sarsa_step(state, action, is_action_random=do_random_action)
+            self.sarsa_step(state, action, is_action_random=choose_random_action)
 
         return action
 
