@@ -14,7 +14,8 @@ from common import (FILE_PREFIX_SARSA, FOLDER_QTABLE, PLAYER_NAME_SHORT,
 from params import (SARSA_ALPHA, SARSA_EPSILON, SARSA_GAMMA, SARSA_LAMBDA,
                     SARSA_NUM_EPISODES_PER_ITERATION, SARSA_NUM_EVAL_EPISODES,
                     SARSA_NUM_TRAINING_ITERATIONS, SARSA_OPTIMISTIC_INIT,
-                    SARSA_SAVE_TABLES, SARSA_USE_ALPHA_ANNEALING, TRAIN_BUDDY,
+                    SARSA_SAVE_TABLES, SARSA_USE_ALPHA_ANNEALING, TD_ALGO,
+                    TD_ALGO_Q_LEARNING, TD_ALGO_SARSA, TRAIN_BUDDY,
                     TRAIN_BUDDY_COPY, TRAIN_BUDDY_RANDOM, TRAIN_BUDDY_SELF)
 
 
@@ -73,10 +74,15 @@ class SarsaLambdaAlg(object):
         self.state_str = None
         self.last_state_str = None
         self.last_action = None
+        # Since we apply updates with one step delay, need to remember Whether
+        # the action in previous time step was exploratory.
+        self.was_last_action_random = False
 
         self.is_learning = True
         self.Q = {}
-        self.Q_save = {}
+        # astar_cache[s'] = argmax_b Q(s', b) for undetermined roll.
+        self.astar_cache = {}
+        # self.Q_save = {}
         self.e = {}
         self.visit_count = {}
         self.processed_final_reward = False  # Useful with TRAIN_BUDDY_SELF.
@@ -104,9 +110,11 @@ class SarsaLambdaAlg(object):
 
     def begin_episode(self, state):  # pylint: disable=unused-argument
         self.e = {}
+        self.astar_value = {}
         self.state_str = None
         self.last_state_str = None
         self.last_action = None
+        self.was_last_action_random = False
         self.processed_final_reward = False
 
     def end_episode(self, state, reward):
@@ -122,10 +130,11 @@ class SarsaLambdaAlg(object):
                 # Overwriting reward.
                 reward = reward_for_white
 
-            self.sarsa_step(state, action=None, reward=reward)
+            self.sarsa_step(state, action=None, is_action_random=False,
+                            reward=reward)
             self.processed_final_reward = True
 
-    def sarsa_step(self, state, action, reward=0):
+    def sarsa_step(self, state, action, is_action_random, reward=0):
         """Updates the underlying model after every transition.
 
         self.last_state_str    ->    state    ->    next state (current state)
@@ -136,6 +145,7 @@ class SarsaLambdaAlg(object):
         Args:
             state: State where the action was taken.
             action: Action taken by the agent.
+            is_action_random: Whether action was an exploratory action.
             reward: Rewards received from the environment.
 
         Returns:
@@ -148,8 +158,12 @@ class SarsaLambdaAlg(object):
 
         if s is not None:
             # update e
-            for key in self.e.iterkeys():
-                self.e[key] *= (self.gamma * self.lamda)
+            if TD_ALGO == TD_ALGO_Q_LEARNING and self.was_last_action_random:
+                # Q(lambda): Set all traces to zero.
+                self.e = {}
+            else:
+                for key in self.e.iterkeys():
+                    self.e[key] *= (self.gamma * self.lamda)
 
             # replacing traces
             self.e[(s, a)] = 1.0
@@ -164,8 +178,14 @@ class SarsaLambdaAlg(object):
             if state.is_final():
                 delta = reward - self.Q.get((s, a), self.get_default_q(s))
             else:
+                if TD_ALGO == TD_ALGO_SARSA:
+                    # Just consider the action we took in sp.
+                    next_state_v = self.Q.get((sp, ap), self.get_default_q(sp))
+                elif TD_ALGO == TD_ALGO_Q_LEARNING:
+                    # Consider the best we could do from sp.
+                    next_state_v = self.astar_value[sp[:-2]]  # state_str_no_roll
                 delta = (reward +
-                         self.gamma * self.Q.get((sp, ap), self.get_default_q(sp)) -
+                         self.gamma * next_state_v -
                          self.Q.get((s, a), self.get_default_q(s)))
 
             self.update_values(delta)
@@ -173,6 +193,7 @@ class SarsaLambdaAlg(object):
         # save visited state and chosen action
         self.last_state_str = self.state_str
         self.last_action = action
+        self.was_last_action_random = is_action_random
         if action is not None:  # end_episode calls this with action=None.
             key = (self.last_state_str, self.last_action)
             self.visit_count[key] = self.visit_count.get(key, 0) + 1
@@ -197,13 +218,22 @@ class SarsaLambdaAlg(object):
         if random.random() < epsilon:
             do_random_action = True
 
-        roll_range = [state.roll]
-        if do_choose_roll:
-            roll_range = state.die_object.get_all_sides()
+        if TRAIN_BUDDY == TRAIN_BUDDY_SELF:
+            reverse = state.player_to_move == PLAYER_WHITE
+        else:
+            # When TRAIN_BUDDY != TRAIN_BUDDY_SELF, the agent maintains (in
+            # Q table) state values for white and black players from their
+            # own perspectives.  So, regardless of player's color, we need
+            # to pick actions leading to states with higher values.
+            reverse = True
 
-        action_values = []
+        all_rolls = state.die_object.get_all_sides()
+        avail_rolls = all_rolls if do_choose_roll else [state.roll]
 
-        for replace_roll in roll_range:
+        action_values = []  # For all avail_rolls: (roll, action) -> value.
+        roll_values = [None] * len(all_rolls)  # For all rolls: roll -> value.
+        for replace_roll in all_rolls:
+            roll_index = replace_roll - 1
             state.roll = replace_roll
             self.state_str = str(state)
             for checker in state.action_object.get_all_checkers():
@@ -211,19 +241,37 @@ class SarsaLambdaAlg(object):
                 if move_outcome is not None:
                     move_value = self.Q.get((self.state_str, checker),
                                             self.get_default_q(self.state_str))
-                    # insert a random number to break the ties
-                    action_values.append(((move_value, random.random()),
-                                          (replace_roll, checker)))
+                    if roll_values[roll_index] is None:
+                        roll_values[roll_index] = move_value
+                    else:
+                        if reverse:  # We want the action with highest value.
+                            if move_value > roll_values[roll_index]:
+                                roll_values[roll_index] = move_value
+                        else:
+                            if move_value < roll_values[roll_index]:
+                                roll_values[roll_index] = move_value
+                    if replace_roll in avail_rolls:
+                        # insert a random number to break the ties
+                        action_values.append(((move_value, random.random()),
+                                              (replace_roll, checker)))
 
+        # Compute max_b Q(s, b), for undetermined roll, under current
+        # choose_roll probability.
+        # First have to remove Nones for rolls that are not legal.
+        legal_roll_values = [v for v in roll_values if v is not None]
+        num_legal_rolls = len(legal_roll_values)
+        avg_value = float(sum(legal_roll_values)) / num_legal_rolls
+        if reverse:
+            value_with_choose_roll = exp_params.choose_roll * max(legal_roll_values)
+        else:
+            value_with_choose_roll = exp_params.choose_roll * min(legal_roll_values)
+        value_with_random_roll = (1 - exp_params.choose_roll) * avg_value
+        astar_value = value_with_random_roll + value_with_choose_roll
+        state_str_no_roll = str(state)[:-2]
+        self.astar_value[state_str_no_roll] = astar_value
+
+        # Get best action
         if action_values:  # len(action_values) > 0:
-            if TRAIN_BUDDY == TRAIN_BUDDY_SELF:
-                reverse = state.player_to_move == PLAYER_WHITE
-            else:
-                # When TRAIN_BUDDY != TRAIN_BUDDY_SELF, the agent maintains (in
-                # Q table) state values for white and black players from their
-                # own perspectives.  So, regardless of player's color, we need
-                # to pick actions leading to states with higher values.
-                reverse = True
             action_values_sorted = sorted(action_values, reverse=reverse)
             if do_random_action:
                 index = random.randint(0, len(action_values) - 1)
@@ -245,7 +293,7 @@ class SarsaLambdaAlg(object):
 
         # Update values.
         if self.is_learning:
-            self.sarsa_step(state, action)
+            self.sarsa_step(state, action, is_action_random=do_random_action)
 
         return action
 
