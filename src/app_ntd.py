@@ -11,13 +11,13 @@ from pybrain.supervised.trainers.backprop import BackpropTrainer  # pylint: disa
 from app_random_games import AgentRandom
 from common import (FILE_PREFIX_NTD, PLAYER_WHITE, REWARD_LOSE, REWARD_WIN,
                     AgentNeural, Experiment, ExpParams, GameSet, PrettyFloat,
-                    make_data_folders, other_player)
+                    make_data_folders)
 from params import (ALGO, ALGO_Q_LEARNING, ALGO_SARSA, NTD_ALPHA, NTD_EPSILON,
                     NTD_EPSILON_ANNEAL_TIME, NTD_EPSILON_END,
                     NTD_EPSILON_START, NTD_GAMMA, NTD_LAMBDA,
                     NTD_LEARNING_RATE, NTD_NETWORK_INIT_WEIGHTS,
                     NTD_NUM_EVAL_GAMES, NTD_NUM_ITERATIONS, NTD_NUM_OUTPUTS,
-                    NTD_NUM_TRAINING_GAMES, NTD_TRAIN_EPOCHS,
+                    NTD_NUM_TRAINING_GAMES, NTD_SEARCH_PLIES, NTD_TRAIN_EPOCHS,
                     NTD_USE_ALPHA_ANNEALING, NTD_USE_EPSILON_ANNEALING,
                     PRINT_GAME_RESULTS, TRAIN_BUDDY, TRAIN_BUDDY_COPY,
                     TRAIN_BUDDY_RANDOM, TRAIN_BUDDY_SELF)
@@ -85,7 +85,8 @@ class AgentNTD(AgentNeural):
         self.e = {}
         self.astar_value = {}
         self.updates = {}
-        self.network_outputs = {}
+        if self.is_learning:
+            self.network_outputs = {}
         self.visited_in_episode = {}
         # self.state_str = None
         # self.state_in = None
@@ -100,14 +101,15 @@ class AgentNTD(AgentNeural):
             if TRAIN_BUDDY == TRAIN_BUDDY_SELF:
                 # Ignore the reward parameter and construct own reward signal
                 # corresponding to the probability of white winning.
-                winner = other_player(self.state.player_to_move)
-                if winner == PLAYER_WHITE:
-                    rewards = np.array([REWARD_WIN, REWARD_LOSE])
-                else:
-                    rewards = np.array([REWARD_LOSE, REWARD_WIN])
-
-                if self.outputdim == 1:
-                    rewards = rewards[:1]
+                rewards = self.compute_values_for_final_state(self.state)
+                # winner = other_player(self.state.player_to_move)
+                # if winner == PLAYER_WHITE:
+                #     rewards = np.array([REWARD_WIN, REWARD_LOSE])
+                # else:
+                #     rewards = np.array([REWARD_LOSE, REWARD_WIN])
+                #
+                # if self.outputdim == 1:
+                #     rewards = rewards[:1]
             else:
                 rewards = np.array([reward])
 
@@ -153,6 +155,17 @@ class AgentNTD(AgentNeural):
             self.trainer.trainEpochs(NTD_TRAIN_EPOCHS)
         # print '----'
 
+    def compute_values_for_final_state(self, state):
+        if state.has_player_won(PLAYER_WHITE):
+            values = np.array([REWARD_WIN, REWARD_LOSE])
+        else:
+            values = np.array([REWARD_LOSE, REWARD_WIN])
+
+        if self.outputdim == 1:
+            values = values[:1]
+
+        return values
+
     def get_Q_value(self, state, action):
         """Returns state-action value.
 
@@ -173,13 +186,7 @@ class AgentNTD(AgentNeural):
             # The algorithm never trains the network on final states, so it
             # cannot know their values.  Need to retrieve the value of final
             # states directly.
-            if state.has_player_won(PLAYER_WHITE):
-                values = [REWARD_WIN, REWARD_LOSE]
-            else:
-                values = [REWARD_LOSE, REWARD_WIN]
-
-            if self.outputdim == 1:
-                values = values[:1]
+            values = self.compute_values_for_final_state(state)
         else:
             network_out = self.get_network_value(state, action)
             values = network_out
@@ -195,13 +202,6 @@ class AgentNTD(AgentNeural):
         #    return network_out[1]
         # else:
         #    return network_out[0]
-
-    def get_scalar_Q_value(self, state, action):
-        values = self.get_Q_value(state, action)
-        if self.outputdim == 1:
-            return values[0]
-        elif self.outputdim == 2:
-            return values[0] - values[1]
 
     # def cache_network_values(self, state):
     #     state_str = str(state)[:-2]
@@ -347,8 +347,10 @@ class AgentNTD(AgentNeural):
 
         choose_random_action = True if random.random() < epsilon else False
 
-        # Select the best action
-        action = self.select_action_super(choose_random_action=choose_random_action)
+        # Select the best action.
+        action, _ = self.select_action_with_search(
+            state=self.state, choose_random_action=choose_random_action,
+            plies=NTD_SEARCH_PLIES)
 
         # Update values.
         if self.is_learning:

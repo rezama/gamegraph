@@ -55,11 +55,11 @@ EXP_CHOOSEROLL_RANGE = ['0.0', '0.1', '0.5', '0.9', '1.0']
 
 # --------------------------------------------------------------------
 NTD_NUM_ITERATIONS = 1000
-NTD_NUM_TRAINING_GAMES = 512  # 64
-NTD_NUM_EVAL_GAMES = 512
+NTD_NUM_TRAINING_GAMES = 128  # 64
+NTD_NUM_EVAL_GAMES = 256
 
 NTD_GAMMA = 1.0
-NTD_ALPHA = 0.1
+NTD_ALPHA = 1.0
 NTD_EPSILON = 0.05
 NTD_LAMBDA = 0.7
 # NTD_LAMBDA = 0.0
@@ -69,6 +69,8 @@ NTD_NETWORK_INIT_WEIGHTS = None
 NTD_TRAIN_EPOCHS = 1
 # NTD_LEARNING_RATE = 0.1
 NTD_LEARNING_RATE = 0.01
+
+NTD_SEARCH_PLIES = 3
 
 # NTD_USE_ALPHA_ANNEALING = True
 NTD_USE_ALPHA_ANNEALING = False
@@ -81,7 +83,7 @@ NTD_EPSILON_ANNEAL_TIME = 100  # Reach NTD_EPSILON_END after this many visits.
 
 # 1 output: Network predict probability for white winning.
 # 2 outputs: Network predicts probability for white and black winning.
-NTD_NUM_OUTPUTS = 2
+NTD_NUM_OUTPUTS = 1
 
 # --------------------------------------------------------------------
 SARSA_GAMMA = 1.0

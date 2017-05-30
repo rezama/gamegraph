@@ -3,6 +3,7 @@ Created on Dec 11, 2011
 
 @author: reza
 '''
+import copy
 import getopt
 import gzip
 import os
@@ -183,17 +184,20 @@ class AgentNeural(Agent):
     def get_Q_value(self, state, action):
         raise NotImplementedError
 
-    def get_scalar_Q_value(self, state, action):
-        raise NotImplementedError
+    def convert_Q_value_to_scalar(self, values):
+        if self.outputdim == 1:
+            return values[0]
+        elif self.outputdim == 2:
+            return values[0] - values[1]
 
-    def select_action_super(self, choose_random_action):
-        can_choose_roll = (True if self.state.stochastic_p < self.state.exp_params.choose_roll
+    def select_action_with_search(self, state, choose_random_action, plies=0):
+        can_choose_roll = (True if state.stochastic_p < state.exp_params.choose_roll
                            else False)
 
         if TRAIN_BUDDY == TRAIN_BUDDY_SELF:
             # If playing for white, pick the action with highest reward for white.
             # If playing for black, pick the action with lowest reward for white.
-            reverse = self.state.player_to_move == PLAYER_WHITE
+            reverse = state.player_to_move == PLAYER_WHITE
         else:
             # When TRAIN_BUDDY != TRAIN_BUDDY_SELF, the agent maintains
             # state values for white and black players from their own
@@ -201,20 +205,30 @@ class AgentNeural(Agent):
             # to pick actions leading to states with higher values.
             reverse = True
 
-        all_rolls = self.state.die_object.get_all_sides()
-        avail_rolls = all_rolls if can_choose_roll else [self.state.roll]
+        all_rolls = state.die_object.get_all_sides()
+        avail_rolls = all_rolls if can_choose_roll else [state.roll]
 
         action_values = []  # For all avail_rolls: (roll, action) -> value.
         roll_values = [None] * len(all_rolls)  # For all rolls: roll -> value.
         scalar_roll_values = [None] * len(all_rolls)
         for replace_roll in all_rolls:
             roll_index = replace_roll - 1
-            self.state.roll = replace_roll
-            for action in self.state.action_object.get_all_checkers():
-                move_outcome = self.state.get_move_outcome(action)
+            state.roll = replace_roll
+            for action in state.action_object.get_all_checkers():
+                move_outcome = state.get_move_outcome(action)
                 if move_outcome is not None:
-                    move_value = self.get_Q_value(self.state, action)
-                    scalar_move_value = self.get_scalar_Q_value(self.state, action)
+                    if plies == 0:
+                        move_value = self.get_Q_value(state, action)
+                    else:
+                        next_state = copy.deepcopy(move_outcome)
+                        if next_state.is_final():
+                            move_value = self.get_Q_value(next_state, action=None)
+                        else:
+                            _, move_value = self.select_action_with_search(
+                                next_state,
+                                choose_random_action=False,  # Value is irrelevant.
+                                plies=plies - 1)
+                    scalar_move_value = self.convert_Q_value_to_scalar(move_value)
                     if roll_values[roll_index] is None:
                         roll_values[roll_index] = move_value
                         scalar_roll_values[roll_index] = scalar_move_value
@@ -243,11 +257,11 @@ class AgentNeural(Agent):
         preferred_roll_value = (max(legal_scalar_roll_values) if reverse
                                 else min(legal_scalar_roll_values))
         preferred_roll_index = legal_scalar_roll_values.index(preferred_roll_value)
-        value_with_choose_roll = (self.state.exp_params.choose_roll *
+        value_with_choose_roll = (state.exp_params.choose_roll *
                                   legal_roll_values[preferred_roll_index])
-        value_with_random_roll = (1 - self.state.exp_params.choose_roll) * avg_roll_value
+        value_with_random_roll = (1 - state.exp_params.choose_roll) * avg_roll_value
         astar_value = value_with_random_roll + value_with_choose_roll
-        state_str_no_roll = str(self.state)[:-2]
+        state_str_no_roll = str(state)[:-2]
         self.astar_value[state_str_no_roll] = astar_value
 
         # Select best action.
@@ -259,19 +273,14 @@ class AgentNeural(Agent):
                 index = 0
             best_roll = action_values_sorted[index][1][0]
             # set the best roll there
-            self.state.roll = best_roll
-            action = action_values_sorted[index][1][1]
+            state.roll = best_roll
+            best_action = action_values_sorted[index][1][1]
         else:
-            action = self.state.action_object.action_forfeit_move
-            # Cache network values for action_forfeit_move, since the
-            # calculations for astar_value[...] never fetch
-            # Q(s, action_forfeit_move).
-            self.get_Q_value(self.state, action)
+            best_action = state.action_object.action_forfeit_move
 
-        return action
-
-#    def __repr__(self):
-#        return str(self.network.params)
+        # Cache network values for the action chosen.
+        self.get_Q_value(state, best_action)
+        return best_action, astar_value
 
 
 class Game(object):

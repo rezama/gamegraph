@@ -1227,7 +1227,7 @@ class NimState(State):
 
     NUM_HEAPS = 1
     TAKE_MAX = 3
-    SIZE_HEAPS = [5]
+    SIZE_HEAPS = [14]
     TOTAL_TOKENS = sum(SIZE_HEAPS)
 
 #    BOARD_SIZE   = 0

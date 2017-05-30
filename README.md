@@ -87,6 +87,7 @@ $ python app_ntd.py --domain=minigammon --graph=minigammon-822-back-50
 ### Requirements
 
 - PyBrain
+- NumPy
 
 Install using `virtualenv`:
 
