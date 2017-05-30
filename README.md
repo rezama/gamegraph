@@ -7,8 +7,10 @@ This codebase contains tools to study the impact of domain stochasticity and erg
 The codebase implements three learning algorithms:
 
   - Sarsa(λ) + neural network function approximation
+  - Q(λ) + neural network function approximation
   - Tabular Sarsa(λ)
-  - Hill Climbing as a simple evolutionary algorithm
+  - Tabular Q(λ)
+  - Hill Climbing as a simple evolutionary algorithm (broken right now.)
 
 ### Learning and Evaluation
 
@@ -91,5 +93,12 @@ Install using `virtualenv`:
 ```sh
 $ virtualenv .venv
 $ source .venv/bin/activate
+$ pip install -r requirements.txt
+```
+
+Install using `virtualenvwrapper`:
+
+```sh
+$ mkvirtualenv venv
 $ pip install -r requirements.txt
 ```
