@@ -224,7 +224,7 @@ class AgentNeural(Agent):
                                 scalar_roll_values[roll_index] = scalar_move_value
                                 roll_values[roll_index] = move_value
                         else:
-                            if scalar_move_value < roll_values[roll_index]:
+                            if scalar_move_value < scalar_roll_values[roll_index]:
                                 scalar_roll_values[roll_index] = scalar_move_value
                                 roll_values[roll_index] = move_value
                     # Consider this roll-action for choosing the best action
