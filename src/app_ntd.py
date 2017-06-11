@@ -74,6 +74,13 @@ class AgentNTD(AgentNeural):
         self.network_inputs = {}
         self.network_outputs = {}
 
+        # Recording value of intersting states over time.
+        self.num_training_games = 0
+        self.value_tracker_file = None
+        # network_predictions are gathered at the end of each iteration to
+        # produce reports.
+        self.network_predictions = {}
+
         # TODO: Merge this functionality with COLLECT_STATS logic.
         self.traj_count = {}
 
@@ -398,13 +405,13 @@ class AgentNTD(AgentNeural):
         graph = exp_params.state_class.GAME_GRAPH
 
         print "Network predictions:"
-        network_predictions = {} # Network predictions.
+        self.network_predictions = {} # Network predictions.
         true_values = {} # True values obtained from the graph using value iteration.
         for state_roll_action_str in sorted(self.network_inputs.iterkeys()):
             # state_value = self.network_outputs[state_str]
             state_roll_action_value = self.network.activate(
                 self.network_inputs[state_roll_action_str])
-            network_predictions[state_roll_action_str] = state_roll_action_value
+            self.network_predictions[state_roll_action_str] = state_roll_action_value
             node_id = graph.get_node_id(state_roll_action_str[:-4])  # Removes roll and action.
             true_value = graph.get_attr(node_id, VAL_ATTR)
             true_values[state_roll_action_str] = true_value
@@ -421,10 +428,25 @@ class AgentNTD(AgentNeural):
             # The following formula is meant to scale the difference to range [0, 1].
             print "(%s, %s): opt. val. for white: %+.2f prediction: %s visited: %d" % (
                 si, ai, true_value,
-                map(PrettyFloat, network_predictions[state_roll_action_str]),
+                map(PrettyFloat, self.network_predictions[state_roll_action_str]),
                 self.visit_count.get((si, ai), 0))
         print ('Note: optimal values for white are based on the board '
                'positions only and ignore the current roll.')
+
+    def track_interesting_states(self):
+        interesting_states = self.state.interesting_states()
+        if interesting_states:
+            if not self.value_tracker_file:
+                value_tracker_filename = (
+                    self.state.exp_params.get_value_tracker_filename(FILE_PREFIX_NTD))
+                self.value_tracker_file = open(value_tracker_filename, 'w')
+            self.num_training_games += NTD_NUM_TRAINING_GAMES
+            self.value_tracker_file.write('%d' % self.num_training_games)
+            for s in interesting_states:
+                s_val = self.network_predictions[s][0] if s in self.network_predictions else 0.5
+                self.value_tracker_file.write(' %f' % s_val)
+            self.value_tracker_file.write('\n')
+            self.value_tracker_file.flush()
 
     def print_traj_counts(self):
         print "Trajectories in training:"
@@ -474,6 +496,8 @@ if __name__ == '__main__':
         win_rate = float(count_wins[0]) / NTD_NUM_EVAL_GAMES
         print 'Win rate against evaluation opponent: %.2f' % win_rate
         f.write('%d %f\n' % (i, win_rate))
+        f.flush()
+
         print
         print 'Trajectories in evaluation:'
         agent_ntd.print_traj_counts()

@@ -284,6 +284,11 @@ class State(object):
                 cls.states_sorted_by_ply_visit_count_over_avg_num_plies.append(
                     state_visit_count_over_avg_num_plies)
 
+    @classmethod
+    def interesting_states(cls):
+        """Return states to track values for."""
+        return None
+
     def print_state(self):
         # print '#   0      1   2   3   4   5   6   7   8      9  '
         # print '# +---+  +---+---+---+---+---+---+---+---+  +---+'
@@ -345,7 +350,7 @@ class MiniGammonState(State):
 
     DOMAIN_NAME = 'minigammon'
 
-    BOARD_SIZE = 8
+    BOARD_SIZE = 6
     NUM_CHECKERS = 2
     NUM_DIE_SIDES = 2
     NUM_HIDDEN_UNITS = 20
@@ -443,6 +448,23 @@ class MiniGammonState(State):
         if success:
             self.switch_turn()
         return success
+
+    @classmethod
+    def interesting_states(cls):
+        """Return states to track values for."""
+        # Comments show true opt val for white (ignoring roll, chooseroll=0.0)
+        # return ['b-7989-1-0',  # 0.00
+        #         'b-1119-1-0',  # 0.22
+        #         'w-1111-1-0',  # 0.50
+        #         'b-4918-1-0',  # 0.87
+        #         'w-8979-1-0',  # 1.00
+        #        ]
+        return ['b-4656-1-0',
+                'b-1116-1-0',
+                'w-1111-1-0',
+                'b-1615-1-0',
+                'w-5646-1-0',
+               ]
 
     @classmethod
     def get_network_inputdim(cls):
@@ -1227,7 +1249,7 @@ class NimState(State):
 
     NUM_HEAPS = 1
     TAKE_MAX = 3
-    SIZE_HEAPS = [14]
+    SIZE_HEAPS = [23]
     TOTAL_TOKENS = sum(SIZE_HEAPS)
 
 #    BOARD_SIZE   = 0
@@ -1244,6 +1266,11 @@ class NimState(State):
         super(NimState, self).__init__(exp_params, self.BOARD_SIZE,
                                        self.NUM_DIE_SIDES, self.NUM_CHECKERS,
                                        player_to_move)
+
+    @classmethod
+    def get_domain_signature(cls):
+        return super(NimState, cls).get_domain_signature() + (
+            '-%s' % '-'.join(str(x) for x in cls.SIZE_HEAPS))
 
     def init_pos(self):
         return self.SIZE_HEAPS[:]
@@ -1311,6 +1338,20 @@ class NimState(State):
         if success:
             self.switch_turn()
         return success
+
+    @classmethod
+    def interesting_states(cls):
+        """Return states to track values for."""
+        return ['w-14-1-0', 'w-14-2-0', 'w-14-3-0',
+                'w-11-1-0', 'w-11-2-0', 'w-11-3-0',
+                'b-11-1-0', 'b-11-2-0', 'b-11-3-0',
+                'w-8-1-0', 'w-8-2-0', 'w-8-3-0',
+                'b-8-1-0', 'b-8-2-0', 'b-8-3-0',
+                'w-5-1-0', 'w-5-2-0', 'w-5-3-0',
+                'b-5-1-0', 'b-5-2-0', 'b-5-3-0',
+                'w-3-3-0', 'w-3-2-0', 'w-3-1-0',
+                'b-3-3-0', 'b-3-2-0', 'b-3-1-0',
+                'w-2-2-0', 'w-2-1-0']
 
     @classmethod
     def get_network_inputdim(cls):

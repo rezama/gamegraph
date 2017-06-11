@@ -421,6 +421,8 @@ if __name__ == '__main__':
         win_rate = float(count_wins[0]) / SARSA_NUM_EVAL_EPISODES
         print 'Win rate against evaluation opponent: %.2f' % win_rate
         f.write('%d %f\n' % (i * SARSA_NUM_EPISODES_PER_ITERATION, win_rate))
+        f.flush()
+
         agent_sarsa.resume_learning()
 
         print 'Training (%d games)...' % SARSA_NUM_EPISODES_PER_ITERATION

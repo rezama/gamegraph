@@ -1,2409 +1,409 @@
 +Group = "GRAD"
 +Project = "AI_ROBOTICS"
-+ProjectDescription = "Studying impact of domain ergodicity on reinforcement learning and self-play"
++ProjectDescription = "Studying impact of domain stochasticity and ergodicity on reinforcement learning and self-play"
 
 universe = vanilla
 executable = /usr/bin/python
 getenv = true
 transfer_executable = false
 
-arguments = app_sarsa.py --domain minigammon --chooseroll 0.0 --trial 0
-output = ../log/sarsa-minigammon-chooseroll-0.0-trial-0.txt
-error = ../log/sarsa-minigammon-chooseroll-0.0-trial-0.txt
-queue
-arguments = app_sarsa.py --domain minigammon --chooseroll 0.0 --trial 1
-output = ../log/sarsa-minigammon-chooseroll-0.0-trial-1.txt
-error = ../log/sarsa-minigammon-chooseroll-0.0-trial-1.txt
-queue
-arguments = app_sarsa.py --domain minigammon --chooseroll 0.0 --trial 2
-output = ../log/sarsa-minigammon-chooseroll-0.0-trial-2.txt
-error = ../log/sarsa-minigammon-chooseroll-0.0-trial-2.txt
-queue
-arguments = app_sarsa.py --domain minigammon --chooseroll 0.0 --trial 3
-output = ../log/sarsa-minigammon-chooseroll-0.0-trial-3.txt
-error = ../log/sarsa-minigammon-chooseroll-0.0-trial-3.txt
-queue
-arguments = app_sarsa.py --domain minigammon --chooseroll 0.0 --trial 4
-output = ../log/sarsa-minigammon-chooseroll-0.0-trial-4.txt
-error = ../log/sarsa-minigammon-chooseroll-0.0-trial-4.txt
-queue
-arguments = app_sarsa.py --domain minigammon --chooseroll 0.0 --trial 5
-output = ../log/sarsa-minigammon-chooseroll-0.0-trial-5.txt
-error = ../log/sarsa-minigammon-chooseroll-0.0-trial-5.txt
-queue
-arguments = app_sarsa.py --domain minigammon --chooseroll 0.0 --trial 6
-output = ../log/sarsa-minigammon-chooseroll-0.0-trial-6.txt
-error = ../log/sarsa-minigammon-chooseroll-0.0-trial-6.txt
-queue
-arguments = app_sarsa.py --domain minigammon --chooseroll 0.0 --trial 7
-output = ../log/sarsa-minigammon-chooseroll-0.0-trial-7.txt
-error = ../log/sarsa-minigammon-chooseroll-0.0-trial-7.txt
-queue
-arguments = app_sarsa.py --domain minigammon --chooseroll 0.0 --trial 8
-output = ../log/sarsa-minigammon-chooseroll-0.0-trial-8.txt
-error = ../log/sarsa-minigammon-chooseroll-0.0-trial-8.txt
-queue
-arguments = app_sarsa.py --domain minigammon --chooseroll 0.0 --trial 9
-output = ../log/sarsa-minigammon-chooseroll-0.0-trial-9.txt
-error = ../log/sarsa-minigammon-chooseroll-0.0-trial-9.txt
-queue
-arguments = app_sarsa.py --domain minigammon --chooseroll 0.1 --trial 0
-output = ../log/sarsa-minigammon-chooseroll-0.1-trial-0.txt
-error = ../log/sarsa-minigammon-chooseroll-0.1-trial-0.txt
-queue
-arguments = app_sarsa.py --domain minigammon --chooseroll 0.1 --trial 1
-output = ../log/sarsa-minigammon-chooseroll-0.1-trial-1.txt
-error = ../log/sarsa-minigammon-chooseroll-0.1-trial-1.txt
-queue
-arguments = app_sarsa.py --domain minigammon --chooseroll 0.1 --trial 2
-output = ../log/sarsa-minigammon-chooseroll-0.1-trial-2.txt
-error = ../log/sarsa-minigammon-chooseroll-0.1-trial-2.txt
-queue
-arguments = app_sarsa.py --domain minigammon --chooseroll 0.1 --trial 3
-output = ../log/sarsa-minigammon-chooseroll-0.1-trial-3.txt
-error = ../log/sarsa-minigammon-chooseroll-0.1-trial-3.txt
-queue
-arguments = app_sarsa.py --domain minigammon --chooseroll 0.1 --trial 4
-output = ../log/sarsa-minigammon-chooseroll-0.1-trial-4.txt
-error = ../log/sarsa-minigammon-chooseroll-0.1-trial-4.txt
-queue
-arguments = app_sarsa.py --domain minigammon --chooseroll 0.1 --trial 5
-output = ../log/sarsa-minigammon-chooseroll-0.1-trial-5.txt
-error = ../log/sarsa-minigammon-chooseroll-0.1-trial-5.txt
-queue
-arguments = app_sarsa.py --domain minigammon --chooseroll 0.1 --trial 6
-output = ../log/sarsa-minigammon-chooseroll-0.1-trial-6.txt
-error = ../log/sarsa-minigammon-chooseroll-0.1-trial-6.txt
-queue
-arguments = app_sarsa.py --domain minigammon --chooseroll 0.1 --trial 7
-output = ../log/sarsa-minigammon-chooseroll-0.1-trial-7.txt
-error = ../log/sarsa-minigammon-chooseroll-0.1-trial-7.txt
-queue
-arguments = app_sarsa.py --domain minigammon --chooseroll 0.1 --trial 8
-output = ../log/sarsa-minigammon-chooseroll-0.1-trial-8.txt
-error = ../log/sarsa-minigammon-chooseroll-0.1-trial-8.txt
-queue
-arguments = app_sarsa.py --domain minigammon --chooseroll 0.1 --trial 9
-output = ../log/sarsa-minigammon-chooseroll-0.1-trial-9.txt
-error = ../log/sarsa-minigammon-chooseroll-0.1-trial-9.txt
-queue
-arguments = app_sarsa.py --domain minigammon --chooseroll 0.5 --trial 0
-output = ../log/sarsa-minigammon-chooseroll-0.5-trial-0.txt
-error = ../log/sarsa-minigammon-chooseroll-0.5-trial-0.txt
-queue
-arguments = app_sarsa.py --domain minigammon --chooseroll 0.5 --trial 1
-output = ../log/sarsa-minigammon-chooseroll-0.5-trial-1.txt
-error = ../log/sarsa-minigammon-chooseroll-0.5-trial-1.txt
-queue
-arguments = app_sarsa.py --domain minigammon --chooseroll 0.5 --trial 2
-output = ../log/sarsa-minigammon-chooseroll-0.5-trial-2.txt
-error = ../log/sarsa-minigammon-chooseroll-0.5-trial-2.txt
-queue
-arguments = app_sarsa.py --domain minigammon --chooseroll 0.5 --trial 3
-output = ../log/sarsa-minigammon-chooseroll-0.5-trial-3.txt
-error = ../log/sarsa-minigammon-chooseroll-0.5-trial-3.txt
-queue
-arguments = app_sarsa.py --domain minigammon --chooseroll 0.5 --trial 4
-output = ../log/sarsa-minigammon-chooseroll-0.5-trial-4.txt
-error = ../log/sarsa-minigammon-chooseroll-0.5-trial-4.txt
-queue
-arguments = app_sarsa.py --domain minigammon --chooseroll 0.5 --trial 5
-output = ../log/sarsa-minigammon-chooseroll-0.5-trial-5.txt
-error = ../log/sarsa-minigammon-chooseroll-0.5-trial-5.txt
-queue
-arguments = app_sarsa.py --domain minigammon --chooseroll 0.5 --trial 6
-output = ../log/sarsa-minigammon-chooseroll-0.5-trial-6.txt
-error = ../log/sarsa-minigammon-chooseroll-0.5-trial-6.txt
-queue
-arguments = app_sarsa.py --domain minigammon --chooseroll 0.5 --trial 7
-output = ../log/sarsa-minigammon-chooseroll-0.5-trial-7.txt
-error = ../log/sarsa-minigammon-chooseroll-0.5-trial-7.txt
-queue
-arguments = app_sarsa.py --domain minigammon --chooseroll 0.5 --trial 8
-output = ../log/sarsa-minigammon-chooseroll-0.5-trial-8.txt
-error = ../log/sarsa-minigammon-chooseroll-0.5-trial-8.txt
-queue
-arguments = app_sarsa.py --domain minigammon --chooseroll 0.5 --trial 9
-output = ../log/sarsa-minigammon-chooseroll-0.5-trial-9.txt
-error = ../log/sarsa-minigammon-chooseroll-0.5-trial-9.txt
-queue
-arguments = app_sarsa.py --domain minigammon --chooseroll 0.9 --trial 0
-output = ../log/sarsa-minigammon-chooseroll-0.9-trial-0.txt
-error = ../log/sarsa-minigammon-chooseroll-0.9-trial-0.txt
-queue
-arguments = app_sarsa.py --domain minigammon --chooseroll 0.9 --trial 1
-output = ../log/sarsa-minigammon-chooseroll-0.9-trial-1.txt
-error = ../log/sarsa-minigammon-chooseroll-0.9-trial-1.txt
-queue
-arguments = app_sarsa.py --domain minigammon --chooseroll 0.9 --trial 2
-output = ../log/sarsa-minigammon-chooseroll-0.9-trial-2.txt
-error = ../log/sarsa-minigammon-chooseroll-0.9-trial-2.txt
-queue
-arguments = app_sarsa.py --domain minigammon --chooseroll 0.9 --trial 3
-output = ../log/sarsa-minigammon-chooseroll-0.9-trial-3.txt
-error = ../log/sarsa-minigammon-chooseroll-0.9-trial-3.txt
-queue
-arguments = app_sarsa.py --domain minigammon --chooseroll 0.9 --trial 4
-output = ../log/sarsa-minigammon-chooseroll-0.9-trial-4.txt
-error = ../log/sarsa-minigammon-chooseroll-0.9-trial-4.txt
-queue
-arguments = app_sarsa.py --domain minigammon --chooseroll 0.9 --trial 5
-output = ../log/sarsa-minigammon-chooseroll-0.9-trial-5.txt
-error = ../log/sarsa-minigammon-chooseroll-0.9-trial-5.txt
-queue
-arguments = app_sarsa.py --domain minigammon --chooseroll 0.9 --trial 6
-output = ../log/sarsa-minigammon-chooseroll-0.9-trial-6.txt
-error = ../log/sarsa-minigammon-chooseroll-0.9-trial-6.txt
-queue
-arguments = app_sarsa.py --domain minigammon --chooseroll 0.9 --trial 7
-output = ../log/sarsa-minigammon-chooseroll-0.9-trial-7.txt
-error = ../log/sarsa-minigammon-chooseroll-0.9-trial-7.txt
-queue
-arguments = app_sarsa.py --domain minigammon --chooseroll 0.9 --trial 8
-output = ../log/sarsa-minigammon-chooseroll-0.9-trial-8.txt
-error = ../log/sarsa-minigammon-chooseroll-0.9-trial-8.txt
-queue
-arguments = app_sarsa.py --domain minigammon --chooseroll 0.9 --trial 9
-output = ../log/sarsa-minigammon-chooseroll-0.9-trial-9.txt
-error = ../log/sarsa-minigammon-chooseroll-0.9-trial-9.txt
-queue
-arguments = app_sarsa.py --domain minigammon --chooseroll 1.0 --trial 0
-output = ../log/sarsa-minigammon-chooseroll-1.0-trial-0.txt
-error = ../log/sarsa-minigammon-chooseroll-1.0-trial-0.txt
-queue
-arguments = app_sarsa.py --domain minigammon --chooseroll 1.0 --trial 1
-output = ../log/sarsa-minigammon-chooseroll-1.0-trial-1.txt
-error = ../log/sarsa-minigammon-chooseroll-1.0-trial-1.txt
-queue
-arguments = app_sarsa.py --domain minigammon --chooseroll 1.0 --trial 2
-output = ../log/sarsa-minigammon-chooseroll-1.0-trial-2.txt
-error = ../log/sarsa-minigammon-chooseroll-1.0-trial-2.txt
-queue
-arguments = app_sarsa.py --domain minigammon --chooseroll 1.0 --trial 3
-output = ../log/sarsa-minigammon-chooseroll-1.0-trial-3.txt
-error = ../log/sarsa-minigammon-chooseroll-1.0-trial-3.txt
-queue
-arguments = app_sarsa.py --domain minigammon --chooseroll 1.0 --trial 4
-output = ../log/sarsa-minigammon-chooseroll-1.0-trial-4.txt
-error = ../log/sarsa-minigammon-chooseroll-1.0-trial-4.txt
-queue
-arguments = app_sarsa.py --domain minigammon --chooseroll 1.0 --trial 5
-output = ../log/sarsa-minigammon-chooseroll-1.0-trial-5.txt
-error = ../log/sarsa-minigammon-chooseroll-1.0-trial-5.txt
-queue
-arguments = app_sarsa.py --domain minigammon --chooseroll 1.0 --trial 6
-output = ../log/sarsa-minigammon-chooseroll-1.0-trial-6.txt
-error = ../log/sarsa-minigammon-chooseroll-1.0-trial-6.txt
-queue
-arguments = app_sarsa.py --domain minigammon --chooseroll 1.0 --trial 7
-output = ../log/sarsa-minigammon-chooseroll-1.0-trial-7.txt
-error = ../log/sarsa-minigammon-chooseroll-1.0-trial-7.txt
-queue
-arguments = app_sarsa.py --domain minigammon --chooseroll 1.0 --trial 8
-output = ../log/sarsa-minigammon-chooseroll-1.0-trial-8.txt
-error = ../log/sarsa-minigammon-chooseroll-1.0-trial-8.txt
-queue
-arguments = app_sarsa.py --domain minigammon --chooseroll 1.0 --trial 9
-output = ../log/sarsa-minigammon-chooseroll-1.0-trial-9.txt
-error = ../log/sarsa-minigammon-chooseroll-1.0-trial-9.txt
-queue
-arguments = app_sarsa.py --domain nannon --chooseroll 0.0 --trial 0
-output = ../log/sarsa-nannon-chooseroll-0.0-trial-0.txt
-error = ../log/sarsa-nannon-chooseroll-0.0-trial-0.txt
-queue
-arguments = app_sarsa.py --domain nannon --chooseroll 0.0 --trial 1
-output = ../log/sarsa-nannon-chooseroll-0.0-trial-1.txt
-error = ../log/sarsa-nannon-chooseroll-0.0-trial-1.txt
-queue
-arguments = app_sarsa.py --domain nannon --chooseroll 0.0 --trial 2
-output = ../log/sarsa-nannon-chooseroll-0.0-trial-2.txt
-error = ../log/sarsa-nannon-chooseroll-0.0-trial-2.txt
-queue
-arguments = app_sarsa.py --domain nannon --chooseroll 0.0 --trial 3
-output = ../log/sarsa-nannon-chooseroll-0.0-trial-3.txt
-error = ../log/sarsa-nannon-chooseroll-0.0-trial-3.txt
-queue
-arguments = app_sarsa.py --domain nannon --chooseroll 0.0 --trial 4
-output = ../log/sarsa-nannon-chooseroll-0.0-trial-4.txt
-error = ../log/sarsa-nannon-chooseroll-0.0-trial-4.txt
-queue
-arguments = app_sarsa.py --domain nannon --chooseroll 0.0 --trial 5
-output = ../log/sarsa-nannon-chooseroll-0.0-trial-5.txt
-error = ../log/sarsa-nannon-chooseroll-0.0-trial-5.txt
-queue
-arguments = app_sarsa.py --domain nannon --chooseroll 0.0 --trial 6
-output = ../log/sarsa-nannon-chooseroll-0.0-trial-6.txt
-error = ../log/sarsa-nannon-chooseroll-0.0-trial-6.txt
-queue
-arguments = app_sarsa.py --domain nannon --chooseroll 0.0 --trial 7
-output = ../log/sarsa-nannon-chooseroll-0.0-trial-7.txt
-error = ../log/sarsa-nannon-chooseroll-0.0-trial-7.txt
-queue
-arguments = app_sarsa.py --domain nannon --chooseroll 0.0 --trial 8
-output = ../log/sarsa-nannon-chooseroll-0.0-trial-8.txt
-error = ../log/sarsa-nannon-chooseroll-0.0-trial-8.txt
-queue
-arguments = app_sarsa.py --domain nannon --chooseroll 0.0 --trial 9
-output = ../log/sarsa-nannon-chooseroll-0.0-trial-9.txt
-error = ../log/sarsa-nannon-chooseroll-0.0-trial-9.txt
-queue
-arguments = app_sarsa.py --domain nannon --chooseroll 0.1 --trial 0
-output = ../log/sarsa-nannon-chooseroll-0.1-trial-0.txt
-error = ../log/sarsa-nannon-chooseroll-0.1-trial-0.txt
-queue
-arguments = app_sarsa.py --domain nannon --chooseroll 0.1 --trial 1
-output = ../log/sarsa-nannon-chooseroll-0.1-trial-1.txt
-error = ../log/sarsa-nannon-chooseroll-0.1-trial-1.txt
-queue
-arguments = app_sarsa.py --domain nannon --chooseroll 0.1 --trial 2
-output = ../log/sarsa-nannon-chooseroll-0.1-trial-2.txt
-error = ../log/sarsa-nannon-chooseroll-0.1-trial-2.txt
-queue
-arguments = app_sarsa.py --domain nannon --chooseroll 0.1 --trial 3
-output = ../log/sarsa-nannon-chooseroll-0.1-trial-3.txt
-error = ../log/sarsa-nannon-chooseroll-0.1-trial-3.txt
-queue
-arguments = app_sarsa.py --domain nannon --chooseroll 0.1 --trial 4
-output = ../log/sarsa-nannon-chooseroll-0.1-trial-4.txt
-error = ../log/sarsa-nannon-chooseroll-0.1-trial-4.txt
-queue
-arguments = app_sarsa.py --domain nannon --chooseroll 0.1 --trial 5
-output = ../log/sarsa-nannon-chooseroll-0.1-trial-5.txt
-error = ../log/sarsa-nannon-chooseroll-0.1-trial-5.txt
-queue
-arguments = app_sarsa.py --domain nannon --chooseroll 0.1 --trial 6
-output = ../log/sarsa-nannon-chooseroll-0.1-trial-6.txt
-error = ../log/sarsa-nannon-chooseroll-0.1-trial-6.txt
-queue
-arguments = app_sarsa.py --domain nannon --chooseroll 0.1 --trial 7
-output = ../log/sarsa-nannon-chooseroll-0.1-trial-7.txt
-error = ../log/sarsa-nannon-chooseroll-0.1-trial-7.txt
-queue
-arguments = app_sarsa.py --domain nannon --chooseroll 0.1 --trial 8
-output = ../log/sarsa-nannon-chooseroll-0.1-trial-8.txt
-error = ../log/sarsa-nannon-chooseroll-0.1-trial-8.txt
-queue
-arguments = app_sarsa.py --domain nannon --chooseroll 0.1 --trial 9
-output = ../log/sarsa-nannon-chooseroll-0.1-trial-9.txt
-error = ../log/sarsa-nannon-chooseroll-0.1-trial-9.txt
-queue
-arguments = app_sarsa.py --domain nannon --chooseroll 0.5 --trial 0
-output = ../log/sarsa-nannon-chooseroll-0.5-trial-0.txt
-error = ../log/sarsa-nannon-chooseroll-0.5-trial-0.txt
-queue
-arguments = app_sarsa.py --domain nannon --chooseroll 0.5 --trial 1
-output = ../log/sarsa-nannon-chooseroll-0.5-trial-1.txt
-error = ../log/sarsa-nannon-chooseroll-0.5-trial-1.txt
-queue
-arguments = app_sarsa.py --domain nannon --chooseroll 0.5 --trial 2
-output = ../log/sarsa-nannon-chooseroll-0.5-trial-2.txt
-error = ../log/sarsa-nannon-chooseroll-0.5-trial-2.txt
-queue
-arguments = app_sarsa.py --domain nannon --chooseroll 0.5 --trial 3
-output = ../log/sarsa-nannon-chooseroll-0.5-trial-3.txt
-error = ../log/sarsa-nannon-chooseroll-0.5-trial-3.txt
-queue
-arguments = app_sarsa.py --domain nannon --chooseroll 0.5 --trial 4
-output = ../log/sarsa-nannon-chooseroll-0.5-trial-4.txt
-error = ../log/sarsa-nannon-chooseroll-0.5-trial-4.txt
-queue
-arguments = app_sarsa.py --domain nannon --chooseroll 0.5 --trial 5
-output = ../log/sarsa-nannon-chooseroll-0.5-trial-5.txt
-error = ../log/sarsa-nannon-chooseroll-0.5-trial-5.txt
-queue
-arguments = app_sarsa.py --domain nannon --chooseroll 0.5 --trial 6
-output = ../log/sarsa-nannon-chooseroll-0.5-trial-6.txt
-error = ../log/sarsa-nannon-chooseroll-0.5-trial-6.txt
-queue
-arguments = app_sarsa.py --domain nannon --chooseroll 0.5 --trial 7
-output = ../log/sarsa-nannon-chooseroll-0.5-trial-7.txt
-error = ../log/sarsa-nannon-chooseroll-0.5-trial-7.txt
-queue
-arguments = app_sarsa.py --domain nannon --chooseroll 0.5 --trial 8
-output = ../log/sarsa-nannon-chooseroll-0.5-trial-8.txt
-error = ../log/sarsa-nannon-chooseroll-0.5-trial-8.txt
-queue
-arguments = app_sarsa.py --domain nannon --chooseroll 0.5 --trial 9
-output = ../log/sarsa-nannon-chooseroll-0.5-trial-9.txt
-error = ../log/sarsa-nannon-chooseroll-0.5-trial-9.txt
-queue
-arguments = app_sarsa.py --domain nannon --chooseroll 0.9 --trial 0
-output = ../log/sarsa-nannon-chooseroll-0.9-trial-0.txt
-error = ../log/sarsa-nannon-chooseroll-0.9-trial-0.txt
-queue
-arguments = app_sarsa.py --domain nannon --chooseroll 0.9 --trial 1
-output = ../log/sarsa-nannon-chooseroll-0.9-trial-1.txt
-error = ../log/sarsa-nannon-chooseroll-0.9-trial-1.txt
-queue
-arguments = app_sarsa.py --domain nannon --chooseroll 0.9 --trial 2
-output = ../log/sarsa-nannon-chooseroll-0.9-trial-2.txt
-error = ../log/sarsa-nannon-chooseroll-0.9-trial-2.txt
-queue
-arguments = app_sarsa.py --domain nannon --chooseroll 0.9 --trial 3
-output = ../log/sarsa-nannon-chooseroll-0.9-trial-3.txt
-error = ../log/sarsa-nannon-chooseroll-0.9-trial-3.txt
-queue
-arguments = app_sarsa.py --domain nannon --chooseroll 0.9 --trial 4
-output = ../log/sarsa-nannon-chooseroll-0.9-trial-4.txt
-error = ../log/sarsa-nannon-chooseroll-0.9-trial-4.txt
-queue
-arguments = app_sarsa.py --domain nannon --chooseroll 0.9 --trial 5
-output = ../log/sarsa-nannon-chooseroll-0.9-trial-5.txt
-error = ../log/sarsa-nannon-chooseroll-0.9-trial-5.txt
-queue
-arguments = app_sarsa.py --domain nannon --chooseroll 0.9 --trial 6
-output = ../log/sarsa-nannon-chooseroll-0.9-trial-6.txt
-error = ../log/sarsa-nannon-chooseroll-0.9-trial-6.txt
-queue
-arguments = app_sarsa.py --domain nannon --chooseroll 0.9 --trial 7
-output = ../log/sarsa-nannon-chooseroll-0.9-trial-7.txt
-error = ../log/sarsa-nannon-chooseroll-0.9-trial-7.txt
-queue
-arguments = app_sarsa.py --domain nannon --chooseroll 0.9 --trial 8
-output = ../log/sarsa-nannon-chooseroll-0.9-trial-8.txt
-error = ../log/sarsa-nannon-chooseroll-0.9-trial-8.txt
-queue
-arguments = app_sarsa.py --domain nannon --chooseroll 0.9 --trial 9
-output = ../log/sarsa-nannon-chooseroll-0.9-trial-9.txt
-error = ../log/sarsa-nannon-chooseroll-0.9-trial-9.txt
-queue
-arguments = app_sarsa.py --domain nannon --chooseroll 1.0 --trial 0
-output = ../log/sarsa-nannon-chooseroll-1.0-trial-0.txt
-error = ../log/sarsa-nannon-chooseroll-1.0-trial-0.txt
-queue
-arguments = app_sarsa.py --domain nannon --chooseroll 1.0 --trial 1
-output = ../log/sarsa-nannon-chooseroll-1.0-trial-1.txt
-error = ../log/sarsa-nannon-chooseroll-1.0-trial-1.txt
-queue
-arguments = app_sarsa.py --domain nannon --chooseroll 1.0 --trial 2
-output = ../log/sarsa-nannon-chooseroll-1.0-trial-2.txt
-error = ../log/sarsa-nannon-chooseroll-1.0-trial-2.txt
-queue
-arguments = app_sarsa.py --domain nannon --chooseroll 1.0 --trial 3
-output = ../log/sarsa-nannon-chooseroll-1.0-trial-3.txt
-error = ../log/sarsa-nannon-chooseroll-1.0-trial-3.txt
-queue
-arguments = app_sarsa.py --domain nannon --chooseroll 1.0 --trial 4
-output = ../log/sarsa-nannon-chooseroll-1.0-trial-4.txt
-error = ../log/sarsa-nannon-chooseroll-1.0-trial-4.txt
-queue
-arguments = app_sarsa.py --domain nannon --chooseroll 1.0 --trial 5
-output = ../log/sarsa-nannon-chooseroll-1.0-trial-5.txt
-error = ../log/sarsa-nannon-chooseroll-1.0-trial-5.txt
-queue
-arguments = app_sarsa.py --domain nannon --chooseroll 1.0 --trial 6
-output = ../log/sarsa-nannon-chooseroll-1.0-trial-6.txt
-error = ../log/sarsa-nannon-chooseroll-1.0-trial-6.txt
-queue
-arguments = app_sarsa.py --domain nannon --chooseroll 1.0 --trial 7
-output = ../log/sarsa-nannon-chooseroll-1.0-trial-7.txt
-error = ../log/sarsa-nannon-chooseroll-1.0-trial-7.txt
-queue
-arguments = app_sarsa.py --domain nannon --chooseroll 1.0 --trial 8
-output = ../log/sarsa-nannon-chooseroll-1.0-trial-8.txt
-error = ../log/sarsa-nannon-chooseroll-1.0-trial-8.txt
-queue
-arguments = app_sarsa.py --domain nannon --chooseroll 1.0 --trial 9
-output = ../log/sarsa-nannon-chooseroll-1.0-trial-9.txt
-error = ../log/sarsa-nannon-chooseroll-1.0-trial-9.txt
-queue
-arguments = app_sarsa.py --domain midgammon --chooseroll 0.0 --trial 0
-output = ../log/sarsa-midgammon-chooseroll-0.0-trial-0.txt
-error = ../log/sarsa-midgammon-chooseroll-0.0-trial-0.txt
-queue
-arguments = app_sarsa.py --domain midgammon --chooseroll 0.0 --trial 1
-output = ../log/sarsa-midgammon-chooseroll-0.0-trial-1.txt
-error = ../log/sarsa-midgammon-chooseroll-0.0-trial-1.txt
-queue
-arguments = app_sarsa.py --domain midgammon --chooseroll 0.0 --trial 2
-output = ../log/sarsa-midgammon-chooseroll-0.0-trial-2.txt
-error = ../log/sarsa-midgammon-chooseroll-0.0-trial-2.txt
-queue
-arguments = app_sarsa.py --domain midgammon --chooseroll 0.0 --trial 3
-output = ../log/sarsa-midgammon-chooseroll-0.0-trial-3.txt
-error = ../log/sarsa-midgammon-chooseroll-0.0-trial-3.txt
-queue
-arguments = app_sarsa.py --domain midgammon --chooseroll 0.0 --trial 4
-output = ../log/sarsa-midgammon-chooseroll-0.0-trial-4.txt
-error = ../log/sarsa-midgammon-chooseroll-0.0-trial-4.txt
-queue
-arguments = app_sarsa.py --domain midgammon --chooseroll 0.0 --trial 5
-output = ../log/sarsa-midgammon-chooseroll-0.0-trial-5.txt
-error = ../log/sarsa-midgammon-chooseroll-0.0-trial-5.txt
-queue
-arguments = app_sarsa.py --domain midgammon --chooseroll 0.0 --trial 6
-output = ../log/sarsa-midgammon-chooseroll-0.0-trial-6.txt
-error = ../log/sarsa-midgammon-chooseroll-0.0-trial-6.txt
-queue
-arguments = app_sarsa.py --domain midgammon --chooseroll 0.0 --trial 7
-output = ../log/sarsa-midgammon-chooseroll-0.0-trial-7.txt
-error = ../log/sarsa-midgammon-chooseroll-0.0-trial-7.txt
-queue
-arguments = app_sarsa.py --domain midgammon --chooseroll 0.0 --trial 8
-output = ../log/sarsa-midgammon-chooseroll-0.0-trial-8.txt
-error = ../log/sarsa-midgammon-chooseroll-0.0-trial-8.txt
-queue
-arguments = app_sarsa.py --domain midgammon --chooseroll 0.0 --trial 9
-output = ../log/sarsa-midgammon-chooseroll-0.0-trial-9.txt
-error = ../log/sarsa-midgammon-chooseroll-0.0-trial-9.txt
-queue
-arguments = app_sarsa.py --domain midgammon --chooseroll 0.1 --trial 0
-output = ../log/sarsa-midgammon-chooseroll-0.1-trial-0.txt
-error = ../log/sarsa-midgammon-chooseroll-0.1-trial-0.txt
-queue
-arguments = app_sarsa.py --domain midgammon --chooseroll 0.1 --trial 1
-output = ../log/sarsa-midgammon-chooseroll-0.1-trial-1.txt
-error = ../log/sarsa-midgammon-chooseroll-0.1-trial-1.txt
-queue
-arguments = app_sarsa.py --domain midgammon --chooseroll 0.1 --trial 2
-output = ../log/sarsa-midgammon-chooseroll-0.1-trial-2.txt
-error = ../log/sarsa-midgammon-chooseroll-0.1-trial-2.txt
-queue
-arguments = app_sarsa.py --domain midgammon --chooseroll 0.1 --trial 3
-output = ../log/sarsa-midgammon-chooseroll-0.1-trial-3.txt
-error = ../log/sarsa-midgammon-chooseroll-0.1-trial-3.txt
-queue
-arguments = app_sarsa.py --domain midgammon --chooseroll 0.1 --trial 4
-output = ../log/sarsa-midgammon-chooseroll-0.1-trial-4.txt
-error = ../log/sarsa-midgammon-chooseroll-0.1-trial-4.txt
-queue
-arguments = app_sarsa.py --domain midgammon --chooseroll 0.1 --trial 5
-output = ../log/sarsa-midgammon-chooseroll-0.1-trial-5.txt
-error = ../log/sarsa-midgammon-chooseroll-0.1-trial-5.txt
-queue
-arguments = app_sarsa.py --domain midgammon --chooseroll 0.1 --trial 6
-output = ../log/sarsa-midgammon-chooseroll-0.1-trial-6.txt
-error = ../log/sarsa-midgammon-chooseroll-0.1-trial-6.txt
-queue
-arguments = app_sarsa.py --domain midgammon --chooseroll 0.1 --trial 7
-output = ../log/sarsa-midgammon-chooseroll-0.1-trial-7.txt
-error = ../log/sarsa-midgammon-chooseroll-0.1-trial-7.txt
-queue
-arguments = app_sarsa.py --domain midgammon --chooseroll 0.1 --trial 8
-output = ../log/sarsa-midgammon-chooseroll-0.1-trial-8.txt
-error = ../log/sarsa-midgammon-chooseroll-0.1-trial-8.txt
-queue
-arguments = app_sarsa.py --domain midgammon --chooseroll 0.1 --trial 9
-output = ../log/sarsa-midgammon-chooseroll-0.1-trial-9.txt
-error = ../log/sarsa-midgammon-chooseroll-0.1-trial-9.txt
-queue
-arguments = app_sarsa.py --domain midgammon --chooseroll 0.5 --trial 0
-output = ../log/sarsa-midgammon-chooseroll-0.5-trial-0.txt
-error = ../log/sarsa-midgammon-chooseroll-0.5-trial-0.txt
-queue
-arguments = app_sarsa.py --domain midgammon --chooseroll 0.5 --trial 1
-output = ../log/sarsa-midgammon-chooseroll-0.5-trial-1.txt
-error = ../log/sarsa-midgammon-chooseroll-0.5-trial-1.txt
-queue
-arguments = app_sarsa.py --domain midgammon --chooseroll 0.5 --trial 2
-output = ../log/sarsa-midgammon-chooseroll-0.5-trial-2.txt
-error = ../log/sarsa-midgammon-chooseroll-0.5-trial-2.txt
-queue
-arguments = app_sarsa.py --domain midgammon --chooseroll 0.5 --trial 3
-output = ../log/sarsa-midgammon-chooseroll-0.5-trial-3.txt
-error = ../log/sarsa-midgammon-chooseroll-0.5-trial-3.txt
-queue
-arguments = app_sarsa.py --domain midgammon --chooseroll 0.5 --trial 4
-output = ../log/sarsa-midgammon-chooseroll-0.5-trial-4.txt
-error = ../log/sarsa-midgammon-chooseroll-0.5-trial-4.txt
-queue
-arguments = app_sarsa.py --domain midgammon --chooseroll 0.5 --trial 5
-output = ../log/sarsa-midgammon-chooseroll-0.5-trial-5.txt
-error = ../log/sarsa-midgammon-chooseroll-0.5-trial-5.txt
-queue
-arguments = app_sarsa.py --domain midgammon --chooseroll 0.5 --trial 6
-output = ../log/sarsa-midgammon-chooseroll-0.5-trial-6.txt
-error = ../log/sarsa-midgammon-chooseroll-0.5-trial-6.txt
-queue
-arguments = app_sarsa.py --domain midgammon --chooseroll 0.5 --trial 7
-output = ../log/sarsa-midgammon-chooseroll-0.5-trial-7.txt
-error = ../log/sarsa-midgammon-chooseroll-0.5-trial-7.txt
-queue
-arguments = app_sarsa.py --domain midgammon --chooseroll 0.5 --trial 8
-output = ../log/sarsa-midgammon-chooseroll-0.5-trial-8.txt
-error = ../log/sarsa-midgammon-chooseroll-0.5-trial-8.txt
-queue
-arguments = app_sarsa.py --domain midgammon --chooseroll 0.5 --trial 9
-output = ../log/sarsa-midgammon-chooseroll-0.5-trial-9.txt
-error = ../log/sarsa-midgammon-chooseroll-0.5-trial-9.txt
-queue
-arguments = app_sarsa.py --domain midgammon --chooseroll 0.9 --trial 0
-output = ../log/sarsa-midgammon-chooseroll-0.9-trial-0.txt
-error = ../log/sarsa-midgammon-chooseroll-0.9-trial-0.txt
-queue
-arguments = app_sarsa.py --domain midgammon --chooseroll 0.9 --trial 1
-output = ../log/sarsa-midgammon-chooseroll-0.9-trial-1.txt
-error = ../log/sarsa-midgammon-chooseroll-0.9-trial-1.txt
-queue
-arguments = app_sarsa.py --domain midgammon --chooseroll 0.9 --trial 2
-output = ../log/sarsa-midgammon-chooseroll-0.9-trial-2.txt
-error = ../log/sarsa-midgammon-chooseroll-0.9-trial-2.txt
-queue
-arguments = app_sarsa.py --domain midgammon --chooseroll 0.9 --trial 3
-output = ../log/sarsa-midgammon-chooseroll-0.9-trial-3.txt
-error = ../log/sarsa-midgammon-chooseroll-0.9-trial-3.txt
-queue
-arguments = app_sarsa.py --domain midgammon --chooseroll 0.9 --trial 4
-output = ../log/sarsa-midgammon-chooseroll-0.9-trial-4.txt
-error = ../log/sarsa-midgammon-chooseroll-0.9-trial-4.txt
-queue
-arguments = app_sarsa.py --domain midgammon --chooseroll 0.9 --trial 5
-output = ../log/sarsa-midgammon-chooseroll-0.9-trial-5.txt
-error = ../log/sarsa-midgammon-chooseroll-0.9-trial-5.txt
-queue
-arguments = app_sarsa.py --domain midgammon --chooseroll 0.9 --trial 6
-output = ../log/sarsa-midgammon-chooseroll-0.9-trial-6.txt
-error = ../log/sarsa-midgammon-chooseroll-0.9-trial-6.txt
-queue
-arguments = app_sarsa.py --domain midgammon --chooseroll 0.9 --trial 7
-output = ../log/sarsa-midgammon-chooseroll-0.9-trial-7.txt
-error = ../log/sarsa-midgammon-chooseroll-0.9-trial-7.txt
-queue
-arguments = app_sarsa.py --domain midgammon --chooseroll 0.9 --trial 8
-output = ../log/sarsa-midgammon-chooseroll-0.9-trial-8.txt
-error = ../log/sarsa-midgammon-chooseroll-0.9-trial-8.txt
-queue
-arguments = app_sarsa.py --domain midgammon --chooseroll 0.9 --trial 9
-output = ../log/sarsa-midgammon-chooseroll-0.9-trial-9.txt
-error = ../log/sarsa-midgammon-chooseroll-0.9-trial-9.txt
-queue
-arguments = app_sarsa.py --domain midgammon --chooseroll 1.0 --trial 0
-output = ../log/sarsa-midgammon-chooseroll-1.0-trial-0.txt
-error = ../log/sarsa-midgammon-chooseroll-1.0-trial-0.txt
-queue
-arguments = app_sarsa.py --domain midgammon --chooseroll 1.0 --trial 1
-output = ../log/sarsa-midgammon-chooseroll-1.0-trial-1.txt
-error = ../log/sarsa-midgammon-chooseroll-1.0-trial-1.txt
-queue
-arguments = app_sarsa.py --domain midgammon --chooseroll 1.0 --trial 2
-output = ../log/sarsa-midgammon-chooseroll-1.0-trial-2.txt
-error = ../log/sarsa-midgammon-chooseroll-1.0-trial-2.txt
-queue
-arguments = app_sarsa.py --domain midgammon --chooseroll 1.0 --trial 3
-output = ../log/sarsa-midgammon-chooseroll-1.0-trial-3.txt
-error = ../log/sarsa-midgammon-chooseroll-1.0-trial-3.txt
-queue
-arguments = app_sarsa.py --domain midgammon --chooseroll 1.0 --trial 4
-output = ../log/sarsa-midgammon-chooseroll-1.0-trial-4.txt
-error = ../log/sarsa-midgammon-chooseroll-1.0-trial-4.txt
-queue
-arguments = app_sarsa.py --domain midgammon --chooseroll 1.0 --trial 5
-output = ../log/sarsa-midgammon-chooseroll-1.0-trial-5.txt
-error = ../log/sarsa-midgammon-chooseroll-1.0-trial-5.txt
-queue
-arguments = app_sarsa.py --domain midgammon --chooseroll 1.0 --trial 6
-output = ../log/sarsa-midgammon-chooseroll-1.0-trial-6.txt
-error = ../log/sarsa-midgammon-chooseroll-1.0-trial-6.txt
-queue
-arguments = app_sarsa.py --domain midgammon --chooseroll 1.0 --trial 7
-output = ../log/sarsa-midgammon-chooseroll-1.0-trial-7.txt
-error = ../log/sarsa-midgammon-chooseroll-1.0-trial-7.txt
-queue
-arguments = app_sarsa.py --domain midgammon --chooseroll 1.0 --trial 8
-output = ../log/sarsa-midgammon-chooseroll-1.0-trial-8.txt
-error = ../log/sarsa-midgammon-chooseroll-1.0-trial-8.txt
-queue
-arguments = app_sarsa.py --domain midgammon --chooseroll 1.0 --trial 9
-output = ../log/sarsa-midgammon-chooseroll-1.0-trial-9.txt
-error = ../log/sarsa-midgammon-chooseroll-1.0-trial-9.txt
-queue
-arguments = app_sarsa.py --domain nohitgammon --chooseroll 0.0 --trial 0
-output = ../log/sarsa-nohitgammon-chooseroll-0.0-trial-0.txt
-error = ../log/sarsa-nohitgammon-chooseroll-0.0-trial-0.txt
-queue
-arguments = app_sarsa.py --domain nohitgammon --chooseroll 0.0 --trial 1
-output = ../log/sarsa-nohitgammon-chooseroll-0.0-trial-1.txt
-error = ../log/sarsa-nohitgammon-chooseroll-0.0-trial-1.txt
-queue
-arguments = app_sarsa.py --domain nohitgammon --chooseroll 0.0 --trial 2
-output = ../log/sarsa-nohitgammon-chooseroll-0.0-trial-2.txt
-error = ../log/sarsa-nohitgammon-chooseroll-0.0-trial-2.txt
-queue
-arguments = app_sarsa.py --domain nohitgammon --chooseroll 0.0 --trial 3
-output = ../log/sarsa-nohitgammon-chooseroll-0.0-trial-3.txt
-error = ../log/sarsa-nohitgammon-chooseroll-0.0-trial-3.txt
-queue
-arguments = app_sarsa.py --domain nohitgammon --chooseroll 0.0 --trial 4
-output = ../log/sarsa-nohitgammon-chooseroll-0.0-trial-4.txt
-error = ../log/sarsa-nohitgammon-chooseroll-0.0-trial-4.txt
-queue
-arguments = app_sarsa.py --domain nohitgammon --chooseroll 0.0 --trial 5
-output = ../log/sarsa-nohitgammon-chooseroll-0.0-trial-5.txt
-error = ../log/sarsa-nohitgammon-chooseroll-0.0-trial-5.txt
-queue
-arguments = app_sarsa.py --domain nohitgammon --chooseroll 0.0 --trial 6
-output = ../log/sarsa-nohitgammon-chooseroll-0.0-trial-6.txt
-error = ../log/sarsa-nohitgammon-chooseroll-0.0-trial-6.txt
-queue
-arguments = app_sarsa.py --domain nohitgammon --chooseroll 0.0 --trial 7
-output = ../log/sarsa-nohitgammon-chooseroll-0.0-trial-7.txt
-error = ../log/sarsa-nohitgammon-chooseroll-0.0-trial-7.txt
-queue
-arguments = app_sarsa.py --domain nohitgammon --chooseroll 0.0 --trial 8
-output = ../log/sarsa-nohitgammon-chooseroll-0.0-trial-8.txt
-error = ../log/sarsa-nohitgammon-chooseroll-0.0-trial-8.txt
-queue
-arguments = app_sarsa.py --domain nohitgammon --chooseroll 0.0 --trial 9
-output = ../log/sarsa-nohitgammon-chooseroll-0.0-trial-9.txt
-error = ../log/sarsa-nohitgammon-chooseroll-0.0-trial-9.txt
-queue
-arguments = app_sarsa.py --domain nohitgammon --chooseroll 0.1 --trial 0
-output = ../log/sarsa-nohitgammon-chooseroll-0.1-trial-0.txt
-error = ../log/sarsa-nohitgammon-chooseroll-0.1-trial-0.txt
-queue
-arguments = app_sarsa.py --domain nohitgammon --chooseroll 0.1 --trial 1
-output = ../log/sarsa-nohitgammon-chooseroll-0.1-trial-1.txt
-error = ../log/sarsa-nohitgammon-chooseroll-0.1-trial-1.txt
-queue
-arguments = app_sarsa.py --domain nohitgammon --chooseroll 0.1 --trial 2
-output = ../log/sarsa-nohitgammon-chooseroll-0.1-trial-2.txt
-error = ../log/sarsa-nohitgammon-chooseroll-0.1-trial-2.txt
-queue
-arguments = app_sarsa.py --domain nohitgammon --chooseroll 0.1 --trial 3
-output = ../log/sarsa-nohitgammon-chooseroll-0.1-trial-3.txt
-error = ../log/sarsa-nohitgammon-chooseroll-0.1-trial-3.txt
-queue
-arguments = app_sarsa.py --domain nohitgammon --chooseroll 0.1 --trial 4
-output = ../log/sarsa-nohitgammon-chooseroll-0.1-trial-4.txt
-error = ../log/sarsa-nohitgammon-chooseroll-0.1-trial-4.txt
-queue
-arguments = app_sarsa.py --domain nohitgammon --chooseroll 0.1 --trial 5
-output = ../log/sarsa-nohitgammon-chooseroll-0.1-trial-5.txt
-error = ../log/sarsa-nohitgammon-chooseroll-0.1-trial-5.txt
-queue
-arguments = app_sarsa.py --domain nohitgammon --chooseroll 0.1 --trial 6
-output = ../log/sarsa-nohitgammon-chooseroll-0.1-trial-6.txt
-error = ../log/sarsa-nohitgammon-chooseroll-0.1-trial-6.txt
-queue
-arguments = app_sarsa.py --domain nohitgammon --chooseroll 0.1 --trial 7
-output = ../log/sarsa-nohitgammon-chooseroll-0.1-trial-7.txt
-error = ../log/sarsa-nohitgammon-chooseroll-0.1-trial-7.txt
-queue
-arguments = app_sarsa.py --domain nohitgammon --chooseroll 0.1 --trial 8
-output = ../log/sarsa-nohitgammon-chooseroll-0.1-trial-8.txt
-error = ../log/sarsa-nohitgammon-chooseroll-0.1-trial-8.txt
-queue
-arguments = app_sarsa.py --domain nohitgammon --chooseroll 0.1 --trial 9
-output = ../log/sarsa-nohitgammon-chooseroll-0.1-trial-9.txt
-error = ../log/sarsa-nohitgammon-chooseroll-0.1-trial-9.txt
-queue
-arguments = app_sarsa.py --domain nohitgammon --chooseroll 0.5 --trial 0
-output = ../log/sarsa-nohitgammon-chooseroll-0.5-trial-0.txt
-error = ../log/sarsa-nohitgammon-chooseroll-0.5-trial-0.txt
-queue
-arguments = app_sarsa.py --domain nohitgammon --chooseroll 0.5 --trial 1
-output = ../log/sarsa-nohitgammon-chooseroll-0.5-trial-1.txt
-error = ../log/sarsa-nohitgammon-chooseroll-0.5-trial-1.txt
-queue
-arguments = app_sarsa.py --domain nohitgammon --chooseroll 0.5 --trial 2
-output = ../log/sarsa-nohitgammon-chooseroll-0.5-trial-2.txt
-error = ../log/sarsa-nohitgammon-chooseroll-0.5-trial-2.txt
-queue
-arguments = app_sarsa.py --domain nohitgammon --chooseroll 0.5 --trial 3
-output = ../log/sarsa-nohitgammon-chooseroll-0.5-trial-3.txt
-error = ../log/sarsa-nohitgammon-chooseroll-0.5-trial-3.txt
-queue
-arguments = app_sarsa.py --domain nohitgammon --chooseroll 0.5 --trial 4
-output = ../log/sarsa-nohitgammon-chooseroll-0.5-trial-4.txt
-error = ../log/sarsa-nohitgammon-chooseroll-0.5-trial-4.txt
-queue
-arguments = app_sarsa.py --domain nohitgammon --chooseroll 0.5 --trial 5
-output = ../log/sarsa-nohitgammon-chooseroll-0.5-trial-5.txt
-error = ../log/sarsa-nohitgammon-chooseroll-0.5-trial-5.txt
-queue
-arguments = app_sarsa.py --domain nohitgammon --chooseroll 0.5 --trial 6
-output = ../log/sarsa-nohitgammon-chooseroll-0.5-trial-6.txt
-error = ../log/sarsa-nohitgammon-chooseroll-0.5-trial-6.txt
-queue
-arguments = app_sarsa.py --domain nohitgammon --chooseroll 0.5 --trial 7
-output = ../log/sarsa-nohitgammon-chooseroll-0.5-trial-7.txt
-error = ../log/sarsa-nohitgammon-chooseroll-0.5-trial-7.txt
-queue
-arguments = app_sarsa.py --domain nohitgammon --chooseroll 0.5 --trial 8
-output = ../log/sarsa-nohitgammon-chooseroll-0.5-trial-8.txt
-error = ../log/sarsa-nohitgammon-chooseroll-0.5-trial-8.txt
-queue
-arguments = app_sarsa.py --domain nohitgammon --chooseroll 0.5 --trial 9
-output = ../log/sarsa-nohitgammon-chooseroll-0.5-trial-9.txt
-error = ../log/sarsa-nohitgammon-chooseroll-0.5-trial-9.txt
-queue
-arguments = app_sarsa.py --domain nohitgammon --chooseroll 0.9 --trial 0
-output = ../log/sarsa-nohitgammon-chooseroll-0.9-trial-0.txt
-error = ../log/sarsa-nohitgammon-chooseroll-0.9-trial-0.txt
-queue
-arguments = app_sarsa.py --domain nohitgammon --chooseroll 0.9 --trial 1
-output = ../log/sarsa-nohitgammon-chooseroll-0.9-trial-1.txt
-error = ../log/sarsa-nohitgammon-chooseroll-0.9-trial-1.txt
-queue
-arguments = app_sarsa.py --domain nohitgammon --chooseroll 0.9 --trial 2
-output = ../log/sarsa-nohitgammon-chooseroll-0.9-trial-2.txt
-error = ../log/sarsa-nohitgammon-chooseroll-0.9-trial-2.txt
-queue
-arguments = app_sarsa.py --domain nohitgammon --chooseroll 0.9 --trial 3
-output = ../log/sarsa-nohitgammon-chooseroll-0.9-trial-3.txt
-error = ../log/sarsa-nohitgammon-chooseroll-0.9-trial-3.txt
-queue
-arguments = app_sarsa.py --domain nohitgammon --chooseroll 0.9 --trial 4
-output = ../log/sarsa-nohitgammon-chooseroll-0.9-trial-4.txt
-error = ../log/sarsa-nohitgammon-chooseroll-0.9-trial-4.txt
-queue
-arguments = app_sarsa.py --domain nohitgammon --chooseroll 0.9 --trial 5
-output = ../log/sarsa-nohitgammon-chooseroll-0.9-trial-5.txt
-error = ../log/sarsa-nohitgammon-chooseroll-0.9-trial-5.txt
-queue
-arguments = app_sarsa.py --domain nohitgammon --chooseroll 0.9 --trial 6
-output = ../log/sarsa-nohitgammon-chooseroll-0.9-trial-6.txt
-error = ../log/sarsa-nohitgammon-chooseroll-0.9-trial-6.txt
-queue
-arguments = app_sarsa.py --domain nohitgammon --chooseroll 0.9 --trial 7
-output = ../log/sarsa-nohitgammon-chooseroll-0.9-trial-7.txt
-error = ../log/sarsa-nohitgammon-chooseroll-0.9-trial-7.txt
-queue
-arguments = app_sarsa.py --domain nohitgammon --chooseroll 0.9 --trial 8
-output = ../log/sarsa-nohitgammon-chooseroll-0.9-trial-8.txt
-error = ../log/sarsa-nohitgammon-chooseroll-0.9-trial-8.txt
-queue
-arguments = app_sarsa.py --domain nohitgammon --chooseroll 0.9 --trial 9
-output = ../log/sarsa-nohitgammon-chooseroll-0.9-trial-9.txt
-error = ../log/sarsa-nohitgammon-chooseroll-0.9-trial-9.txt
-queue
-arguments = app_sarsa.py --domain nohitgammon --chooseroll 1.0 --trial 0
-output = ../log/sarsa-nohitgammon-chooseroll-1.0-trial-0.txt
-error = ../log/sarsa-nohitgammon-chooseroll-1.0-trial-0.txt
-queue
-arguments = app_sarsa.py --domain nohitgammon --chooseroll 1.0 --trial 1
-output = ../log/sarsa-nohitgammon-chooseroll-1.0-trial-1.txt
-error = ../log/sarsa-nohitgammon-chooseroll-1.0-trial-1.txt
-queue
-arguments = app_sarsa.py --domain nohitgammon --chooseroll 1.0 --trial 2
-output = ../log/sarsa-nohitgammon-chooseroll-1.0-trial-2.txt
-error = ../log/sarsa-nohitgammon-chooseroll-1.0-trial-2.txt
-queue
-arguments = app_sarsa.py --domain nohitgammon --chooseroll 1.0 --trial 3
-output = ../log/sarsa-nohitgammon-chooseroll-1.0-trial-3.txt
-error = ../log/sarsa-nohitgammon-chooseroll-1.0-trial-3.txt
-queue
-arguments = app_sarsa.py --domain nohitgammon --chooseroll 1.0 --trial 4
-output = ../log/sarsa-nohitgammon-chooseroll-1.0-trial-4.txt
-error = ../log/sarsa-nohitgammon-chooseroll-1.0-trial-4.txt
-queue
-arguments = app_sarsa.py --domain nohitgammon --chooseroll 1.0 --trial 5
-output = ../log/sarsa-nohitgammon-chooseroll-1.0-trial-5.txt
-error = ../log/sarsa-nohitgammon-chooseroll-1.0-trial-5.txt
-queue
-arguments = app_sarsa.py --domain nohitgammon --chooseroll 1.0 --trial 6
-output = ../log/sarsa-nohitgammon-chooseroll-1.0-trial-6.txt
-error = ../log/sarsa-nohitgammon-chooseroll-1.0-trial-6.txt
-queue
-arguments = app_sarsa.py --domain nohitgammon --chooseroll 1.0 --trial 7
-output = ../log/sarsa-nohitgammon-chooseroll-1.0-trial-7.txt
-error = ../log/sarsa-nohitgammon-chooseroll-1.0-trial-7.txt
-queue
-arguments = app_sarsa.py --domain nohitgammon --chooseroll 1.0 --trial 8
-output = ../log/sarsa-nohitgammon-chooseroll-1.0-trial-8.txt
-error = ../log/sarsa-nohitgammon-chooseroll-1.0-trial-8.txt
-queue
-arguments = app_sarsa.py --domain nohitgammon --chooseroll 1.0 --trial 9
-output = ../log/sarsa-nohitgammon-chooseroll-1.0-trial-9.txt
-error = ../log/sarsa-nohitgammon-chooseroll-1.0-trial-9.txt
+arguments = app_ntd.py --domain nim --chooseroll 0.0 --trial 0
+output = ../data/condorlog/nim-013-23-ntd-nim-chooseroll-0.0-trial-0.txt
+error = ../data/condorlog/nim-013-23-ntd-nim-chooseroll-0.0-trial-0.txt
+queue
+arguments = app_ntd.py --domain nim --chooseroll 0.0 --trial 1
+output = ../data/condorlog/nim-013-23-ntd-nim-chooseroll-0.0-trial-1.txt
+error = ../data/condorlog/nim-013-23-ntd-nim-chooseroll-0.0-trial-1.txt
+queue
+arguments = app_ntd.py --domain nim --chooseroll 0.0 --trial 2
+output = ../data/condorlog/nim-013-23-ntd-nim-chooseroll-0.0-trial-2.txt
+error = ../data/condorlog/nim-013-23-ntd-nim-chooseroll-0.0-trial-2.txt
+queue
+arguments = app_ntd.py --domain nim --chooseroll 0.0 --trial 3
+output = ../data/condorlog/nim-013-23-ntd-nim-chooseroll-0.0-trial-3.txt
+error = ../data/condorlog/nim-013-23-ntd-nim-chooseroll-0.0-trial-3.txt
+queue
+arguments = app_ntd.py --domain nim --chooseroll 0.0 --trial 4
+output = ../data/condorlog/nim-013-23-ntd-nim-chooseroll-0.0-trial-4.txt
+error = ../data/condorlog/nim-013-23-ntd-nim-chooseroll-0.0-trial-4.txt
+queue
+arguments = app_ntd.py --domain nim --chooseroll 0.0 --trial 5
+output = ../data/condorlog/nim-013-23-ntd-nim-chooseroll-0.0-trial-5.txt
+error = ../data/condorlog/nim-013-23-ntd-nim-chooseroll-0.0-trial-5.txt
+queue
+arguments = app_ntd.py --domain nim --chooseroll 0.0 --trial 6
+output = ../data/condorlog/nim-013-23-ntd-nim-chooseroll-0.0-trial-6.txt
+error = ../data/condorlog/nim-013-23-ntd-nim-chooseroll-0.0-trial-6.txt
+queue
+arguments = app_ntd.py --domain nim --chooseroll 0.0 --trial 7
+output = ../data/condorlog/nim-013-23-ntd-nim-chooseroll-0.0-trial-7.txt
+error = ../data/condorlog/nim-013-23-ntd-nim-chooseroll-0.0-trial-7.txt
+queue
+arguments = app_ntd.py --domain nim --chooseroll 0.0 --trial 8
+output = ../data/condorlog/nim-013-23-ntd-nim-chooseroll-0.0-trial-8.txt
+error = ../data/condorlog/nim-013-23-ntd-nim-chooseroll-0.0-trial-8.txt
+queue
+arguments = app_ntd.py --domain nim --chooseroll 0.0 --trial 9
+output = ../data/condorlog/nim-013-23-ntd-nim-chooseroll-0.0-trial-9.txt
+error = ../data/condorlog/nim-013-23-ntd-nim-chooseroll-0.0-trial-9.txt
+queue
+arguments = app_ntd.py --domain nim --chooseroll 0.1 --trial 0
+output = ../data/condorlog/nim-013-23-ntd-nim-chooseroll-0.1-trial-0.txt
+error = ../data/condorlog/nim-013-23-ntd-nim-chooseroll-0.1-trial-0.txt
+queue
+arguments = app_ntd.py --domain nim --chooseroll 0.1 --trial 1
+output = ../data/condorlog/nim-013-23-ntd-nim-chooseroll-0.1-trial-1.txt
+error = ../data/condorlog/nim-013-23-ntd-nim-chooseroll-0.1-trial-1.txt
+queue
+arguments = app_ntd.py --domain nim --chooseroll 0.1 --trial 2
+output = ../data/condorlog/nim-013-23-ntd-nim-chooseroll-0.1-trial-2.txt
+error = ../data/condorlog/nim-013-23-ntd-nim-chooseroll-0.1-trial-2.txt
+queue
+arguments = app_ntd.py --domain nim --chooseroll 0.1 --trial 3
+output = ../data/condorlog/nim-013-23-ntd-nim-chooseroll-0.1-trial-3.txt
+error = ../data/condorlog/nim-013-23-ntd-nim-chooseroll-0.1-trial-3.txt
+queue
+arguments = app_ntd.py --domain nim --chooseroll 0.1 --trial 4
+output = ../data/condorlog/nim-013-23-ntd-nim-chooseroll-0.1-trial-4.txt
+error = ../data/condorlog/nim-013-23-ntd-nim-chooseroll-0.1-trial-4.txt
+queue
+arguments = app_ntd.py --domain nim --chooseroll 0.1 --trial 5
+output = ../data/condorlog/nim-013-23-ntd-nim-chooseroll-0.1-trial-5.txt
+error = ../data/condorlog/nim-013-23-ntd-nim-chooseroll-0.1-trial-5.txt
+queue
+arguments = app_ntd.py --domain nim --chooseroll 0.1 --trial 6
+output = ../data/condorlog/nim-013-23-ntd-nim-chooseroll-0.1-trial-6.txt
+error = ../data/condorlog/nim-013-23-ntd-nim-chooseroll-0.1-trial-6.txt
+queue
+arguments = app_ntd.py --domain nim --chooseroll 0.1 --trial 7
+output = ../data/condorlog/nim-013-23-ntd-nim-chooseroll-0.1-trial-7.txt
+error = ../data/condorlog/nim-013-23-ntd-nim-chooseroll-0.1-trial-7.txt
+queue
+arguments = app_ntd.py --domain nim --chooseroll 0.1 --trial 8
+output = ../data/condorlog/nim-013-23-ntd-nim-chooseroll-0.1-trial-8.txt
+error = ../data/condorlog/nim-013-23-ntd-nim-chooseroll-0.1-trial-8.txt
+queue
+arguments = app_ntd.py --domain nim --chooseroll 0.1 --trial 9
+output = ../data/condorlog/nim-013-23-ntd-nim-chooseroll-0.1-trial-9.txt
+error = ../data/condorlog/nim-013-23-ntd-nim-chooseroll-0.1-trial-9.txt
+queue
+arguments = app_ntd.py --domain nim --chooseroll 0.5 --trial 0
+output = ../data/condorlog/nim-013-23-ntd-nim-chooseroll-0.5-trial-0.txt
+error = ../data/condorlog/nim-013-23-ntd-nim-chooseroll-0.5-trial-0.txt
+queue
+arguments = app_ntd.py --domain nim --chooseroll 0.5 --trial 1
+output = ../data/condorlog/nim-013-23-ntd-nim-chooseroll-0.5-trial-1.txt
+error = ../data/condorlog/nim-013-23-ntd-nim-chooseroll-0.5-trial-1.txt
+queue
+arguments = app_ntd.py --domain nim --chooseroll 0.5 --trial 2
+output = ../data/condorlog/nim-013-23-ntd-nim-chooseroll-0.5-trial-2.txt
+error = ../data/condorlog/nim-013-23-ntd-nim-chooseroll-0.5-trial-2.txt
+queue
+arguments = app_ntd.py --domain nim --chooseroll 0.5 --trial 3
+output = ../data/condorlog/nim-013-23-ntd-nim-chooseroll-0.5-trial-3.txt
+error = ../data/condorlog/nim-013-23-ntd-nim-chooseroll-0.5-trial-3.txt
+queue
+arguments = app_ntd.py --domain nim --chooseroll 0.5 --trial 4
+output = ../data/condorlog/nim-013-23-ntd-nim-chooseroll-0.5-trial-4.txt
+error = ../data/condorlog/nim-013-23-ntd-nim-chooseroll-0.5-trial-4.txt
+queue
+arguments = app_ntd.py --domain nim --chooseroll 0.5 --trial 5
+output = ../data/condorlog/nim-013-23-ntd-nim-chooseroll-0.5-trial-5.txt
+error = ../data/condorlog/nim-013-23-ntd-nim-chooseroll-0.5-trial-5.txt
+queue
+arguments = app_ntd.py --domain nim --chooseroll 0.5 --trial 6
+output = ../data/condorlog/nim-013-23-ntd-nim-chooseroll-0.5-trial-6.txt
+error = ../data/condorlog/nim-013-23-ntd-nim-chooseroll-0.5-trial-6.txt
+queue
+arguments = app_ntd.py --domain nim --chooseroll 0.5 --trial 7
+output = ../data/condorlog/nim-013-23-ntd-nim-chooseroll-0.5-trial-7.txt
+error = ../data/condorlog/nim-013-23-ntd-nim-chooseroll-0.5-trial-7.txt
+queue
+arguments = app_ntd.py --domain nim --chooseroll 0.5 --trial 8
+output = ../data/condorlog/nim-013-23-ntd-nim-chooseroll-0.5-trial-8.txt
+error = ../data/condorlog/nim-013-23-ntd-nim-chooseroll-0.5-trial-8.txt
+queue
+arguments = app_ntd.py --domain nim --chooseroll 0.5 --trial 9
+output = ../data/condorlog/nim-013-23-ntd-nim-chooseroll-0.5-trial-9.txt
+error = ../data/condorlog/nim-013-23-ntd-nim-chooseroll-0.5-trial-9.txt
+queue
+arguments = app_ntd.py --domain nim --chooseroll 0.9 --trial 0
+output = ../data/condorlog/nim-013-23-ntd-nim-chooseroll-0.9-trial-0.txt
+error = ../data/condorlog/nim-013-23-ntd-nim-chooseroll-0.9-trial-0.txt
+queue
+arguments = app_ntd.py --domain nim --chooseroll 0.9 --trial 1
+output = ../data/condorlog/nim-013-23-ntd-nim-chooseroll-0.9-trial-1.txt
+error = ../data/condorlog/nim-013-23-ntd-nim-chooseroll-0.9-trial-1.txt
+queue
+arguments = app_ntd.py --domain nim --chooseroll 0.9 --trial 2
+output = ../data/condorlog/nim-013-23-ntd-nim-chooseroll-0.9-trial-2.txt
+error = ../data/condorlog/nim-013-23-ntd-nim-chooseroll-0.9-trial-2.txt
+queue
+arguments = app_ntd.py --domain nim --chooseroll 0.9 --trial 3
+output = ../data/condorlog/nim-013-23-ntd-nim-chooseroll-0.9-trial-3.txt
+error = ../data/condorlog/nim-013-23-ntd-nim-chooseroll-0.9-trial-3.txt
+queue
+arguments = app_ntd.py --domain nim --chooseroll 0.9 --trial 4
+output = ../data/condorlog/nim-013-23-ntd-nim-chooseroll-0.9-trial-4.txt
+error = ../data/condorlog/nim-013-23-ntd-nim-chooseroll-0.9-trial-4.txt
+queue
+arguments = app_ntd.py --domain nim --chooseroll 0.9 --trial 5
+output = ../data/condorlog/nim-013-23-ntd-nim-chooseroll-0.9-trial-5.txt
+error = ../data/condorlog/nim-013-23-ntd-nim-chooseroll-0.9-trial-5.txt
+queue
+arguments = app_ntd.py --domain nim --chooseroll 0.9 --trial 6
+output = ../data/condorlog/nim-013-23-ntd-nim-chooseroll-0.9-trial-6.txt
+error = ../data/condorlog/nim-013-23-ntd-nim-chooseroll-0.9-trial-6.txt
+queue
+arguments = app_ntd.py --domain nim --chooseroll 0.9 --trial 7
+output = ../data/condorlog/nim-013-23-ntd-nim-chooseroll-0.9-trial-7.txt
+error = ../data/condorlog/nim-013-23-ntd-nim-chooseroll-0.9-trial-7.txt
+queue
+arguments = app_ntd.py --domain nim --chooseroll 0.9 --trial 8
+output = ../data/condorlog/nim-013-23-ntd-nim-chooseroll-0.9-trial-8.txt
+error = ../data/condorlog/nim-013-23-ntd-nim-chooseroll-0.9-trial-8.txt
+queue
+arguments = app_ntd.py --domain nim --chooseroll 0.9 --trial 9
+output = ../data/condorlog/nim-013-23-ntd-nim-chooseroll-0.9-trial-9.txt
+error = ../data/condorlog/nim-013-23-ntd-nim-chooseroll-0.9-trial-9.txt
+queue
+arguments = app_ntd.py --domain nim --chooseroll 1.0 --trial 0
+output = ../data/condorlog/nim-013-23-ntd-nim-chooseroll-1.0-trial-0.txt
+error = ../data/condorlog/nim-013-23-ntd-nim-chooseroll-1.0-trial-0.txt
+queue
+arguments = app_ntd.py --domain nim --chooseroll 1.0 --trial 1
+output = ../data/condorlog/nim-013-23-ntd-nim-chooseroll-1.0-trial-1.txt
+error = ../data/condorlog/nim-013-23-ntd-nim-chooseroll-1.0-trial-1.txt
+queue
+arguments = app_ntd.py --domain nim --chooseroll 1.0 --trial 2
+output = ../data/condorlog/nim-013-23-ntd-nim-chooseroll-1.0-trial-2.txt
+error = ../data/condorlog/nim-013-23-ntd-nim-chooseroll-1.0-trial-2.txt
+queue
+arguments = app_ntd.py --domain nim --chooseroll 1.0 --trial 3
+output = ../data/condorlog/nim-013-23-ntd-nim-chooseroll-1.0-trial-3.txt
+error = ../data/condorlog/nim-013-23-ntd-nim-chooseroll-1.0-trial-3.txt
+queue
+arguments = app_ntd.py --domain nim --chooseroll 1.0 --trial 4
+output = ../data/condorlog/nim-013-23-ntd-nim-chooseroll-1.0-trial-4.txt
+error = ../data/condorlog/nim-013-23-ntd-nim-chooseroll-1.0-trial-4.txt
+queue
+arguments = app_ntd.py --domain nim --chooseroll 1.0 --trial 5
+output = ../data/condorlog/nim-013-23-ntd-nim-chooseroll-1.0-trial-5.txt
+error = ../data/condorlog/nim-013-23-ntd-nim-chooseroll-1.0-trial-5.txt
+queue
+arguments = app_ntd.py --domain nim --chooseroll 1.0 --trial 6
+output = ../data/condorlog/nim-013-23-ntd-nim-chooseroll-1.0-trial-6.txt
+error = ../data/condorlog/nim-013-23-ntd-nim-chooseroll-1.0-trial-6.txt
+queue
+arguments = app_ntd.py --domain nim --chooseroll 1.0 --trial 7
+output = ../data/condorlog/nim-013-23-ntd-nim-chooseroll-1.0-trial-7.txt
+error = ../data/condorlog/nim-013-23-ntd-nim-chooseroll-1.0-trial-7.txt
+queue
+arguments = app_ntd.py --domain nim --chooseroll 1.0 --trial 8
+output = ../data/condorlog/nim-013-23-ntd-nim-chooseroll-1.0-trial-8.txt
+error = ../data/condorlog/nim-013-23-ntd-nim-chooseroll-1.0-trial-8.txt
+queue
+arguments = app_ntd.py --domain nim --chooseroll 1.0 --trial 9
+output = ../data/condorlog/nim-013-23-ntd-nim-chooseroll-1.0-trial-9.txt
+error = ../data/condorlog/nim-013-23-ntd-nim-chooseroll-1.0-trial-9.txt
 queue
 arguments = app_ntd.py --domain minigammon --chooseroll 0.0 --trial 0
-output = ../log/ntd-minigammon-chooseroll-0.0-trial-0.txt
-error = ../log/ntd-minigammon-chooseroll-0.0-trial-0.txt
+output = ../data/condorlog/minigammon-622-ntd-minigammon-chooseroll-0.0-trial-0.txt
+error = ../data/condorlog/minigammon-622-ntd-minigammon-chooseroll-0.0-trial-0.txt
 queue
 arguments = app_ntd.py --domain minigammon --chooseroll 0.0 --trial 1
-output = ../log/ntd-minigammon-chooseroll-0.0-trial-1.txt
-error = ../log/ntd-minigammon-chooseroll-0.0-trial-1.txt
+output = ../data/condorlog/minigammon-622-ntd-minigammon-chooseroll-0.0-trial-1.txt
+error = ../data/condorlog/minigammon-622-ntd-minigammon-chooseroll-0.0-trial-1.txt
 queue
 arguments = app_ntd.py --domain minigammon --chooseroll 0.0 --trial 2
-output = ../log/ntd-minigammon-chooseroll-0.0-trial-2.txt
-error = ../log/ntd-minigammon-chooseroll-0.0-trial-2.txt
+output = ../data/condorlog/minigammon-622-ntd-minigammon-chooseroll-0.0-trial-2.txt
+error = ../data/condorlog/minigammon-622-ntd-minigammon-chooseroll-0.0-trial-2.txt
 queue
 arguments = app_ntd.py --domain minigammon --chooseroll 0.0 --trial 3
-output = ../log/ntd-minigammon-chooseroll-0.0-trial-3.txt
-error = ../log/ntd-minigammon-chooseroll-0.0-trial-3.txt
+output = ../data/condorlog/minigammon-622-ntd-minigammon-chooseroll-0.0-trial-3.txt
+error = ../data/condorlog/minigammon-622-ntd-minigammon-chooseroll-0.0-trial-3.txt
 queue
 arguments = app_ntd.py --domain minigammon --chooseroll 0.0 --trial 4
-output = ../log/ntd-minigammon-chooseroll-0.0-trial-4.txt
-error = ../log/ntd-minigammon-chooseroll-0.0-trial-4.txt
+output = ../data/condorlog/minigammon-622-ntd-minigammon-chooseroll-0.0-trial-4.txt
+error = ../data/condorlog/minigammon-622-ntd-minigammon-chooseroll-0.0-trial-4.txt
 queue
 arguments = app_ntd.py --domain minigammon --chooseroll 0.0 --trial 5
-output = ../log/ntd-minigammon-chooseroll-0.0-trial-5.txt
-error = ../log/ntd-minigammon-chooseroll-0.0-trial-5.txt
+output = ../data/condorlog/minigammon-622-ntd-minigammon-chooseroll-0.0-trial-5.txt
+error = ../data/condorlog/minigammon-622-ntd-minigammon-chooseroll-0.0-trial-5.txt
 queue
 arguments = app_ntd.py --domain minigammon --chooseroll 0.0 --trial 6
-output = ../log/ntd-minigammon-chooseroll-0.0-trial-6.txt
-error = ../log/ntd-minigammon-chooseroll-0.0-trial-6.txt
+output = ../data/condorlog/minigammon-622-ntd-minigammon-chooseroll-0.0-trial-6.txt
+error = ../data/condorlog/minigammon-622-ntd-minigammon-chooseroll-0.0-trial-6.txt
 queue
 arguments = app_ntd.py --domain minigammon --chooseroll 0.0 --trial 7
-output = ../log/ntd-minigammon-chooseroll-0.0-trial-7.txt
-error = ../log/ntd-minigammon-chooseroll-0.0-trial-7.txt
+output = ../data/condorlog/minigammon-622-ntd-minigammon-chooseroll-0.0-trial-7.txt
+error = ../data/condorlog/minigammon-622-ntd-minigammon-chooseroll-0.0-trial-7.txt
 queue
 arguments = app_ntd.py --domain minigammon --chooseroll 0.0 --trial 8
-output = ../log/ntd-minigammon-chooseroll-0.0-trial-8.txt
-error = ../log/ntd-minigammon-chooseroll-0.0-trial-8.txt
+output = ../data/condorlog/minigammon-622-ntd-minigammon-chooseroll-0.0-trial-8.txt
+error = ../data/condorlog/minigammon-622-ntd-minigammon-chooseroll-0.0-trial-8.txt
 queue
 arguments = app_ntd.py --domain minigammon --chooseroll 0.0 --trial 9
-output = ../log/ntd-minigammon-chooseroll-0.0-trial-9.txt
-error = ../log/ntd-minigammon-chooseroll-0.0-trial-9.txt
+output = ../data/condorlog/minigammon-622-ntd-minigammon-chooseroll-0.0-trial-9.txt
+error = ../data/condorlog/minigammon-622-ntd-minigammon-chooseroll-0.0-trial-9.txt
 queue
 arguments = app_ntd.py --domain minigammon --chooseroll 0.1 --trial 0
-output = ../log/ntd-minigammon-chooseroll-0.1-trial-0.txt
-error = ../log/ntd-minigammon-chooseroll-0.1-trial-0.txt
+output = ../data/condorlog/minigammon-622-ntd-minigammon-chooseroll-0.1-trial-0.txt
+error = ../data/condorlog/minigammon-622-ntd-minigammon-chooseroll-0.1-trial-0.txt
 queue
 arguments = app_ntd.py --domain minigammon --chooseroll 0.1 --trial 1
-output = ../log/ntd-minigammon-chooseroll-0.1-trial-1.txt
-error = ../log/ntd-minigammon-chooseroll-0.1-trial-1.txt
+output = ../data/condorlog/minigammon-622-ntd-minigammon-chooseroll-0.1-trial-1.txt
+error = ../data/condorlog/minigammon-622-ntd-minigammon-chooseroll-0.1-trial-1.txt
 queue
 arguments = app_ntd.py --domain minigammon --chooseroll 0.1 --trial 2
-output = ../log/ntd-minigammon-chooseroll-0.1-trial-2.txt
-error = ../log/ntd-minigammon-chooseroll-0.1-trial-2.txt
+output = ../data/condorlog/minigammon-622-ntd-minigammon-chooseroll-0.1-trial-2.txt
+error = ../data/condorlog/minigammon-622-ntd-minigammon-chooseroll-0.1-trial-2.txt
 queue
 arguments = app_ntd.py --domain minigammon --chooseroll 0.1 --trial 3
-output = ../log/ntd-minigammon-chooseroll-0.1-trial-3.txt
-error = ../log/ntd-minigammon-chooseroll-0.1-trial-3.txt
+output = ../data/condorlog/minigammon-622-ntd-minigammon-chooseroll-0.1-trial-3.txt
+error = ../data/condorlog/minigammon-622-ntd-minigammon-chooseroll-0.1-trial-3.txt
 queue
 arguments = app_ntd.py --domain minigammon --chooseroll 0.1 --trial 4
-output = ../log/ntd-minigammon-chooseroll-0.1-trial-4.txt
-error = ../log/ntd-minigammon-chooseroll-0.1-trial-4.txt
+output = ../data/condorlog/minigammon-622-ntd-minigammon-chooseroll-0.1-trial-4.txt
+error = ../data/condorlog/minigammon-622-ntd-minigammon-chooseroll-0.1-trial-4.txt
 queue
 arguments = app_ntd.py --domain minigammon --chooseroll 0.1 --trial 5
-output = ../log/ntd-minigammon-chooseroll-0.1-trial-5.txt
-error = ../log/ntd-minigammon-chooseroll-0.1-trial-5.txt
+output = ../data/condorlog/minigammon-622-ntd-minigammon-chooseroll-0.1-trial-5.txt
+error = ../data/condorlog/minigammon-622-ntd-minigammon-chooseroll-0.1-trial-5.txt
 queue
 arguments = app_ntd.py --domain minigammon --chooseroll 0.1 --trial 6
-output = ../log/ntd-minigammon-chooseroll-0.1-trial-6.txt
-error = ../log/ntd-minigammon-chooseroll-0.1-trial-6.txt
+output = ../data/condorlog/minigammon-622-ntd-minigammon-chooseroll-0.1-trial-6.txt
+error = ../data/condorlog/minigammon-622-ntd-minigammon-chooseroll-0.1-trial-6.txt
 queue
 arguments = app_ntd.py --domain minigammon --chooseroll 0.1 --trial 7
-output = ../log/ntd-minigammon-chooseroll-0.1-trial-7.txt
-error = ../log/ntd-minigammon-chooseroll-0.1-trial-7.txt
+output = ../data/condorlog/minigammon-622-ntd-minigammon-chooseroll-0.1-trial-7.txt
+error = ../data/condorlog/minigammon-622-ntd-minigammon-chooseroll-0.1-trial-7.txt
 queue
 arguments = app_ntd.py --domain minigammon --chooseroll 0.1 --trial 8
-output = ../log/ntd-minigammon-chooseroll-0.1-trial-8.txt
-error = ../log/ntd-minigammon-chooseroll-0.1-trial-8.txt
+output = ../data/condorlog/minigammon-622-ntd-minigammon-chooseroll-0.1-trial-8.txt
+error = ../data/condorlog/minigammon-622-ntd-minigammon-chooseroll-0.1-trial-8.txt
 queue
 arguments = app_ntd.py --domain minigammon --chooseroll 0.1 --trial 9
-output = ../log/ntd-minigammon-chooseroll-0.1-trial-9.txt
-error = ../log/ntd-minigammon-chooseroll-0.1-trial-9.txt
+output = ../data/condorlog/minigammon-622-ntd-minigammon-chooseroll-0.1-trial-9.txt
+error = ../data/condorlog/minigammon-622-ntd-minigammon-chooseroll-0.1-trial-9.txt
 queue
 arguments = app_ntd.py --domain minigammon --chooseroll 0.5 --trial 0
-output = ../log/ntd-minigammon-chooseroll-0.5-trial-0.txt
-error = ../log/ntd-minigammon-chooseroll-0.5-trial-0.txt
+output = ../data/condorlog/minigammon-622-ntd-minigammon-chooseroll-0.5-trial-0.txt
+error = ../data/condorlog/minigammon-622-ntd-minigammon-chooseroll-0.5-trial-0.txt
 queue
 arguments = app_ntd.py --domain minigammon --chooseroll 0.5 --trial 1
-output = ../log/ntd-minigammon-chooseroll-0.5-trial-1.txt
-error = ../log/ntd-minigammon-chooseroll-0.5-trial-1.txt
+output = ../data/condorlog/minigammon-622-ntd-minigammon-chooseroll-0.5-trial-1.txt
+error = ../data/condorlog/minigammon-622-ntd-minigammon-chooseroll-0.5-trial-1.txt
 queue
 arguments = app_ntd.py --domain minigammon --chooseroll 0.5 --trial 2
-output = ../log/ntd-minigammon-chooseroll-0.5-trial-2.txt
-error = ../log/ntd-minigammon-chooseroll-0.5-trial-2.txt
+output = ../data/condorlog/minigammon-622-ntd-minigammon-chooseroll-0.5-trial-2.txt
+error = ../data/condorlog/minigammon-622-ntd-minigammon-chooseroll-0.5-trial-2.txt
 queue
 arguments = app_ntd.py --domain minigammon --chooseroll 0.5 --trial 3
-output = ../log/ntd-minigammon-chooseroll-0.5-trial-3.txt
-error = ../log/ntd-minigammon-chooseroll-0.5-trial-3.txt
+output = ../data/condorlog/minigammon-622-ntd-minigammon-chooseroll-0.5-trial-3.txt
+error = ../data/condorlog/minigammon-622-ntd-minigammon-chooseroll-0.5-trial-3.txt
 queue
 arguments = app_ntd.py --domain minigammon --chooseroll 0.5 --trial 4
-output = ../log/ntd-minigammon-chooseroll-0.5-trial-4.txt
-error = ../log/ntd-minigammon-chooseroll-0.5-trial-4.txt
+output = ../data/condorlog/minigammon-622-ntd-minigammon-chooseroll-0.5-trial-4.txt
+error = ../data/condorlog/minigammon-622-ntd-minigammon-chooseroll-0.5-trial-4.txt
 queue
 arguments = app_ntd.py --domain minigammon --chooseroll 0.5 --trial 5
-output = ../log/ntd-minigammon-chooseroll-0.5-trial-5.txt
-error = ../log/ntd-minigammon-chooseroll-0.5-trial-5.txt
+output = ../data/condorlog/minigammon-622-ntd-minigammon-chooseroll-0.5-trial-5.txt
+error = ../data/condorlog/minigammon-622-ntd-minigammon-chooseroll-0.5-trial-5.txt
 queue
 arguments = app_ntd.py --domain minigammon --chooseroll 0.5 --trial 6
-output = ../log/ntd-minigammon-chooseroll-0.5-trial-6.txt
-error = ../log/ntd-minigammon-chooseroll-0.5-trial-6.txt
+output = ../data/condorlog/minigammon-622-ntd-minigammon-chooseroll-0.5-trial-6.txt
+error = ../data/condorlog/minigammon-622-ntd-minigammon-chooseroll-0.5-trial-6.txt
 queue
 arguments = app_ntd.py --domain minigammon --chooseroll 0.5 --trial 7
-output = ../log/ntd-minigammon-chooseroll-0.5-trial-7.txt
-error = ../log/ntd-minigammon-chooseroll-0.5-trial-7.txt
+output = ../data/condorlog/minigammon-622-ntd-minigammon-chooseroll-0.5-trial-7.txt
+error = ../data/condorlog/minigammon-622-ntd-minigammon-chooseroll-0.5-trial-7.txt
 queue
 arguments = app_ntd.py --domain minigammon --chooseroll 0.5 --trial 8
-output = ../log/ntd-minigammon-chooseroll-0.5-trial-8.txt
-error = ../log/ntd-minigammon-chooseroll-0.5-trial-8.txt
+output = ../data/condorlog/minigammon-622-ntd-minigammon-chooseroll-0.5-trial-8.txt
+error = ../data/condorlog/minigammon-622-ntd-minigammon-chooseroll-0.5-trial-8.txt
 queue
 arguments = app_ntd.py --domain minigammon --chooseroll 0.5 --trial 9
-output = ../log/ntd-minigammon-chooseroll-0.5-trial-9.txt
-error = ../log/ntd-minigammon-chooseroll-0.5-trial-9.txt
+output = ../data/condorlog/minigammon-622-ntd-minigammon-chooseroll-0.5-trial-9.txt
+error = ../data/condorlog/minigammon-622-ntd-minigammon-chooseroll-0.5-trial-9.txt
 queue
 arguments = app_ntd.py --domain minigammon --chooseroll 0.9 --trial 0
-output = ../log/ntd-minigammon-chooseroll-0.9-trial-0.txt
-error = ../log/ntd-minigammon-chooseroll-0.9-trial-0.txt
+output = ../data/condorlog/minigammon-622-ntd-minigammon-chooseroll-0.9-trial-0.txt
+error = ../data/condorlog/minigammon-622-ntd-minigammon-chooseroll-0.9-trial-0.txt
 queue
 arguments = app_ntd.py --domain minigammon --chooseroll 0.9 --trial 1
-output = ../log/ntd-minigammon-chooseroll-0.9-trial-1.txt
-error = ../log/ntd-minigammon-chooseroll-0.9-trial-1.txt
+output = ../data/condorlog/minigammon-622-ntd-minigammon-chooseroll-0.9-trial-1.txt
+error = ../data/condorlog/minigammon-622-ntd-minigammon-chooseroll-0.9-trial-1.txt
 queue
 arguments = app_ntd.py --domain minigammon --chooseroll 0.9 --trial 2
-output = ../log/ntd-minigammon-chooseroll-0.9-trial-2.txt
-error = ../log/ntd-minigammon-chooseroll-0.9-trial-2.txt
+output = ../data/condorlog/minigammon-622-ntd-minigammon-chooseroll-0.9-trial-2.txt
+error = ../data/condorlog/minigammon-622-ntd-minigammon-chooseroll-0.9-trial-2.txt
 queue
 arguments = app_ntd.py --domain minigammon --chooseroll 0.9 --trial 3
-output = ../log/ntd-minigammon-chooseroll-0.9-trial-3.txt
-error = ../log/ntd-minigammon-chooseroll-0.9-trial-3.txt
+output = ../data/condorlog/minigammon-622-ntd-minigammon-chooseroll-0.9-trial-3.txt
+error = ../data/condorlog/minigammon-622-ntd-minigammon-chooseroll-0.9-trial-3.txt
 queue
 arguments = app_ntd.py --domain minigammon --chooseroll 0.9 --trial 4
-output = ../log/ntd-minigammon-chooseroll-0.9-trial-4.txt
-error = ../log/ntd-minigammon-chooseroll-0.9-trial-4.txt
+output = ../data/condorlog/minigammon-622-ntd-minigammon-chooseroll-0.9-trial-4.txt
+error = ../data/condorlog/minigammon-622-ntd-minigammon-chooseroll-0.9-trial-4.txt
 queue
 arguments = app_ntd.py --domain minigammon --chooseroll 0.9 --trial 5
-output = ../log/ntd-minigammon-chooseroll-0.9-trial-5.txt
-error = ../log/ntd-minigammon-chooseroll-0.9-trial-5.txt
+output = ../data/condorlog/minigammon-622-ntd-minigammon-chooseroll-0.9-trial-5.txt
+error = ../data/condorlog/minigammon-622-ntd-minigammon-chooseroll-0.9-trial-5.txt
 queue
 arguments = app_ntd.py --domain minigammon --chooseroll 0.9 --trial 6
-output = ../log/ntd-minigammon-chooseroll-0.9-trial-6.txt
-error = ../log/ntd-minigammon-chooseroll-0.9-trial-6.txt
+output = ../data/condorlog/minigammon-622-ntd-minigammon-chooseroll-0.9-trial-6.txt
+error = ../data/condorlog/minigammon-622-ntd-minigammon-chooseroll-0.9-trial-6.txt
 queue
 arguments = app_ntd.py --domain minigammon --chooseroll 0.9 --trial 7
-output = ../log/ntd-minigammon-chooseroll-0.9-trial-7.txt
-error = ../log/ntd-minigammon-chooseroll-0.9-trial-7.txt
+output = ../data/condorlog/minigammon-622-ntd-minigammon-chooseroll-0.9-trial-7.txt
+error = ../data/condorlog/minigammon-622-ntd-minigammon-chooseroll-0.9-trial-7.txt
 queue
 arguments = app_ntd.py --domain minigammon --chooseroll 0.9 --trial 8
-output = ../log/ntd-minigammon-chooseroll-0.9-trial-8.txt
-error = ../log/ntd-minigammon-chooseroll-0.9-trial-8.txt
+output = ../data/condorlog/minigammon-622-ntd-minigammon-chooseroll-0.9-trial-8.txt
+error = ../data/condorlog/minigammon-622-ntd-minigammon-chooseroll-0.9-trial-8.txt
 queue
 arguments = app_ntd.py --domain minigammon --chooseroll 0.9 --trial 9
-output = ../log/ntd-minigammon-chooseroll-0.9-trial-9.txt
-error = ../log/ntd-minigammon-chooseroll-0.9-trial-9.txt
+output = ../data/condorlog/minigammon-622-ntd-minigammon-chooseroll-0.9-trial-9.txt
+error = ../data/condorlog/minigammon-622-ntd-minigammon-chooseroll-0.9-trial-9.txt
 queue
 arguments = app_ntd.py --domain minigammon --chooseroll 1.0 --trial 0
-output = ../log/ntd-minigammon-chooseroll-1.0-trial-0.txt
-error = ../log/ntd-minigammon-chooseroll-1.0-trial-0.txt
+output = ../data/condorlog/minigammon-622-ntd-minigammon-chooseroll-1.0-trial-0.txt
+error = ../data/condorlog/minigammon-622-ntd-minigammon-chooseroll-1.0-trial-0.txt
 queue
 arguments = app_ntd.py --domain minigammon --chooseroll 1.0 --trial 1
-output = ../log/ntd-minigammon-chooseroll-1.0-trial-1.txt
-error = ../log/ntd-minigammon-chooseroll-1.0-trial-1.txt
+output = ../data/condorlog/minigammon-622-ntd-minigammon-chooseroll-1.0-trial-1.txt
+error = ../data/condorlog/minigammon-622-ntd-minigammon-chooseroll-1.0-trial-1.txt
 queue
 arguments = app_ntd.py --domain minigammon --chooseroll 1.0 --trial 2
-output = ../log/ntd-minigammon-chooseroll-1.0-trial-2.txt
-error = ../log/ntd-minigammon-chooseroll-1.0-trial-2.txt
+output = ../data/condorlog/minigammon-622-ntd-minigammon-chooseroll-1.0-trial-2.txt
+error = ../data/condorlog/minigammon-622-ntd-minigammon-chooseroll-1.0-trial-2.txt
 queue
 arguments = app_ntd.py --domain minigammon --chooseroll 1.0 --trial 3
-output = ../log/ntd-minigammon-chooseroll-1.0-trial-3.txt
-error = ../log/ntd-minigammon-chooseroll-1.0-trial-3.txt
+output = ../data/condorlog/minigammon-622-ntd-minigammon-chooseroll-1.0-trial-3.txt
+error = ../data/condorlog/minigammon-622-ntd-minigammon-chooseroll-1.0-trial-3.txt
 queue
 arguments = app_ntd.py --domain minigammon --chooseroll 1.0 --trial 4
-output = ../log/ntd-minigammon-chooseroll-1.0-trial-4.txt
-error = ../log/ntd-minigammon-chooseroll-1.0-trial-4.txt
+output = ../data/condorlog/minigammon-622-ntd-minigammon-chooseroll-1.0-trial-4.txt
+error = ../data/condorlog/minigammon-622-ntd-minigammon-chooseroll-1.0-trial-4.txt
 queue
 arguments = app_ntd.py --domain minigammon --chooseroll 1.0 --trial 5
-output = ../log/ntd-minigammon-chooseroll-1.0-trial-5.txt
-error = ../log/ntd-minigammon-chooseroll-1.0-trial-5.txt
+output = ../data/condorlog/minigammon-622-ntd-minigammon-chooseroll-1.0-trial-5.txt
+error = ../data/condorlog/minigammon-622-ntd-minigammon-chooseroll-1.0-trial-5.txt
 queue
 arguments = app_ntd.py --domain minigammon --chooseroll 1.0 --trial 6
-output = ../log/ntd-minigammon-chooseroll-1.0-trial-6.txt
-error = ../log/ntd-minigammon-chooseroll-1.0-trial-6.txt
+output = ../data/condorlog/minigammon-622-ntd-minigammon-chooseroll-1.0-trial-6.txt
+error = ../data/condorlog/minigammon-622-ntd-minigammon-chooseroll-1.0-trial-6.txt
 queue
 arguments = app_ntd.py --domain minigammon --chooseroll 1.0 --trial 7
-output = ../log/ntd-minigammon-chooseroll-1.0-trial-7.txt
-error = ../log/ntd-minigammon-chooseroll-1.0-trial-7.txt
+output = ../data/condorlog/minigammon-622-ntd-minigammon-chooseroll-1.0-trial-7.txt
+error = ../data/condorlog/minigammon-622-ntd-minigammon-chooseroll-1.0-trial-7.txt
 queue
 arguments = app_ntd.py --domain minigammon --chooseroll 1.0 --trial 8
-output = ../log/ntd-minigammon-chooseroll-1.0-trial-8.txt
-error = ../log/ntd-minigammon-chooseroll-1.0-trial-8.txt
+output = ../data/condorlog/minigammon-622-ntd-minigammon-chooseroll-1.0-trial-8.txt
+error = ../data/condorlog/minigammon-622-ntd-minigammon-chooseroll-1.0-trial-8.txt
 queue
 arguments = app_ntd.py --domain minigammon --chooseroll 1.0 --trial 9
-output = ../log/ntd-minigammon-chooseroll-1.0-trial-9.txt
-error = ../log/ntd-minigammon-chooseroll-1.0-trial-9.txt
-queue
-arguments = app_ntd.py --domain nannon --chooseroll 0.0 --trial 0
-output = ../log/ntd-nannon-chooseroll-0.0-trial-0.txt
-error = ../log/ntd-nannon-chooseroll-0.0-trial-0.txt
-queue
-arguments = app_ntd.py --domain nannon --chooseroll 0.0 --trial 1
-output = ../log/ntd-nannon-chooseroll-0.0-trial-1.txt
-error = ../log/ntd-nannon-chooseroll-0.0-trial-1.txt
-queue
-arguments = app_ntd.py --domain nannon --chooseroll 0.0 --trial 2
-output = ../log/ntd-nannon-chooseroll-0.0-trial-2.txt
-error = ../log/ntd-nannon-chooseroll-0.0-trial-2.txt
-queue
-arguments = app_ntd.py --domain nannon --chooseroll 0.0 --trial 3
-output = ../log/ntd-nannon-chooseroll-0.0-trial-3.txt
-error = ../log/ntd-nannon-chooseroll-0.0-trial-3.txt
-queue
-arguments = app_ntd.py --domain nannon --chooseroll 0.0 --trial 4
-output = ../log/ntd-nannon-chooseroll-0.0-trial-4.txt
-error = ../log/ntd-nannon-chooseroll-0.0-trial-4.txt
-queue
-arguments = app_ntd.py --domain nannon --chooseroll 0.0 --trial 5
-output = ../log/ntd-nannon-chooseroll-0.0-trial-5.txt
-error = ../log/ntd-nannon-chooseroll-0.0-trial-5.txt
-queue
-arguments = app_ntd.py --domain nannon --chooseroll 0.0 --trial 6
-output = ../log/ntd-nannon-chooseroll-0.0-trial-6.txt
-error = ../log/ntd-nannon-chooseroll-0.0-trial-6.txt
-queue
-arguments = app_ntd.py --domain nannon --chooseroll 0.0 --trial 7
-output = ../log/ntd-nannon-chooseroll-0.0-trial-7.txt
-error = ../log/ntd-nannon-chooseroll-0.0-trial-7.txt
-queue
-arguments = app_ntd.py --domain nannon --chooseroll 0.0 --trial 8
-output = ../log/ntd-nannon-chooseroll-0.0-trial-8.txt
-error = ../log/ntd-nannon-chooseroll-0.0-trial-8.txt
-queue
-arguments = app_ntd.py --domain nannon --chooseroll 0.0 --trial 9
-output = ../log/ntd-nannon-chooseroll-0.0-trial-9.txt
-error = ../log/ntd-nannon-chooseroll-0.0-trial-9.txt
-queue
-arguments = app_ntd.py --domain nannon --chooseroll 0.1 --trial 0
-output = ../log/ntd-nannon-chooseroll-0.1-trial-0.txt
-error = ../log/ntd-nannon-chooseroll-0.1-trial-0.txt
-queue
-arguments = app_ntd.py --domain nannon --chooseroll 0.1 --trial 1
-output = ../log/ntd-nannon-chooseroll-0.1-trial-1.txt
-error = ../log/ntd-nannon-chooseroll-0.1-trial-1.txt
-queue
-arguments = app_ntd.py --domain nannon --chooseroll 0.1 --trial 2
-output = ../log/ntd-nannon-chooseroll-0.1-trial-2.txt
-error = ../log/ntd-nannon-chooseroll-0.1-trial-2.txt
-queue
-arguments = app_ntd.py --domain nannon --chooseroll 0.1 --trial 3
-output = ../log/ntd-nannon-chooseroll-0.1-trial-3.txt
-error = ../log/ntd-nannon-chooseroll-0.1-trial-3.txt
-queue
-arguments = app_ntd.py --domain nannon --chooseroll 0.1 --trial 4
-output = ../log/ntd-nannon-chooseroll-0.1-trial-4.txt
-error = ../log/ntd-nannon-chooseroll-0.1-trial-4.txt
-queue
-arguments = app_ntd.py --domain nannon --chooseroll 0.1 --trial 5
-output = ../log/ntd-nannon-chooseroll-0.1-trial-5.txt
-error = ../log/ntd-nannon-chooseroll-0.1-trial-5.txt
-queue
-arguments = app_ntd.py --domain nannon --chooseroll 0.1 --trial 6
-output = ../log/ntd-nannon-chooseroll-0.1-trial-6.txt
-error = ../log/ntd-nannon-chooseroll-0.1-trial-6.txt
-queue
-arguments = app_ntd.py --domain nannon --chooseroll 0.1 --trial 7
-output = ../log/ntd-nannon-chooseroll-0.1-trial-7.txt
-error = ../log/ntd-nannon-chooseroll-0.1-trial-7.txt
-queue
-arguments = app_ntd.py --domain nannon --chooseroll 0.1 --trial 8
-output = ../log/ntd-nannon-chooseroll-0.1-trial-8.txt
-error = ../log/ntd-nannon-chooseroll-0.1-trial-8.txt
-queue
-arguments = app_ntd.py --domain nannon --chooseroll 0.1 --trial 9
-output = ../log/ntd-nannon-chooseroll-0.1-trial-9.txt
-error = ../log/ntd-nannon-chooseroll-0.1-trial-9.txt
-queue
-arguments = app_ntd.py --domain nannon --chooseroll 0.5 --trial 0
-output = ../log/ntd-nannon-chooseroll-0.5-trial-0.txt
-error = ../log/ntd-nannon-chooseroll-0.5-trial-0.txt
-queue
-arguments = app_ntd.py --domain nannon --chooseroll 0.5 --trial 1
-output = ../log/ntd-nannon-chooseroll-0.5-trial-1.txt
-error = ../log/ntd-nannon-chooseroll-0.5-trial-1.txt
-queue
-arguments = app_ntd.py --domain nannon --chooseroll 0.5 --trial 2
-output = ../log/ntd-nannon-chooseroll-0.5-trial-2.txt
-error = ../log/ntd-nannon-chooseroll-0.5-trial-2.txt
-queue
-arguments = app_ntd.py --domain nannon --chooseroll 0.5 --trial 3
-output = ../log/ntd-nannon-chooseroll-0.5-trial-3.txt
-error = ../log/ntd-nannon-chooseroll-0.5-trial-3.txt
-queue
-arguments = app_ntd.py --domain nannon --chooseroll 0.5 --trial 4
-output = ../log/ntd-nannon-chooseroll-0.5-trial-4.txt
-error = ../log/ntd-nannon-chooseroll-0.5-trial-4.txt
-queue
-arguments = app_ntd.py --domain nannon --chooseroll 0.5 --trial 5
-output = ../log/ntd-nannon-chooseroll-0.5-trial-5.txt
-error = ../log/ntd-nannon-chooseroll-0.5-trial-5.txt
-queue
-arguments = app_ntd.py --domain nannon --chooseroll 0.5 --trial 6
-output = ../log/ntd-nannon-chooseroll-0.5-trial-6.txt
-error = ../log/ntd-nannon-chooseroll-0.5-trial-6.txt
-queue
-arguments = app_ntd.py --domain nannon --chooseroll 0.5 --trial 7
-output = ../log/ntd-nannon-chooseroll-0.5-trial-7.txt
-error = ../log/ntd-nannon-chooseroll-0.5-trial-7.txt
-queue
-arguments = app_ntd.py --domain nannon --chooseroll 0.5 --trial 8
-output = ../log/ntd-nannon-chooseroll-0.5-trial-8.txt
-error = ../log/ntd-nannon-chooseroll-0.5-trial-8.txt
-queue
-arguments = app_ntd.py --domain nannon --chooseroll 0.5 --trial 9
-output = ../log/ntd-nannon-chooseroll-0.5-trial-9.txt
-error = ../log/ntd-nannon-chooseroll-0.5-trial-9.txt
-queue
-arguments = app_ntd.py --domain nannon --chooseroll 0.9 --trial 0
-output = ../log/ntd-nannon-chooseroll-0.9-trial-0.txt
-error = ../log/ntd-nannon-chooseroll-0.9-trial-0.txt
-queue
-arguments = app_ntd.py --domain nannon --chooseroll 0.9 --trial 1
-output = ../log/ntd-nannon-chooseroll-0.9-trial-1.txt
-error = ../log/ntd-nannon-chooseroll-0.9-trial-1.txt
-queue
-arguments = app_ntd.py --domain nannon --chooseroll 0.9 --trial 2
-output = ../log/ntd-nannon-chooseroll-0.9-trial-2.txt
-error = ../log/ntd-nannon-chooseroll-0.9-trial-2.txt
-queue
-arguments = app_ntd.py --domain nannon --chooseroll 0.9 --trial 3
-output = ../log/ntd-nannon-chooseroll-0.9-trial-3.txt
-error = ../log/ntd-nannon-chooseroll-0.9-trial-3.txt
-queue
-arguments = app_ntd.py --domain nannon --chooseroll 0.9 --trial 4
-output = ../log/ntd-nannon-chooseroll-0.9-trial-4.txt
-error = ../log/ntd-nannon-chooseroll-0.9-trial-4.txt
-queue
-arguments = app_ntd.py --domain nannon --chooseroll 0.9 --trial 5
-output = ../log/ntd-nannon-chooseroll-0.9-trial-5.txt
-error = ../log/ntd-nannon-chooseroll-0.9-trial-5.txt
-queue
-arguments = app_ntd.py --domain nannon --chooseroll 0.9 --trial 6
-output = ../log/ntd-nannon-chooseroll-0.9-trial-6.txt
-error = ../log/ntd-nannon-chooseroll-0.9-trial-6.txt
-queue
-arguments = app_ntd.py --domain nannon --chooseroll 0.9 --trial 7
-output = ../log/ntd-nannon-chooseroll-0.9-trial-7.txt
-error = ../log/ntd-nannon-chooseroll-0.9-trial-7.txt
-queue
-arguments = app_ntd.py --domain nannon --chooseroll 0.9 --trial 8
-output = ../log/ntd-nannon-chooseroll-0.9-trial-8.txt
-error = ../log/ntd-nannon-chooseroll-0.9-trial-8.txt
-queue
-arguments = app_ntd.py --domain nannon --chooseroll 0.9 --trial 9
-output = ../log/ntd-nannon-chooseroll-0.9-trial-9.txt
-error = ../log/ntd-nannon-chooseroll-0.9-trial-9.txt
-queue
-arguments = app_ntd.py --domain nannon --chooseroll 1.0 --trial 0
-output = ../log/ntd-nannon-chooseroll-1.0-trial-0.txt
-error = ../log/ntd-nannon-chooseroll-1.0-trial-0.txt
-queue
-arguments = app_ntd.py --domain nannon --chooseroll 1.0 --trial 1
-output = ../log/ntd-nannon-chooseroll-1.0-trial-1.txt
-error = ../log/ntd-nannon-chooseroll-1.0-trial-1.txt
-queue
-arguments = app_ntd.py --domain nannon --chooseroll 1.0 --trial 2
-output = ../log/ntd-nannon-chooseroll-1.0-trial-2.txt
-error = ../log/ntd-nannon-chooseroll-1.0-trial-2.txt
-queue
-arguments = app_ntd.py --domain nannon --chooseroll 1.0 --trial 3
-output = ../log/ntd-nannon-chooseroll-1.0-trial-3.txt
-error = ../log/ntd-nannon-chooseroll-1.0-trial-3.txt
-queue
-arguments = app_ntd.py --domain nannon --chooseroll 1.0 --trial 4
-output = ../log/ntd-nannon-chooseroll-1.0-trial-4.txt
-error = ../log/ntd-nannon-chooseroll-1.0-trial-4.txt
-queue
-arguments = app_ntd.py --domain nannon --chooseroll 1.0 --trial 5
-output = ../log/ntd-nannon-chooseroll-1.0-trial-5.txt
-error = ../log/ntd-nannon-chooseroll-1.0-trial-5.txt
-queue
-arguments = app_ntd.py --domain nannon --chooseroll 1.0 --trial 6
-output = ../log/ntd-nannon-chooseroll-1.0-trial-6.txt
-error = ../log/ntd-nannon-chooseroll-1.0-trial-6.txt
-queue
-arguments = app_ntd.py --domain nannon --chooseroll 1.0 --trial 7
-output = ../log/ntd-nannon-chooseroll-1.0-trial-7.txt
-error = ../log/ntd-nannon-chooseroll-1.0-trial-7.txt
-queue
-arguments = app_ntd.py --domain nannon --chooseroll 1.0 --trial 8
-output = ../log/ntd-nannon-chooseroll-1.0-trial-8.txt
-error = ../log/ntd-nannon-chooseroll-1.0-trial-8.txt
-queue
-arguments = app_ntd.py --domain nannon --chooseroll 1.0 --trial 9
-output = ../log/ntd-nannon-chooseroll-1.0-trial-9.txt
-error = ../log/ntd-nannon-chooseroll-1.0-trial-9.txt
-queue
-arguments = app_ntd.py --domain midgammon --chooseroll 0.0 --trial 0
-output = ../log/ntd-midgammon-chooseroll-0.0-trial-0.txt
-error = ../log/ntd-midgammon-chooseroll-0.0-trial-0.txt
-queue
-arguments = app_ntd.py --domain midgammon --chooseroll 0.0 --trial 1
-output = ../log/ntd-midgammon-chooseroll-0.0-trial-1.txt
-error = ../log/ntd-midgammon-chooseroll-0.0-trial-1.txt
-queue
-arguments = app_ntd.py --domain midgammon --chooseroll 0.0 --trial 2
-output = ../log/ntd-midgammon-chooseroll-0.0-trial-2.txt
-error = ../log/ntd-midgammon-chooseroll-0.0-trial-2.txt
-queue
-arguments = app_ntd.py --domain midgammon --chooseroll 0.0 --trial 3
-output = ../log/ntd-midgammon-chooseroll-0.0-trial-3.txt
-error = ../log/ntd-midgammon-chooseroll-0.0-trial-3.txt
-queue
-arguments = app_ntd.py --domain midgammon --chooseroll 0.0 --trial 4
-output = ../log/ntd-midgammon-chooseroll-0.0-trial-4.txt
-error = ../log/ntd-midgammon-chooseroll-0.0-trial-4.txt
-queue
-arguments = app_ntd.py --domain midgammon --chooseroll 0.0 --trial 5
-output = ../log/ntd-midgammon-chooseroll-0.0-trial-5.txt
-error = ../log/ntd-midgammon-chooseroll-0.0-trial-5.txt
-queue
-arguments = app_ntd.py --domain midgammon --chooseroll 0.0 --trial 6
-output = ../log/ntd-midgammon-chooseroll-0.0-trial-6.txt
-error = ../log/ntd-midgammon-chooseroll-0.0-trial-6.txt
-queue
-arguments = app_ntd.py --domain midgammon --chooseroll 0.0 --trial 7
-output = ../log/ntd-midgammon-chooseroll-0.0-trial-7.txt
-error = ../log/ntd-midgammon-chooseroll-0.0-trial-7.txt
-queue
-arguments = app_ntd.py --domain midgammon --chooseroll 0.0 --trial 8
-output = ../log/ntd-midgammon-chooseroll-0.0-trial-8.txt
-error = ../log/ntd-midgammon-chooseroll-0.0-trial-8.txt
-queue
-arguments = app_ntd.py --domain midgammon --chooseroll 0.0 --trial 9
-output = ../log/ntd-midgammon-chooseroll-0.0-trial-9.txt
-error = ../log/ntd-midgammon-chooseroll-0.0-trial-9.txt
-queue
-arguments = app_ntd.py --domain midgammon --chooseroll 0.1 --trial 0
-output = ../log/ntd-midgammon-chooseroll-0.1-trial-0.txt
-error = ../log/ntd-midgammon-chooseroll-0.1-trial-0.txt
-queue
-arguments = app_ntd.py --domain midgammon --chooseroll 0.1 --trial 1
-output = ../log/ntd-midgammon-chooseroll-0.1-trial-1.txt
-error = ../log/ntd-midgammon-chooseroll-0.1-trial-1.txt
-queue
-arguments = app_ntd.py --domain midgammon --chooseroll 0.1 --trial 2
-output = ../log/ntd-midgammon-chooseroll-0.1-trial-2.txt
-error = ../log/ntd-midgammon-chooseroll-0.1-trial-2.txt
-queue
-arguments = app_ntd.py --domain midgammon --chooseroll 0.1 --trial 3
-output = ../log/ntd-midgammon-chooseroll-0.1-trial-3.txt
-error = ../log/ntd-midgammon-chooseroll-0.1-trial-3.txt
-queue
-arguments = app_ntd.py --domain midgammon --chooseroll 0.1 --trial 4
-output = ../log/ntd-midgammon-chooseroll-0.1-trial-4.txt
-error = ../log/ntd-midgammon-chooseroll-0.1-trial-4.txt
-queue
-arguments = app_ntd.py --domain midgammon --chooseroll 0.1 --trial 5
-output = ../log/ntd-midgammon-chooseroll-0.1-trial-5.txt
-error = ../log/ntd-midgammon-chooseroll-0.1-trial-5.txt
-queue
-arguments = app_ntd.py --domain midgammon --chooseroll 0.1 --trial 6
-output = ../log/ntd-midgammon-chooseroll-0.1-trial-6.txt
-error = ../log/ntd-midgammon-chooseroll-0.1-trial-6.txt
-queue
-arguments = app_ntd.py --domain midgammon --chooseroll 0.1 --trial 7
-output = ../log/ntd-midgammon-chooseroll-0.1-trial-7.txt
-error = ../log/ntd-midgammon-chooseroll-0.1-trial-7.txt
-queue
-arguments = app_ntd.py --domain midgammon --chooseroll 0.1 --trial 8
-output = ../log/ntd-midgammon-chooseroll-0.1-trial-8.txt
-error = ../log/ntd-midgammon-chooseroll-0.1-trial-8.txt
-queue
-arguments = app_ntd.py --domain midgammon --chooseroll 0.1 --trial 9
-output = ../log/ntd-midgammon-chooseroll-0.1-trial-9.txt
-error = ../log/ntd-midgammon-chooseroll-0.1-trial-9.txt
-queue
-arguments = app_ntd.py --domain midgammon --chooseroll 0.5 --trial 0
-output = ../log/ntd-midgammon-chooseroll-0.5-trial-0.txt
-error = ../log/ntd-midgammon-chooseroll-0.5-trial-0.txt
-queue
-arguments = app_ntd.py --domain midgammon --chooseroll 0.5 --trial 1
-output = ../log/ntd-midgammon-chooseroll-0.5-trial-1.txt
-error = ../log/ntd-midgammon-chooseroll-0.5-trial-1.txt
-queue
-arguments = app_ntd.py --domain midgammon --chooseroll 0.5 --trial 2
-output = ../log/ntd-midgammon-chooseroll-0.5-trial-2.txt
-error = ../log/ntd-midgammon-chooseroll-0.5-trial-2.txt
-queue
-arguments = app_ntd.py --domain midgammon --chooseroll 0.5 --trial 3
-output = ../log/ntd-midgammon-chooseroll-0.5-trial-3.txt
-error = ../log/ntd-midgammon-chooseroll-0.5-trial-3.txt
-queue
-arguments = app_ntd.py --domain midgammon --chooseroll 0.5 --trial 4
-output = ../log/ntd-midgammon-chooseroll-0.5-trial-4.txt
-error = ../log/ntd-midgammon-chooseroll-0.5-trial-4.txt
-queue
-arguments = app_ntd.py --domain midgammon --chooseroll 0.5 --trial 5
-output = ../log/ntd-midgammon-chooseroll-0.5-trial-5.txt
-error = ../log/ntd-midgammon-chooseroll-0.5-trial-5.txt
-queue
-arguments = app_ntd.py --domain midgammon --chooseroll 0.5 --trial 6
-output = ../log/ntd-midgammon-chooseroll-0.5-trial-6.txt
-error = ../log/ntd-midgammon-chooseroll-0.5-trial-6.txt
-queue
-arguments = app_ntd.py --domain midgammon --chooseroll 0.5 --trial 7
-output = ../log/ntd-midgammon-chooseroll-0.5-trial-7.txt
-error = ../log/ntd-midgammon-chooseroll-0.5-trial-7.txt
-queue
-arguments = app_ntd.py --domain midgammon --chooseroll 0.5 --trial 8
-output = ../log/ntd-midgammon-chooseroll-0.5-trial-8.txt
-error = ../log/ntd-midgammon-chooseroll-0.5-trial-8.txt
-queue
-arguments = app_ntd.py --domain midgammon --chooseroll 0.5 --trial 9
-output = ../log/ntd-midgammon-chooseroll-0.5-trial-9.txt
-error = ../log/ntd-midgammon-chooseroll-0.5-trial-9.txt
-queue
-arguments = app_ntd.py --domain midgammon --chooseroll 0.9 --trial 0
-output = ../log/ntd-midgammon-chooseroll-0.9-trial-0.txt
-error = ../log/ntd-midgammon-chooseroll-0.9-trial-0.txt
-queue
-arguments = app_ntd.py --domain midgammon --chooseroll 0.9 --trial 1
-output = ../log/ntd-midgammon-chooseroll-0.9-trial-1.txt
-error = ../log/ntd-midgammon-chooseroll-0.9-trial-1.txt
-queue
-arguments = app_ntd.py --domain midgammon --chooseroll 0.9 --trial 2
-output = ../log/ntd-midgammon-chooseroll-0.9-trial-2.txt
-error = ../log/ntd-midgammon-chooseroll-0.9-trial-2.txt
-queue
-arguments = app_ntd.py --domain midgammon --chooseroll 0.9 --trial 3
-output = ../log/ntd-midgammon-chooseroll-0.9-trial-3.txt
-error = ../log/ntd-midgammon-chooseroll-0.9-trial-3.txt
-queue
-arguments = app_ntd.py --domain midgammon --chooseroll 0.9 --trial 4
-output = ../log/ntd-midgammon-chooseroll-0.9-trial-4.txt
-error = ../log/ntd-midgammon-chooseroll-0.9-trial-4.txt
-queue
-arguments = app_ntd.py --domain midgammon --chooseroll 0.9 --trial 5
-output = ../log/ntd-midgammon-chooseroll-0.9-trial-5.txt
-error = ../log/ntd-midgammon-chooseroll-0.9-trial-5.txt
-queue
-arguments = app_ntd.py --domain midgammon --chooseroll 0.9 --trial 6
-output = ../log/ntd-midgammon-chooseroll-0.9-trial-6.txt
-error = ../log/ntd-midgammon-chooseroll-0.9-trial-6.txt
-queue
-arguments = app_ntd.py --domain midgammon --chooseroll 0.9 --trial 7
-output = ../log/ntd-midgammon-chooseroll-0.9-trial-7.txt
-error = ../log/ntd-midgammon-chooseroll-0.9-trial-7.txt
-queue
-arguments = app_ntd.py --domain midgammon --chooseroll 0.9 --trial 8
-output = ../log/ntd-midgammon-chooseroll-0.9-trial-8.txt
-error = ../log/ntd-midgammon-chooseroll-0.9-trial-8.txt
-queue
-arguments = app_ntd.py --domain midgammon --chooseroll 0.9 --trial 9
-output = ../log/ntd-midgammon-chooseroll-0.9-trial-9.txt
-error = ../log/ntd-midgammon-chooseroll-0.9-trial-9.txt
-queue
-arguments = app_ntd.py --domain midgammon --chooseroll 1.0 --trial 0
-output = ../log/ntd-midgammon-chooseroll-1.0-trial-0.txt
-error = ../log/ntd-midgammon-chooseroll-1.0-trial-0.txt
-queue
-arguments = app_ntd.py --domain midgammon --chooseroll 1.0 --trial 1
-output = ../log/ntd-midgammon-chooseroll-1.0-trial-1.txt
-error = ../log/ntd-midgammon-chooseroll-1.0-trial-1.txt
-queue
-arguments = app_ntd.py --domain midgammon --chooseroll 1.0 --trial 2
-output = ../log/ntd-midgammon-chooseroll-1.0-trial-2.txt
-error = ../log/ntd-midgammon-chooseroll-1.0-trial-2.txt
-queue
-arguments = app_ntd.py --domain midgammon --chooseroll 1.0 --trial 3
-output = ../log/ntd-midgammon-chooseroll-1.0-trial-3.txt
-error = ../log/ntd-midgammon-chooseroll-1.0-trial-3.txt
-queue
-arguments = app_ntd.py --domain midgammon --chooseroll 1.0 --trial 4
-output = ../log/ntd-midgammon-chooseroll-1.0-trial-4.txt
-error = ../log/ntd-midgammon-chooseroll-1.0-trial-4.txt
-queue
-arguments = app_ntd.py --domain midgammon --chooseroll 1.0 --trial 5
-output = ../log/ntd-midgammon-chooseroll-1.0-trial-5.txt
-error = ../log/ntd-midgammon-chooseroll-1.0-trial-5.txt
-queue
-arguments = app_ntd.py --domain midgammon --chooseroll 1.0 --trial 6
-output = ../log/ntd-midgammon-chooseroll-1.0-trial-6.txt
-error = ../log/ntd-midgammon-chooseroll-1.0-trial-6.txt
-queue
-arguments = app_ntd.py --domain midgammon --chooseroll 1.0 --trial 7
-output = ../log/ntd-midgammon-chooseroll-1.0-trial-7.txt
-error = ../log/ntd-midgammon-chooseroll-1.0-trial-7.txt
-queue
-arguments = app_ntd.py --domain midgammon --chooseroll 1.0 --trial 8
-output = ../log/ntd-midgammon-chooseroll-1.0-trial-8.txt
-error = ../log/ntd-midgammon-chooseroll-1.0-trial-8.txt
-queue
-arguments = app_ntd.py --domain midgammon --chooseroll 1.0 --trial 9
-output = ../log/ntd-midgammon-chooseroll-1.0-trial-9.txt
-error = ../log/ntd-midgammon-chooseroll-1.0-trial-9.txt
-queue
-arguments = app_ntd.py --domain nohitgammon --chooseroll 0.0 --trial 0
-output = ../log/ntd-nohitgammon-chooseroll-0.0-trial-0.txt
-error = ../log/ntd-nohitgammon-chooseroll-0.0-trial-0.txt
-queue
-arguments = app_ntd.py --domain nohitgammon --chooseroll 0.0 --trial 1
-output = ../log/ntd-nohitgammon-chooseroll-0.0-trial-1.txt
-error = ../log/ntd-nohitgammon-chooseroll-0.0-trial-1.txt
-queue
-arguments = app_ntd.py --domain nohitgammon --chooseroll 0.0 --trial 2
-output = ../log/ntd-nohitgammon-chooseroll-0.0-trial-2.txt
-error = ../log/ntd-nohitgammon-chooseroll-0.0-trial-2.txt
-queue
-arguments = app_ntd.py --domain nohitgammon --chooseroll 0.0 --trial 3
-output = ../log/ntd-nohitgammon-chooseroll-0.0-trial-3.txt
-error = ../log/ntd-nohitgammon-chooseroll-0.0-trial-3.txt
-queue
-arguments = app_ntd.py --domain nohitgammon --chooseroll 0.0 --trial 4
-output = ../log/ntd-nohitgammon-chooseroll-0.0-trial-4.txt
-error = ../log/ntd-nohitgammon-chooseroll-0.0-trial-4.txt
-queue
-arguments = app_ntd.py --domain nohitgammon --chooseroll 0.0 --trial 5
-output = ../log/ntd-nohitgammon-chooseroll-0.0-trial-5.txt
-error = ../log/ntd-nohitgammon-chooseroll-0.0-trial-5.txt
-queue
-arguments = app_ntd.py --domain nohitgammon --chooseroll 0.0 --trial 6
-output = ../log/ntd-nohitgammon-chooseroll-0.0-trial-6.txt
-error = ../log/ntd-nohitgammon-chooseroll-0.0-trial-6.txt
-queue
-arguments = app_ntd.py --domain nohitgammon --chooseroll 0.0 --trial 7
-output = ../log/ntd-nohitgammon-chooseroll-0.0-trial-7.txt
-error = ../log/ntd-nohitgammon-chooseroll-0.0-trial-7.txt
-queue
-arguments = app_ntd.py --domain nohitgammon --chooseroll 0.0 --trial 8
-output = ../log/ntd-nohitgammon-chooseroll-0.0-trial-8.txt
-error = ../log/ntd-nohitgammon-chooseroll-0.0-trial-8.txt
-queue
-arguments = app_ntd.py --domain nohitgammon --chooseroll 0.0 --trial 9
-output = ../log/ntd-nohitgammon-chooseroll-0.0-trial-9.txt
-error = ../log/ntd-nohitgammon-chooseroll-0.0-trial-9.txt
-queue
-arguments = app_ntd.py --domain nohitgammon --chooseroll 0.1 --trial 0
-output = ../log/ntd-nohitgammon-chooseroll-0.1-trial-0.txt
-error = ../log/ntd-nohitgammon-chooseroll-0.1-trial-0.txt
-queue
-arguments = app_ntd.py --domain nohitgammon --chooseroll 0.1 --trial 1
-output = ../log/ntd-nohitgammon-chooseroll-0.1-trial-1.txt
-error = ../log/ntd-nohitgammon-chooseroll-0.1-trial-1.txt
-queue
-arguments = app_ntd.py --domain nohitgammon --chooseroll 0.1 --trial 2
-output = ../log/ntd-nohitgammon-chooseroll-0.1-trial-2.txt
-error = ../log/ntd-nohitgammon-chooseroll-0.1-trial-2.txt
-queue
-arguments = app_ntd.py --domain nohitgammon --chooseroll 0.1 --trial 3
-output = ../log/ntd-nohitgammon-chooseroll-0.1-trial-3.txt
-error = ../log/ntd-nohitgammon-chooseroll-0.1-trial-3.txt
-queue
-arguments = app_ntd.py --domain nohitgammon --chooseroll 0.1 --trial 4
-output = ../log/ntd-nohitgammon-chooseroll-0.1-trial-4.txt
-error = ../log/ntd-nohitgammon-chooseroll-0.1-trial-4.txt
-queue
-arguments = app_ntd.py --domain nohitgammon --chooseroll 0.1 --trial 5
-output = ../log/ntd-nohitgammon-chooseroll-0.1-trial-5.txt
-error = ../log/ntd-nohitgammon-chooseroll-0.1-trial-5.txt
-queue
-arguments = app_ntd.py --domain nohitgammon --chooseroll 0.1 --trial 6
-output = ../log/ntd-nohitgammon-chooseroll-0.1-trial-6.txt
-error = ../log/ntd-nohitgammon-chooseroll-0.1-trial-6.txt
-queue
-arguments = app_ntd.py --domain nohitgammon --chooseroll 0.1 --trial 7
-output = ../log/ntd-nohitgammon-chooseroll-0.1-trial-7.txt
-error = ../log/ntd-nohitgammon-chooseroll-0.1-trial-7.txt
-queue
-arguments = app_ntd.py --domain nohitgammon --chooseroll 0.1 --trial 8
-output = ../log/ntd-nohitgammon-chooseroll-0.1-trial-8.txt
-error = ../log/ntd-nohitgammon-chooseroll-0.1-trial-8.txt
-queue
-arguments = app_ntd.py --domain nohitgammon --chooseroll 0.1 --trial 9
-output = ../log/ntd-nohitgammon-chooseroll-0.1-trial-9.txt
-error = ../log/ntd-nohitgammon-chooseroll-0.1-trial-9.txt
-queue
-arguments = app_ntd.py --domain nohitgammon --chooseroll 0.5 --trial 0
-output = ../log/ntd-nohitgammon-chooseroll-0.5-trial-0.txt
-error = ../log/ntd-nohitgammon-chooseroll-0.5-trial-0.txt
-queue
-arguments = app_ntd.py --domain nohitgammon --chooseroll 0.5 --trial 1
-output = ../log/ntd-nohitgammon-chooseroll-0.5-trial-1.txt
-error = ../log/ntd-nohitgammon-chooseroll-0.5-trial-1.txt
-queue
-arguments = app_ntd.py --domain nohitgammon --chooseroll 0.5 --trial 2
-output = ../log/ntd-nohitgammon-chooseroll-0.5-trial-2.txt
-error = ../log/ntd-nohitgammon-chooseroll-0.5-trial-2.txt
-queue
-arguments = app_ntd.py --domain nohitgammon --chooseroll 0.5 --trial 3
-output = ../log/ntd-nohitgammon-chooseroll-0.5-trial-3.txt
-error = ../log/ntd-nohitgammon-chooseroll-0.5-trial-3.txt
-queue
-arguments = app_ntd.py --domain nohitgammon --chooseroll 0.5 --trial 4
-output = ../log/ntd-nohitgammon-chooseroll-0.5-trial-4.txt
-error = ../log/ntd-nohitgammon-chooseroll-0.5-trial-4.txt
-queue
-arguments = app_ntd.py --domain nohitgammon --chooseroll 0.5 --trial 5
-output = ../log/ntd-nohitgammon-chooseroll-0.5-trial-5.txt
-error = ../log/ntd-nohitgammon-chooseroll-0.5-trial-5.txt
-queue
-arguments = app_ntd.py --domain nohitgammon --chooseroll 0.5 --trial 6
-output = ../log/ntd-nohitgammon-chooseroll-0.5-trial-6.txt
-error = ../log/ntd-nohitgammon-chooseroll-0.5-trial-6.txt
-queue
-arguments = app_ntd.py --domain nohitgammon --chooseroll 0.5 --trial 7
-output = ../log/ntd-nohitgammon-chooseroll-0.5-trial-7.txt
-error = ../log/ntd-nohitgammon-chooseroll-0.5-trial-7.txt
-queue
-arguments = app_ntd.py --domain nohitgammon --chooseroll 0.5 --trial 8
-output = ../log/ntd-nohitgammon-chooseroll-0.5-trial-8.txt
-error = ../log/ntd-nohitgammon-chooseroll-0.5-trial-8.txt
-queue
-arguments = app_ntd.py --domain nohitgammon --chooseroll 0.5 --trial 9
-output = ../log/ntd-nohitgammon-chooseroll-0.5-trial-9.txt
-error = ../log/ntd-nohitgammon-chooseroll-0.5-trial-9.txt
-queue
-arguments = app_ntd.py --domain nohitgammon --chooseroll 0.9 --trial 0
-output = ../log/ntd-nohitgammon-chooseroll-0.9-trial-0.txt
-error = ../log/ntd-nohitgammon-chooseroll-0.9-trial-0.txt
-queue
-arguments = app_ntd.py --domain nohitgammon --chooseroll 0.9 --trial 1
-output = ../log/ntd-nohitgammon-chooseroll-0.9-trial-1.txt
-error = ../log/ntd-nohitgammon-chooseroll-0.9-trial-1.txt
-queue
-arguments = app_ntd.py --domain nohitgammon --chooseroll 0.9 --trial 2
-output = ../log/ntd-nohitgammon-chooseroll-0.9-trial-2.txt
-error = ../log/ntd-nohitgammon-chooseroll-0.9-trial-2.txt
-queue
-arguments = app_ntd.py --domain nohitgammon --chooseroll 0.9 --trial 3
-output = ../log/ntd-nohitgammon-chooseroll-0.9-trial-3.txt
-error = ../log/ntd-nohitgammon-chooseroll-0.9-trial-3.txt
-queue
-arguments = app_ntd.py --domain nohitgammon --chooseroll 0.9 --trial 4
-output = ../log/ntd-nohitgammon-chooseroll-0.9-trial-4.txt
-error = ../log/ntd-nohitgammon-chooseroll-0.9-trial-4.txt
-queue
-arguments = app_ntd.py --domain nohitgammon --chooseroll 0.9 --trial 5
-output = ../log/ntd-nohitgammon-chooseroll-0.9-trial-5.txt
-error = ../log/ntd-nohitgammon-chooseroll-0.9-trial-5.txt
-queue
-arguments = app_ntd.py --domain nohitgammon --chooseroll 0.9 --trial 6
-output = ../log/ntd-nohitgammon-chooseroll-0.9-trial-6.txt
-error = ../log/ntd-nohitgammon-chooseroll-0.9-trial-6.txt
-queue
-arguments = app_ntd.py --domain nohitgammon --chooseroll 0.9 --trial 7
-output = ../log/ntd-nohitgammon-chooseroll-0.9-trial-7.txt
-error = ../log/ntd-nohitgammon-chooseroll-0.9-trial-7.txt
-queue
-arguments = app_ntd.py --domain nohitgammon --chooseroll 0.9 --trial 8
-output = ../log/ntd-nohitgammon-chooseroll-0.9-trial-8.txt
-error = ../log/ntd-nohitgammon-chooseroll-0.9-trial-8.txt
-queue
-arguments = app_ntd.py --domain nohitgammon --chooseroll 0.9 --trial 9
-output = ../log/ntd-nohitgammon-chooseroll-0.9-trial-9.txt
-error = ../log/ntd-nohitgammon-chooseroll-0.9-trial-9.txt
-queue
-arguments = app_ntd.py --domain nohitgammon --chooseroll 1.0 --trial 0
-output = ../log/ntd-nohitgammon-chooseroll-1.0-trial-0.txt
-error = ../log/ntd-nohitgammon-chooseroll-1.0-trial-0.txt
-queue
-arguments = app_ntd.py --domain nohitgammon --chooseroll 1.0 --trial 1
-output = ../log/ntd-nohitgammon-chooseroll-1.0-trial-1.txt
-error = ../log/ntd-nohitgammon-chooseroll-1.0-trial-1.txt
-queue
-arguments = app_ntd.py --domain nohitgammon --chooseroll 1.0 --trial 2
-output = ../log/ntd-nohitgammon-chooseroll-1.0-trial-2.txt
-error = ../log/ntd-nohitgammon-chooseroll-1.0-trial-2.txt
-queue
-arguments = app_ntd.py --domain nohitgammon --chooseroll 1.0 --trial 3
-output = ../log/ntd-nohitgammon-chooseroll-1.0-trial-3.txt
-error = ../log/ntd-nohitgammon-chooseroll-1.0-trial-3.txt
-queue
-arguments = app_ntd.py --domain nohitgammon --chooseroll 1.0 --trial 4
-output = ../log/ntd-nohitgammon-chooseroll-1.0-trial-4.txt
-error = ../log/ntd-nohitgammon-chooseroll-1.0-trial-4.txt
-queue
-arguments = app_ntd.py --domain nohitgammon --chooseroll 1.0 --trial 5
-output = ../log/ntd-nohitgammon-chooseroll-1.0-trial-5.txt
-error = ../log/ntd-nohitgammon-chooseroll-1.0-trial-5.txt
-queue
-arguments = app_ntd.py --domain nohitgammon --chooseroll 1.0 --trial 6
-output = ../log/ntd-nohitgammon-chooseroll-1.0-trial-6.txt
-error = ../log/ntd-nohitgammon-chooseroll-1.0-trial-6.txt
-queue
-arguments = app_ntd.py --domain nohitgammon --chooseroll 1.0 --trial 7
-output = ../log/ntd-nohitgammon-chooseroll-1.0-trial-7.txt
-error = ../log/ntd-nohitgammon-chooseroll-1.0-trial-7.txt
-queue
-arguments = app_ntd.py --domain nohitgammon --chooseroll 1.0 --trial 8
-output = ../log/ntd-nohitgammon-chooseroll-1.0-trial-8.txt
-error = ../log/ntd-nohitgammon-chooseroll-1.0-trial-8.txt
-queue
-arguments = app_ntd.py --domain nohitgammon --chooseroll 1.0 --trial 9
-output = ../log/ntd-nohitgammon-chooseroll-1.0-trial-9.txt
-error = ../log/ntd-nohitgammon-chooseroll-1.0-trial-9.txt
-queue
-arguments = app_hc.py --domain minigammon --chooseroll 0.0 --trial 0
-output = ../log/hc-minigammon-chooseroll-0.0-trial-0.txt
-error = ../log/hc-minigammon-chooseroll-0.0-trial-0.txt
-queue
-arguments = app_hc.py --domain minigammon --chooseroll 0.0 --trial 1
-output = ../log/hc-minigammon-chooseroll-0.0-trial-1.txt
-error = ../log/hc-minigammon-chooseroll-0.0-trial-1.txt
-queue
-arguments = app_hc.py --domain minigammon --chooseroll 0.0 --trial 2
-output = ../log/hc-minigammon-chooseroll-0.0-trial-2.txt
-error = ../log/hc-minigammon-chooseroll-0.0-trial-2.txt
-queue
-arguments = app_hc.py --domain minigammon --chooseroll 0.0 --trial 3
-output = ../log/hc-minigammon-chooseroll-0.0-trial-3.txt
-error = ../log/hc-minigammon-chooseroll-0.0-trial-3.txt
-queue
-arguments = app_hc.py --domain minigammon --chooseroll 0.0 --trial 4
-output = ../log/hc-minigammon-chooseroll-0.0-trial-4.txt
-error = ../log/hc-minigammon-chooseroll-0.0-trial-4.txt
-queue
-arguments = app_hc.py --domain minigammon --chooseroll 0.0 --trial 5
-output = ../log/hc-minigammon-chooseroll-0.0-trial-5.txt
-error = ../log/hc-minigammon-chooseroll-0.0-trial-5.txt
-queue
-arguments = app_hc.py --domain minigammon --chooseroll 0.0 --trial 6
-output = ../log/hc-minigammon-chooseroll-0.0-trial-6.txt
-error = ../log/hc-minigammon-chooseroll-0.0-trial-6.txt
-queue
-arguments = app_hc.py --domain minigammon --chooseroll 0.0 --trial 7
-output = ../log/hc-minigammon-chooseroll-0.0-trial-7.txt
-error = ../log/hc-minigammon-chooseroll-0.0-trial-7.txt
-queue
-arguments = app_hc.py --domain minigammon --chooseroll 0.0 --trial 8
-output = ../log/hc-minigammon-chooseroll-0.0-trial-8.txt
-error = ../log/hc-minigammon-chooseroll-0.0-trial-8.txt
-queue
-arguments = app_hc.py --domain minigammon --chooseroll 0.0 --trial 9
-output = ../log/hc-minigammon-chooseroll-0.0-trial-9.txt
-error = ../log/hc-minigammon-chooseroll-0.0-trial-9.txt
-queue
-arguments = app_hc.py --domain minigammon --chooseroll 0.1 --trial 0
-output = ../log/hc-minigammon-chooseroll-0.1-trial-0.txt
-error = ../log/hc-minigammon-chooseroll-0.1-trial-0.txt
-queue
-arguments = app_hc.py --domain minigammon --chooseroll 0.1 --trial 1
-output = ../log/hc-minigammon-chooseroll-0.1-trial-1.txt
-error = ../log/hc-minigammon-chooseroll-0.1-trial-1.txt
-queue
-arguments = app_hc.py --domain minigammon --chooseroll 0.1 --trial 2
-output = ../log/hc-minigammon-chooseroll-0.1-trial-2.txt
-error = ../log/hc-minigammon-chooseroll-0.1-trial-2.txt
-queue
-arguments = app_hc.py --domain minigammon --chooseroll 0.1 --trial 3
-output = ../log/hc-minigammon-chooseroll-0.1-trial-3.txt
-error = ../log/hc-minigammon-chooseroll-0.1-trial-3.txt
-queue
-arguments = app_hc.py --domain minigammon --chooseroll 0.1 --trial 4
-output = ../log/hc-minigammon-chooseroll-0.1-trial-4.txt
-error = ../log/hc-minigammon-chooseroll-0.1-trial-4.txt
-queue
-arguments = app_hc.py --domain minigammon --chooseroll 0.1 --trial 5
-output = ../log/hc-minigammon-chooseroll-0.1-trial-5.txt
-error = ../log/hc-minigammon-chooseroll-0.1-trial-5.txt
-queue
-arguments = app_hc.py --domain minigammon --chooseroll 0.1 --trial 6
-output = ../log/hc-minigammon-chooseroll-0.1-trial-6.txt
-error = ../log/hc-minigammon-chooseroll-0.1-trial-6.txt
-queue
-arguments = app_hc.py --domain minigammon --chooseroll 0.1 --trial 7
-output = ../log/hc-minigammon-chooseroll-0.1-trial-7.txt
-error = ../log/hc-minigammon-chooseroll-0.1-trial-7.txt
-queue
-arguments = app_hc.py --domain minigammon --chooseroll 0.1 --trial 8
-output = ../log/hc-minigammon-chooseroll-0.1-trial-8.txt
-error = ../log/hc-minigammon-chooseroll-0.1-trial-8.txt
-queue
-arguments = app_hc.py --domain minigammon --chooseroll 0.1 --trial 9
-output = ../log/hc-minigammon-chooseroll-0.1-trial-9.txt
-error = ../log/hc-minigammon-chooseroll-0.1-trial-9.txt
-queue
-arguments = app_hc.py --domain minigammon --chooseroll 0.5 --trial 0
-output = ../log/hc-minigammon-chooseroll-0.5-trial-0.txt
-error = ../log/hc-minigammon-chooseroll-0.5-trial-0.txt
-queue
-arguments = app_hc.py --domain minigammon --chooseroll 0.5 --trial 1
-output = ../log/hc-minigammon-chooseroll-0.5-trial-1.txt
-error = ../log/hc-minigammon-chooseroll-0.5-trial-1.txt
-queue
-arguments = app_hc.py --domain minigammon --chooseroll 0.5 --trial 2
-output = ../log/hc-minigammon-chooseroll-0.5-trial-2.txt
-error = ../log/hc-minigammon-chooseroll-0.5-trial-2.txt
-queue
-arguments = app_hc.py --domain minigammon --chooseroll 0.5 --trial 3
-output = ../log/hc-minigammon-chooseroll-0.5-trial-3.txt
-error = ../log/hc-minigammon-chooseroll-0.5-trial-3.txt
-queue
-arguments = app_hc.py --domain minigammon --chooseroll 0.5 --trial 4
-output = ../log/hc-minigammon-chooseroll-0.5-trial-4.txt
-error = ../log/hc-minigammon-chooseroll-0.5-trial-4.txt
-queue
-arguments = app_hc.py --domain minigammon --chooseroll 0.5 --trial 5
-output = ../log/hc-minigammon-chooseroll-0.5-trial-5.txt
-error = ../log/hc-minigammon-chooseroll-0.5-trial-5.txt
-queue
-arguments = app_hc.py --domain minigammon --chooseroll 0.5 --trial 6
-output = ../log/hc-minigammon-chooseroll-0.5-trial-6.txt
-error = ../log/hc-minigammon-chooseroll-0.5-trial-6.txt
-queue
-arguments = app_hc.py --domain minigammon --chooseroll 0.5 --trial 7
-output = ../log/hc-minigammon-chooseroll-0.5-trial-7.txt
-error = ../log/hc-minigammon-chooseroll-0.5-trial-7.txt
-queue
-arguments = app_hc.py --domain minigammon --chooseroll 0.5 --trial 8
-output = ../log/hc-minigammon-chooseroll-0.5-trial-8.txt
-error = ../log/hc-minigammon-chooseroll-0.5-trial-8.txt
-queue
-arguments = app_hc.py --domain minigammon --chooseroll 0.5 --trial 9
-output = ../log/hc-minigammon-chooseroll-0.5-trial-9.txt
-error = ../log/hc-minigammon-chooseroll-0.5-trial-9.txt
-queue
-arguments = app_hc.py --domain minigammon --chooseroll 0.9 --trial 0
-output = ../log/hc-minigammon-chooseroll-0.9-trial-0.txt
-error = ../log/hc-minigammon-chooseroll-0.9-trial-0.txt
-queue
-arguments = app_hc.py --domain minigammon --chooseroll 0.9 --trial 1
-output = ../log/hc-minigammon-chooseroll-0.9-trial-1.txt
-error = ../log/hc-minigammon-chooseroll-0.9-trial-1.txt
-queue
-arguments = app_hc.py --domain minigammon --chooseroll 0.9 --trial 2
-output = ../log/hc-minigammon-chooseroll-0.9-trial-2.txt
-error = ../log/hc-minigammon-chooseroll-0.9-trial-2.txt
-queue
-arguments = app_hc.py --domain minigammon --chooseroll 0.9 --trial 3
-output = ../log/hc-minigammon-chooseroll-0.9-trial-3.txt
-error = ../log/hc-minigammon-chooseroll-0.9-trial-3.txt
-queue
-arguments = app_hc.py --domain minigammon --chooseroll 0.9 --trial 4
-output = ../log/hc-minigammon-chooseroll-0.9-trial-4.txt
-error = ../log/hc-minigammon-chooseroll-0.9-trial-4.txt
-queue
-arguments = app_hc.py --domain minigammon --chooseroll 0.9 --trial 5
-output = ../log/hc-minigammon-chooseroll-0.9-trial-5.txt
-error = ../log/hc-minigammon-chooseroll-0.9-trial-5.txt
-queue
-arguments = app_hc.py --domain minigammon --chooseroll 0.9 --trial 6
-output = ../log/hc-minigammon-chooseroll-0.9-trial-6.txt
-error = ../log/hc-minigammon-chooseroll-0.9-trial-6.txt
-queue
-arguments = app_hc.py --domain minigammon --chooseroll 0.9 --trial 7
-output = ../log/hc-minigammon-chooseroll-0.9-trial-7.txt
-error = ../log/hc-minigammon-chooseroll-0.9-trial-7.txt
-queue
-arguments = app_hc.py --domain minigammon --chooseroll 0.9 --trial 8
-output = ../log/hc-minigammon-chooseroll-0.9-trial-8.txt
-error = ../log/hc-minigammon-chooseroll-0.9-trial-8.txt
-queue
-arguments = app_hc.py --domain minigammon --chooseroll 0.9 --trial 9
-output = ../log/hc-minigammon-chooseroll-0.9-trial-9.txt
-error = ../log/hc-minigammon-chooseroll-0.9-trial-9.txt
-queue
-arguments = app_hc.py --domain minigammon --chooseroll 1.0 --trial 0
-output = ../log/hc-minigammon-chooseroll-1.0-trial-0.txt
-error = ../log/hc-minigammon-chooseroll-1.0-trial-0.txt
-queue
-arguments = app_hc.py --domain minigammon --chooseroll 1.0 --trial 1
-output = ../log/hc-minigammon-chooseroll-1.0-trial-1.txt
-error = ../log/hc-minigammon-chooseroll-1.0-trial-1.txt
-queue
-arguments = app_hc.py --domain minigammon --chooseroll 1.0 --trial 2
-output = ../log/hc-minigammon-chooseroll-1.0-trial-2.txt
-error = ../log/hc-minigammon-chooseroll-1.0-trial-2.txt
-queue
-arguments = app_hc.py --domain minigammon --chooseroll 1.0 --trial 3
-output = ../log/hc-minigammon-chooseroll-1.0-trial-3.txt
-error = ../log/hc-minigammon-chooseroll-1.0-trial-3.txt
-queue
-arguments = app_hc.py --domain minigammon --chooseroll 1.0 --trial 4
-output = ../log/hc-minigammon-chooseroll-1.0-trial-4.txt
-error = ../log/hc-minigammon-chooseroll-1.0-trial-4.txt
-queue
-arguments = app_hc.py --domain minigammon --chooseroll 1.0 --trial 5
-output = ../log/hc-minigammon-chooseroll-1.0-trial-5.txt
-error = ../log/hc-minigammon-chooseroll-1.0-trial-5.txt
-queue
-arguments = app_hc.py --domain minigammon --chooseroll 1.0 --trial 6
-output = ../log/hc-minigammon-chooseroll-1.0-trial-6.txt
-error = ../log/hc-minigammon-chooseroll-1.0-trial-6.txt
-queue
-arguments = app_hc.py --domain minigammon --chooseroll 1.0 --trial 7
-output = ../log/hc-minigammon-chooseroll-1.0-trial-7.txt
-error = ../log/hc-minigammon-chooseroll-1.0-trial-7.txt
-queue
-arguments = app_hc.py --domain minigammon --chooseroll 1.0 --trial 8
-output = ../log/hc-minigammon-chooseroll-1.0-trial-8.txt
-error = ../log/hc-minigammon-chooseroll-1.0-trial-8.txt
-queue
-arguments = app_hc.py --domain minigammon --chooseroll 1.0 --trial 9
-output = ../log/hc-minigammon-chooseroll-1.0-trial-9.txt
-error = ../log/hc-minigammon-chooseroll-1.0-trial-9.txt
-queue
-arguments = app_hc.py --domain nannon --chooseroll 0.0 --trial 0
-output = ../log/hc-nannon-chooseroll-0.0-trial-0.txt
-error = ../log/hc-nannon-chooseroll-0.0-trial-0.txt
-queue
-arguments = app_hc.py --domain nannon --chooseroll 0.0 --trial 1
-output = ../log/hc-nannon-chooseroll-0.0-trial-1.txt
-error = ../log/hc-nannon-chooseroll-0.0-trial-1.txt
-queue
-arguments = app_hc.py --domain nannon --chooseroll 0.0 --trial 2
-output = ../log/hc-nannon-chooseroll-0.0-trial-2.txt
-error = ../log/hc-nannon-chooseroll-0.0-trial-2.txt
-queue
-arguments = app_hc.py --domain nannon --chooseroll 0.0 --trial 3
-output = ../log/hc-nannon-chooseroll-0.0-trial-3.txt
-error = ../log/hc-nannon-chooseroll-0.0-trial-3.txt
-queue
-arguments = app_hc.py --domain nannon --chooseroll 0.0 --trial 4
-output = ../log/hc-nannon-chooseroll-0.0-trial-4.txt
-error = ../log/hc-nannon-chooseroll-0.0-trial-4.txt
-queue
-arguments = app_hc.py --domain nannon --chooseroll 0.0 --trial 5
-output = ../log/hc-nannon-chooseroll-0.0-trial-5.txt
-error = ../log/hc-nannon-chooseroll-0.0-trial-5.txt
-queue
-arguments = app_hc.py --domain nannon --chooseroll 0.0 --trial 6
-output = ../log/hc-nannon-chooseroll-0.0-trial-6.txt
-error = ../log/hc-nannon-chooseroll-0.0-trial-6.txt
-queue
-arguments = app_hc.py --domain nannon --chooseroll 0.0 --trial 7
-output = ../log/hc-nannon-chooseroll-0.0-trial-7.txt
-error = ../log/hc-nannon-chooseroll-0.0-trial-7.txt
-queue
-arguments = app_hc.py --domain nannon --chooseroll 0.0 --trial 8
-output = ../log/hc-nannon-chooseroll-0.0-trial-8.txt
-error = ../log/hc-nannon-chooseroll-0.0-trial-8.txt
-queue
-arguments = app_hc.py --domain nannon --chooseroll 0.0 --trial 9
-output = ../log/hc-nannon-chooseroll-0.0-trial-9.txt
-error = ../log/hc-nannon-chooseroll-0.0-trial-9.txt
-queue
-arguments = app_hc.py --domain nannon --chooseroll 0.1 --trial 0
-output = ../log/hc-nannon-chooseroll-0.1-trial-0.txt
-error = ../log/hc-nannon-chooseroll-0.1-trial-0.txt
-queue
-arguments = app_hc.py --domain nannon --chooseroll 0.1 --trial 1
-output = ../log/hc-nannon-chooseroll-0.1-trial-1.txt
-error = ../log/hc-nannon-chooseroll-0.1-trial-1.txt
-queue
-arguments = app_hc.py --domain nannon --chooseroll 0.1 --trial 2
-output = ../log/hc-nannon-chooseroll-0.1-trial-2.txt
-error = ../log/hc-nannon-chooseroll-0.1-trial-2.txt
-queue
-arguments = app_hc.py --domain nannon --chooseroll 0.1 --trial 3
-output = ../log/hc-nannon-chooseroll-0.1-trial-3.txt
-error = ../log/hc-nannon-chooseroll-0.1-trial-3.txt
-queue
-arguments = app_hc.py --domain nannon --chooseroll 0.1 --trial 4
-output = ../log/hc-nannon-chooseroll-0.1-trial-4.txt
-error = ../log/hc-nannon-chooseroll-0.1-trial-4.txt
-queue
-arguments = app_hc.py --domain nannon --chooseroll 0.1 --trial 5
-output = ../log/hc-nannon-chooseroll-0.1-trial-5.txt
-error = ../log/hc-nannon-chooseroll-0.1-trial-5.txt
-queue
-arguments = app_hc.py --domain nannon --chooseroll 0.1 --trial 6
-output = ../log/hc-nannon-chooseroll-0.1-trial-6.txt
-error = ../log/hc-nannon-chooseroll-0.1-trial-6.txt
-queue
-arguments = app_hc.py --domain nannon --chooseroll 0.1 --trial 7
-output = ../log/hc-nannon-chooseroll-0.1-trial-7.txt
-error = ../log/hc-nannon-chooseroll-0.1-trial-7.txt
-queue
-arguments = app_hc.py --domain nannon --chooseroll 0.1 --trial 8
-output = ../log/hc-nannon-chooseroll-0.1-trial-8.txt
-error = ../log/hc-nannon-chooseroll-0.1-trial-8.txt
-queue
-arguments = app_hc.py --domain nannon --chooseroll 0.1 --trial 9
-output = ../log/hc-nannon-chooseroll-0.1-trial-9.txt
-error = ../log/hc-nannon-chooseroll-0.1-trial-9.txt
-queue
-arguments = app_hc.py --domain nannon --chooseroll 0.5 --trial 0
-output = ../log/hc-nannon-chooseroll-0.5-trial-0.txt
-error = ../log/hc-nannon-chooseroll-0.5-trial-0.txt
-queue
-arguments = app_hc.py --domain nannon --chooseroll 0.5 --trial 1
-output = ../log/hc-nannon-chooseroll-0.5-trial-1.txt
-error = ../log/hc-nannon-chooseroll-0.5-trial-1.txt
-queue
-arguments = app_hc.py --domain nannon --chooseroll 0.5 --trial 2
-output = ../log/hc-nannon-chooseroll-0.5-trial-2.txt
-error = ../log/hc-nannon-chooseroll-0.5-trial-2.txt
-queue
-arguments = app_hc.py --domain nannon --chooseroll 0.5 --trial 3
-output = ../log/hc-nannon-chooseroll-0.5-trial-3.txt
-error = ../log/hc-nannon-chooseroll-0.5-trial-3.txt
-queue
-arguments = app_hc.py --domain nannon --chooseroll 0.5 --trial 4
-output = ../log/hc-nannon-chooseroll-0.5-trial-4.txt
-error = ../log/hc-nannon-chooseroll-0.5-trial-4.txt
-queue
-arguments = app_hc.py --domain nannon --chooseroll 0.5 --trial 5
-output = ../log/hc-nannon-chooseroll-0.5-trial-5.txt
-error = ../log/hc-nannon-chooseroll-0.5-trial-5.txt
-queue
-arguments = app_hc.py --domain nannon --chooseroll 0.5 --trial 6
-output = ../log/hc-nannon-chooseroll-0.5-trial-6.txt
-error = ../log/hc-nannon-chooseroll-0.5-trial-6.txt
-queue
-arguments = app_hc.py --domain nannon --chooseroll 0.5 --trial 7
-output = ../log/hc-nannon-chooseroll-0.5-trial-7.txt
-error = ../log/hc-nannon-chooseroll-0.5-trial-7.txt
-queue
-arguments = app_hc.py --domain nannon --chooseroll 0.5 --trial 8
-output = ../log/hc-nannon-chooseroll-0.5-trial-8.txt
-error = ../log/hc-nannon-chooseroll-0.5-trial-8.txt
-queue
-arguments = app_hc.py --domain nannon --chooseroll 0.5 --trial 9
-output = ../log/hc-nannon-chooseroll-0.5-trial-9.txt
-error = ../log/hc-nannon-chooseroll-0.5-trial-9.txt
-queue
-arguments = app_hc.py --domain nannon --chooseroll 0.9 --trial 0
-output = ../log/hc-nannon-chooseroll-0.9-trial-0.txt
-error = ../log/hc-nannon-chooseroll-0.9-trial-0.txt
-queue
-arguments = app_hc.py --domain nannon --chooseroll 0.9 --trial 1
-output = ../log/hc-nannon-chooseroll-0.9-trial-1.txt
-error = ../log/hc-nannon-chooseroll-0.9-trial-1.txt
-queue
-arguments = app_hc.py --domain nannon --chooseroll 0.9 --trial 2
-output = ../log/hc-nannon-chooseroll-0.9-trial-2.txt
-error = ../log/hc-nannon-chooseroll-0.9-trial-2.txt
-queue
-arguments = app_hc.py --domain nannon --chooseroll 0.9 --trial 3
-output = ../log/hc-nannon-chooseroll-0.9-trial-3.txt
-error = ../log/hc-nannon-chooseroll-0.9-trial-3.txt
-queue
-arguments = app_hc.py --domain nannon --chooseroll 0.9 --trial 4
-output = ../log/hc-nannon-chooseroll-0.9-trial-4.txt
-error = ../log/hc-nannon-chooseroll-0.9-trial-4.txt
-queue
-arguments = app_hc.py --domain nannon --chooseroll 0.9 --trial 5
-output = ../log/hc-nannon-chooseroll-0.9-trial-5.txt
-error = ../log/hc-nannon-chooseroll-0.9-trial-5.txt
-queue
-arguments = app_hc.py --domain nannon --chooseroll 0.9 --trial 6
-output = ../log/hc-nannon-chooseroll-0.9-trial-6.txt
-error = ../log/hc-nannon-chooseroll-0.9-trial-6.txt
-queue
-arguments = app_hc.py --domain nannon --chooseroll 0.9 --trial 7
-output = ../log/hc-nannon-chooseroll-0.9-trial-7.txt
-error = ../log/hc-nannon-chooseroll-0.9-trial-7.txt
-queue
-arguments = app_hc.py --domain nannon --chooseroll 0.9 --trial 8
-output = ../log/hc-nannon-chooseroll-0.9-trial-8.txt
-error = ../log/hc-nannon-chooseroll-0.9-trial-8.txt
-queue
-arguments = app_hc.py --domain nannon --chooseroll 0.9 --trial 9
-output = ../log/hc-nannon-chooseroll-0.9-trial-9.txt
-error = ../log/hc-nannon-chooseroll-0.9-trial-9.txt
-queue
-arguments = app_hc.py --domain nannon --chooseroll 1.0 --trial 0
-output = ../log/hc-nannon-chooseroll-1.0-trial-0.txt
-error = ../log/hc-nannon-chooseroll-1.0-trial-0.txt
-queue
-arguments = app_hc.py --domain nannon --chooseroll 1.0 --trial 1
-output = ../log/hc-nannon-chooseroll-1.0-trial-1.txt
-error = ../log/hc-nannon-chooseroll-1.0-trial-1.txt
-queue
-arguments = app_hc.py --domain nannon --chooseroll 1.0 --trial 2
-output = ../log/hc-nannon-chooseroll-1.0-trial-2.txt
-error = ../log/hc-nannon-chooseroll-1.0-trial-2.txt
-queue
-arguments = app_hc.py --domain nannon --chooseroll 1.0 --trial 3
-output = ../log/hc-nannon-chooseroll-1.0-trial-3.txt
-error = ../log/hc-nannon-chooseroll-1.0-trial-3.txt
-queue
-arguments = app_hc.py --domain nannon --chooseroll 1.0 --trial 4
-output = ../log/hc-nannon-chooseroll-1.0-trial-4.txt
-error = ../log/hc-nannon-chooseroll-1.0-trial-4.txt
-queue
-arguments = app_hc.py --domain nannon --chooseroll 1.0 --trial 5
-output = ../log/hc-nannon-chooseroll-1.0-trial-5.txt
-error = ../log/hc-nannon-chooseroll-1.0-trial-5.txt
-queue
-arguments = app_hc.py --domain nannon --chooseroll 1.0 --trial 6
-output = ../log/hc-nannon-chooseroll-1.0-trial-6.txt
-error = ../log/hc-nannon-chooseroll-1.0-trial-6.txt
-queue
-arguments = app_hc.py --domain nannon --chooseroll 1.0 --trial 7
-output = ../log/hc-nannon-chooseroll-1.0-trial-7.txt
-error = ../log/hc-nannon-chooseroll-1.0-trial-7.txt
-queue
-arguments = app_hc.py --domain nannon --chooseroll 1.0 --trial 8
-output = ../log/hc-nannon-chooseroll-1.0-trial-8.txt
-error = ../log/hc-nannon-chooseroll-1.0-trial-8.txt
-queue
-arguments = app_hc.py --domain nannon --chooseroll 1.0 --trial 9
-output = ../log/hc-nannon-chooseroll-1.0-trial-9.txt
-error = ../log/hc-nannon-chooseroll-1.0-trial-9.txt
-queue
-arguments = app_hc.py --domain midgammon --chooseroll 0.0 --trial 0
-output = ../log/hc-midgammon-chooseroll-0.0-trial-0.txt
-error = ../log/hc-midgammon-chooseroll-0.0-trial-0.txt
-queue
-arguments = app_hc.py --domain midgammon --chooseroll 0.0 --trial 1
-output = ../log/hc-midgammon-chooseroll-0.0-trial-1.txt
-error = ../log/hc-midgammon-chooseroll-0.0-trial-1.txt
-queue
-arguments = app_hc.py --domain midgammon --chooseroll 0.0 --trial 2
-output = ../log/hc-midgammon-chooseroll-0.0-trial-2.txt
-error = ../log/hc-midgammon-chooseroll-0.0-trial-2.txt
-queue
-arguments = app_hc.py --domain midgammon --chooseroll 0.0 --trial 3
-output = ../log/hc-midgammon-chooseroll-0.0-trial-3.txt
-error = ../log/hc-midgammon-chooseroll-0.0-trial-3.txt
-queue
-arguments = app_hc.py --domain midgammon --chooseroll 0.0 --trial 4
-output = ../log/hc-midgammon-chooseroll-0.0-trial-4.txt
-error = ../log/hc-midgammon-chooseroll-0.0-trial-4.txt
-queue
-arguments = app_hc.py --domain midgammon --chooseroll 0.0 --trial 5
-output = ../log/hc-midgammon-chooseroll-0.0-trial-5.txt
-error = ../log/hc-midgammon-chooseroll-0.0-trial-5.txt
-queue
-arguments = app_hc.py --domain midgammon --chooseroll 0.0 --trial 6
-output = ../log/hc-midgammon-chooseroll-0.0-trial-6.txt
-error = ../log/hc-midgammon-chooseroll-0.0-trial-6.txt
-queue
-arguments = app_hc.py --domain midgammon --chooseroll 0.0 --trial 7
-output = ../log/hc-midgammon-chooseroll-0.0-trial-7.txt
-error = ../log/hc-midgammon-chooseroll-0.0-trial-7.txt
-queue
-arguments = app_hc.py --domain midgammon --chooseroll 0.0 --trial 8
-output = ../log/hc-midgammon-chooseroll-0.0-trial-8.txt
-error = ../log/hc-midgammon-chooseroll-0.0-trial-8.txt
-queue
-arguments = app_hc.py --domain midgammon --chooseroll 0.0 --trial 9
-output = ../log/hc-midgammon-chooseroll-0.0-trial-9.txt
-error = ../log/hc-midgammon-chooseroll-0.0-trial-9.txt
-queue
-arguments = app_hc.py --domain midgammon --chooseroll 0.1 --trial 0
-output = ../log/hc-midgammon-chooseroll-0.1-trial-0.txt
-error = ../log/hc-midgammon-chooseroll-0.1-trial-0.txt
-queue
-arguments = app_hc.py --domain midgammon --chooseroll 0.1 --trial 1
-output = ../log/hc-midgammon-chooseroll-0.1-trial-1.txt
-error = ../log/hc-midgammon-chooseroll-0.1-trial-1.txt
-queue
-arguments = app_hc.py --domain midgammon --chooseroll 0.1 --trial 2
-output = ../log/hc-midgammon-chooseroll-0.1-trial-2.txt
-error = ../log/hc-midgammon-chooseroll-0.1-trial-2.txt
-queue
-arguments = app_hc.py --domain midgammon --chooseroll 0.1 --trial 3
-output = ../log/hc-midgammon-chooseroll-0.1-trial-3.txt
-error = ../log/hc-midgammon-chooseroll-0.1-trial-3.txt
-queue
-arguments = app_hc.py --domain midgammon --chooseroll 0.1 --trial 4
-output = ../log/hc-midgammon-chooseroll-0.1-trial-4.txt
-error = ../log/hc-midgammon-chooseroll-0.1-trial-4.txt
-queue
-arguments = app_hc.py --domain midgammon --chooseroll 0.1 --trial 5
-output = ../log/hc-midgammon-chooseroll-0.1-trial-5.txt
-error = ../log/hc-midgammon-chooseroll-0.1-trial-5.txt
-queue
-arguments = app_hc.py --domain midgammon --chooseroll 0.1 --trial 6
-output = ../log/hc-midgammon-chooseroll-0.1-trial-6.txt
-error = ../log/hc-midgammon-chooseroll-0.1-trial-6.txt
-queue
-arguments = app_hc.py --domain midgammon --chooseroll 0.1 --trial 7
-output = ../log/hc-midgammon-chooseroll-0.1-trial-7.txt
-error = ../log/hc-midgammon-chooseroll-0.1-trial-7.txt
-queue
-arguments = app_hc.py --domain midgammon --chooseroll 0.1 --trial 8
-output = ../log/hc-midgammon-chooseroll-0.1-trial-8.txt
-error = ../log/hc-midgammon-chooseroll-0.1-trial-8.txt
-queue
-arguments = app_hc.py --domain midgammon --chooseroll 0.1 --trial 9
-output = ../log/hc-midgammon-chooseroll-0.1-trial-9.txt
-error = ../log/hc-midgammon-chooseroll-0.1-trial-9.txt
-queue
-arguments = app_hc.py --domain midgammon --chooseroll 0.5 --trial 0
-output = ../log/hc-midgammon-chooseroll-0.5-trial-0.txt
-error = ../log/hc-midgammon-chooseroll-0.5-trial-0.txt
-queue
-arguments = app_hc.py --domain midgammon --chooseroll 0.5 --trial 1
-output = ../log/hc-midgammon-chooseroll-0.5-trial-1.txt
-error = ../log/hc-midgammon-chooseroll-0.5-trial-1.txt
-queue
-arguments = app_hc.py --domain midgammon --chooseroll 0.5 --trial 2
-output = ../log/hc-midgammon-chooseroll-0.5-trial-2.txt
-error = ../log/hc-midgammon-chooseroll-0.5-trial-2.txt
-queue
-arguments = app_hc.py --domain midgammon --chooseroll 0.5 --trial 3
-output = ../log/hc-midgammon-chooseroll-0.5-trial-3.txt
-error = ../log/hc-midgammon-chooseroll-0.5-trial-3.txt
-queue
-arguments = app_hc.py --domain midgammon --chooseroll 0.5 --trial 4
-output = ../log/hc-midgammon-chooseroll-0.5-trial-4.txt
-error = ../log/hc-midgammon-chooseroll-0.5-trial-4.txt
-queue
-arguments = app_hc.py --domain midgammon --chooseroll 0.5 --trial 5
-output = ../log/hc-midgammon-chooseroll-0.5-trial-5.txt
-error = ../log/hc-midgammon-chooseroll-0.5-trial-5.txt
-queue
-arguments = app_hc.py --domain midgammon --chooseroll 0.5 --trial 6
-output = ../log/hc-midgammon-chooseroll-0.5-trial-6.txt
-error = ../log/hc-midgammon-chooseroll-0.5-trial-6.txt
-queue
-arguments = app_hc.py --domain midgammon --chooseroll 0.5 --trial 7
-output = ../log/hc-midgammon-chooseroll-0.5-trial-7.txt
-error = ../log/hc-midgammon-chooseroll-0.5-trial-7.txt
-queue
-arguments = app_hc.py --domain midgammon --chooseroll 0.5 --trial 8
-output = ../log/hc-midgammon-chooseroll-0.5-trial-8.txt
-error = ../log/hc-midgammon-chooseroll-0.5-trial-8.txt
-queue
-arguments = app_hc.py --domain midgammon --chooseroll 0.5 --trial 9
-output = ../log/hc-midgammon-chooseroll-0.5-trial-9.txt
-error = ../log/hc-midgammon-chooseroll-0.5-trial-9.txt
-queue
-arguments = app_hc.py --domain midgammon --chooseroll 0.9 --trial 0
-output = ../log/hc-midgammon-chooseroll-0.9-trial-0.txt
-error = ../log/hc-midgammon-chooseroll-0.9-trial-0.txt
-queue
-arguments = app_hc.py --domain midgammon --chooseroll 0.9 --trial 1
-output = ../log/hc-midgammon-chooseroll-0.9-trial-1.txt
-error = ../log/hc-midgammon-chooseroll-0.9-trial-1.txt
-queue
-arguments = app_hc.py --domain midgammon --chooseroll 0.9 --trial 2
-output = ../log/hc-midgammon-chooseroll-0.9-trial-2.txt
-error = ../log/hc-midgammon-chooseroll-0.9-trial-2.txt
-queue
-arguments = app_hc.py --domain midgammon --chooseroll 0.9 --trial 3
-output = ../log/hc-midgammon-chooseroll-0.9-trial-3.txt
-error = ../log/hc-midgammon-chooseroll-0.9-trial-3.txt
-queue
-arguments = app_hc.py --domain midgammon --chooseroll 0.9 --trial 4
-output = ../log/hc-midgammon-chooseroll-0.9-trial-4.txt
-error = ../log/hc-midgammon-chooseroll-0.9-trial-4.txt
-queue
-arguments = app_hc.py --domain midgammon --chooseroll 0.9 --trial 5
-output = ../log/hc-midgammon-chooseroll-0.9-trial-5.txt
-error = ../log/hc-midgammon-chooseroll-0.9-trial-5.txt
-queue
-arguments = app_hc.py --domain midgammon --chooseroll 0.9 --trial 6
-output = ../log/hc-midgammon-chooseroll-0.9-trial-6.txt
-error = ../log/hc-midgammon-chooseroll-0.9-trial-6.txt
-queue
-arguments = app_hc.py --domain midgammon --chooseroll 0.9 --trial 7
-output = ../log/hc-midgammon-chooseroll-0.9-trial-7.txt
-error = ../log/hc-midgammon-chooseroll-0.9-trial-7.txt
-queue
-arguments = app_hc.py --domain midgammon --chooseroll 0.9 --trial 8
-output = ../log/hc-midgammon-chooseroll-0.9-trial-8.txt
-error = ../log/hc-midgammon-chooseroll-0.9-trial-8.txt
-queue
-arguments = app_hc.py --domain midgammon --chooseroll 0.9 --trial 9
-output = ../log/hc-midgammon-chooseroll-0.9-trial-9.txt
-error = ../log/hc-midgammon-chooseroll-0.9-trial-9.txt
-queue
-arguments = app_hc.py --domain midgammon --chooseroll 1.0 --trial 0
-output = ../log/hc-midgammon-chooseroll-1.0-trial-0.txt
-error = ../log/hc-midgammon-chooseroll-1.0-trial-0.txt
-queue
-arguments = app_hc.py --domain midgammon --chooseroll 1.0 --trial 1
-output = ../log/hc-midgammon-chooseroll-1.0-trial-1.txt
-error = ../log/hc-midgammon-chooseroll-1.0-trial-1.txt
-queue
-arguments = app_hc.py --domain midgammon --chooseroll 1.0 --trial 2
-output = ../log/hc-midgammon-chooseroll-1.0-trial-2.txt
-error = ../log/hc-midgammon-chooseroll-1.0-trial-2.txt
-queue
-arguments = app_hc.py --domain midgammon --chooseroll 1.0 --trial 3
-output = ../log/hc-midgammon-chooseroll-1.0-trial-3.txt
-error = ../log/hc-midgammon-chooseroll-1.0-trial-3.txt
-queue
-arguments = app_hc.py --domain midgammon --chooseroll 1.0 --trial 4
-output = ../log/hc-midgammon-chooseroll-1.0-trial-4.txt
-error = ../log/hc-midgammon-chooseroll-1.0-trial-4.txt
-queue
-arguments = app_hc.py --domain midgammon --chooseroll 1.0 --trial 5
-output = ../log/hc-midgammon-chooseroll-1.0-trial-5.txt
-error = ../log/hc-midgammon-chooseroll-1.0-trial-5.txt
-queue
-arguments = app_hc.py --domain midgammon --chooseroll 1.0 --trial 6
-output = ../log/hc-midgammon-chooseroll-1.0-trial-6.txt
-error = ../log/hc-midgammon-chooseroll-1.0-trial-6.txt
-queue
-arguments = app_hc.py --domain midgammon --chooseroll 1.0 --trial 7
-output = ../log/hc-midgammon-chooseroll-1.0-trial-7.txt
-error = ../log/hc-midgammon-chooseroll-1.0-trial-7.txt
-queue
-arguments = app_hc.py --domain midgammon --chooseroll 1.0 --trial 8
-output = ../log/hc-midgammon-chooseroll-1.0-trial-8.txt
-error = ../log/hc-midgammon-chooseroll-1.0-trial-8.txt
-queue
-arguments = app_hc.py --domain midgammon --chooseroll 1.0 --trial 9
-output = ../log/hc-midgammon-chooseroll-1.0-trial-9.txt
-error = ../log/hc-midgammon-chooseroll-1.0-trial-9.txt
-queue
-arguments = app_hc.py --domain nohitgammon --chooseroll 0.0 --trial 0
-output = ../log/hc-nohitgammon-chooseroll-0.0-trial-0.txt
-error = ../log/hc-nohitgammon-chooseroll-0.0-trial-0.txt
-queue
-arguments = app_hc.py --domain nohitgammon --chooseroll 0.0 --trial 1
-output = ../log/hc-nohitgammon-chooseroll-0.0-trial-1.txt
-error = ../log/hc-nohitgammon-chooseroll-0.0-trial-1.txt
-queue
-arguments = app_hc.py --domain nohitgammon --chooseroll 0.0 --trial 2
-output = ../log/hc-nohitgammon-chooseroll-0.0-trial-2.txt
-error = ../log/hc-nohitgammon-chooseroll-0.0-trial-2.txt
-queue
-arguments = app_hc.py --domain nohitgammon --chooseroll 0.0 --trial 3
-output = ../log/hc-nohitgammon-chooseroll-0.0-trial-3.txt
-error = ../log/hc-nohitgammon-chooseroll-0.0-trial-3.txt
-queue
-arguments = app_hc.py --domain nohitgammon --chooseroll 0.0 --trial 4
-output = ../log/hc-nohitgammon-chooseroll-0.0-trial-4.txt
-error = ../log/hc-nohitgammon-chooseroll-0.0-trial-4.txt
-queue
-arguments = app_hc.py --domain nohitgammon --chooseroll 0.0 --trial 5
-output = ../log/hc-nohitgammon-chooseroll-0.0-trial-5.txt
-error = ../log/hc-nohitgammon-chooseroll-0.0-trial-5.txt
-queue
-arguments = app_hc.py --domain nohitgammon --chooseroll 0.0 --trial 6
-output = ../log/hc-nohitgammon-chooseroll-0.0-trial-6.txt
-error = ../log/hc-nohitgammon-chooseroll-0.0-trial-6.txt
-queue
-arguments = app_hc.py --domain nohitgammon --chooseroll 0.0 --trial 7
-output = ../log/hc-nohitgammon-chooseroll-0.0-trial-7.txt
-error = ../log/hc-nohitgammon-chooseroll-0.0-trial-7.txt
-queue
-arguments = app_hc.py --domain nohitgammon --chooseroll 0.0 --trial 8
-output = ../log/hc-nohitgammon-chooseroll-0.0-trial-8.txt
-error = ../log/hc-nohitgammon-chooseroll-0.0-trial-8.txt
-queue
-arguments = app_hc.py --domain nohitgammon --chooseroll 0.0 --trial 9
-output = ../log/hc-nohitgammon-chooseroll-0.0-trial-9.txt
-error = ../log/hc-nohitgammon-chooseroll-0.0-trial-9.txt
-queue
-arguments = app_hc.py --domain nohitgammon --chooseroll 0.1 --trial 0
-output = ../log/hc-nohitgammon-chooseroll-0.1-trial-0.txt
-error = ../log/hc-nohitgammon-chooseroll-0.1-trial-0.txt
-queue
-arguments = app_hc.py --domain nohitgammon --chooseroll 0.1 --trial 1
-output = ../log/hc-nohitgammon-chooseroll-0.1-trial-1.txt
-error = ../log/hc-nohitgammon-chooseroll-0.1-trial-1.txt
-queue
-arguments = app_hc.py --domain nohitgammon --chooseroll 0.1 --trial 2
-output = ../log/hc-nohitgammon-chooseroll-0.1-trial-2.txt
-error = ../log/hc-nohitgammon-chooseroll-0.1-trial-2.txt
-queue
-arguments = app_hc.py --domain nohitgammon --chooseroll 0.1 --trial 3
-output = ../log/hc-nohitgammon-chooseroll-0.1-trial-3.txt
-error = ../log/hc-nohitgammon-chooseroll-0.1-trial-3.txt
-queue
-arguments = app_hc.py --domain nohitgammon --chooseroll 0.1 --trial 4
-output = ../log/hc-nohitgammon-chooseroll-0.1-trial-4.txt
-error = ../log/hc-nohitgammon-chooseroll-0.1-trial-4.txt
-queue
-arguments = app_hc.py --domain nohitgammon --chooseroll 0.1 --trial 5
-output = ../log/hc-nohitgammon-chooseroll-0.1-trial-5.txt
-error = ../log/hc-nohitgammon-chooseroll-0.1-trial-5.txt
-queue
-arguments = app_hc.py --domain nohitgammon --chooseroll 0.1 --trial 6
-output = ../log/hc-nohitgammon-chooseroll-0.1-trial-6.txt
-error = ../log/hc-nohitgammon-chooseroll-0.1-trial-6.txt
-queue
-arguments = app_hc.py --domain nohitgammon --chooseroll 0.1 --trial 7
-output = ../log/hc-nohitgammon-chooseroll-0.1-trial-7.txt
-error = ../log/hc-nohitgammon-chooseroll-0.1-trial-7.txt
-queue
-arguments = app_hc.py --domain nohitgammon --chooseroll 0.1 --trial 8
-output = ../log/hc-nohitgammon-chooseroll-0.1-trial-8.txt
-error = ../log/hc-nohitgammon-chooseroll-0.1-trial-8.txt
-queue
-arguments = app_hc.py --domain nohitgammon --chooseroll 0.1 --trial 9
-output = ../log/hc-nohitgammon-chooseroll-0.1-trial-9.txt
-error = ../log/hc-nohitgammon-chooseroll-0.1-trial-9.txt
-queue
-arguments = app_hc.py --domain nohitgammon --chooseroll 0.5 --trial 0
-output = ../log/hc-nohitgammon-chooseroll-0.5-trial-0.txt
-error = ../log/hc-nohitgammon-chooseroll-0.5-trial-0.txt
-queue
-arguments = app_hc.py --domain nohitgammon --chooseroll 0.5 --trial 1
-output = ../log/hc-nohitgammon-chooseroll-0.5-trial-1.txt
-error = ../log/hc-nohitgammon-chooseroll-0.5-trial-1.txt
-queue
-arguments = app_hc.py --domain nohitgammon --chooseroll 0.5 --trial 2
-output = ../log/hc-nohitgammon-chooseroll-0.5-trial-2.txt
-error = ../log/hc-nohitgammon-chooseroll-0.5-trial-2.txt
-queue
-arguments = app_hc.py --domain nohitgammon --chooseroll 0.5 --trial 3
-output = ../log/hc-nohitgammon-chooseroll-0.5-trial-3.txt
-error = ../log/hc-nohitgammon-chooseroll-0.5-trial-3.txt
-queue
-arguments = app_hc.py --domain nohitgammon --chooseroll 0.5 --trial 4
-output = ../log/hc-nohitgammon-chooseroll-0.5-trial-4.txt
-error = ../log/hc-nohitgammon-chooseroll-0.5-trial-4.txt
-queue
-arguments = app_hc.py --domain nohitgammon --chooseroll 0.5 --trial 5
-output = ../log/hc-nohitgammon-chooseroll-0.5-trial-5.txt
-error = ../log/hc-nohitgammon-chooseroll-0.5-trial-5.txt
-queue
-arguments = app_hc.py --domain nohitgammon --chooseroll 0.5 --trial 6
-output = ../log/hc-nohitgammon-chooseroll-0.5-trial-6.txt
-error = ../log/hc-nohitgammon-chooseroll-0.5-trial-6.txt
-queue
-arguments = app_hc.py --domain nohitgammon --chooseroll 0.5 --trial 7
-output = ../log/hc-nohitgammon-chooseroll-0.5-trial-7.txt
-error = ../log/hc-nohitgammon-chooseroll-0.5-trial-7.txt
-queue
-arguments = app_hc.py --domain nohitgammon --chooseroll 0.5 --trial 8
-output = ../log/hc-nohitgammon-chooseroll-0.5-trial-8.txt
-error = ../log/hc-nohitgammon-chooseroll-0.5-trial-8.txt
-queue
-arguments = app_hc.py --domain nohitgammon --chooseroll 0.5 --trial 9
-output = ../log/hc-nohitgammon-chooseroll-0.5-trial-9.txt
-error = ../log/hc-nohitgammon-chooseroll-0.5-trial-9.txt
-queue
-arguments = app_hc.py --domain nohitgammon --chooseroll 0.9 --trial 0
-output = ../log/hc-nohitgammon-chooseroll-0.9-trial-0.txt
-error = ../log/hc-nohitgammon-chooseroll-0.9-trial-0.txt
-queue
-arguments = app_hc.py --domain nohitgammon --chooseroll 0.9 --trial 1
-output = ../log/hc-nohitgammon-chooseroll-0.9-trial-1.txt
-error = ../log/hc-nohitgammon-chooseroll-0.9-trial-1.txt
-queue
-arguments = app_hc.py --domain nohitgammon --chooseroll 0.9 --trial 2
-output = ../log/hc-nohitgammon-chooseroll-0.9-trial-2.txt
-error = ../log/hc-nohitgammon-chooseroll-0.9-trial-2.txt
-queue
-arguments = app_hc.py --domain nohitgammon --chooseroll 0.9 --trial 3
-output = ../log/hc-nohitgammon-chooseroll-0.9-trial-3.txt
-error = ../log/hc-nohitgammon-chooseroll-0.9-trial-3.txt
-queue
-arguments = app_hc.py --domain nohitgammon --chooseroll 0.9 --trial 4
-output = ../log/hc-nohitgammon-chooseroll-0.9-trial-4.txt
-error = ../log/hc-nohitgammon-chooseroll-0.9-trial-4.txt
-queue
-arguments = app_hc.py --domain nohitgammon --chooseroll 0.9 --trial 5
-output = ../log/hc-nohitgammon-chooseroll-0.9-trial-5.txt
-error = ../log/hc-nohitgammon-chooseroll-0.9-trial-5.txt
-queue
-arguments = app_hc.py --domain nohitgammon --chooseroll 0.9 --trial 6
-output = ../log/hc-nohitgammon-chooseroll-0.9-trial-6.txt
-error = ../log/hc-nohitgammon-chooseroll-0.9-trial-6.txt
-queue
-arguments = app_hc.py --domain nohitgammon --chooseroll 0.9 --trial 7
-output = ../log/hc-nohitgammon-chooseroll-0.9-trial-7.txt
-error = ../log/hc-nohitgammon-chooseroll-0.9-trial-7.txt
-queue
-arguments = app_hc.py --domain nohitgammon --chooseroll 0.9 --trial 8
-output = ../log/hc-nohitgammon-chooseroll-0.9-trial-8.txt
-error = ../log/hc-nohitgammon-chooseroll-0.9-trial-8.txt
-queue
-arguments = app_hc.py --domain nohitgammon --chooseroll 0.9 --trial 9
-output = ../log/hc-nohitgammon-chooseroll-0.9-trial-9.txt
-error = ../log/hc-nohitgammon-chooseroll-0.9-trial-9.txt
-queue
-arguments = app_hc.py --domain nohitgammon --chooseroll 1.0 --trial 0
-output = ../log/hc-nohitgammon-chooseroll-1.0-trial-0.txt
-error = ../log/hc-nohitgammon-chooseroll-1.0-trial-0.txt
-queue
-arguments = app_hc.py --domain nohitgammon --chooseroll 1.0 --trial 1
-output = ../log/hc-nohitgammon-chooseroll-1.0-trial-1.txt
-error = ../log/hc-nohitgammon-chooseroll-1.0-trial-1.txt
-queue
-arguments = app_hc.py --domain nohitgammon --chooseroll 1.0 --trial 2
-output = ../log/hc-nohitgammon-chooseroll-1.0-trial-2.txt
-error = ../log/hc-nohitgammon-chooseroll-1.0-trial-2.txt
-queue
-arguments = app_hc.py --domain nohitgammon --chooseroll 1.0 --trial 3
-output = ../log/hc-nohitgammon-chooseroll-1.0-trial-3.txt
-error = ../log/hc-nohitgammon-chooseroll-1.0-trial-3.txt
-queue
-arguments = app_hc.py --domain nohitgammon --chooseroll 1.0 --trial 4
-output = ../log/hc-nohitgammon-chooseroll-1.0-trial-4.txt
-error = ../log/hc-nohitgammon-chooseroll-1.0-trial-4.txt
-queue
-arguments = app_hc.py --domain nohitgammon --chooseroll 1.0 --trial 5
-output = ../log/hc-nohitgammon-chooseroll-1.0-trial-5.txt
-error = ../log/hc-nohitgammon-chooseroll-1.0-trial-5.txt
-queue
-arguments = app_hc.py --domain nohitgammon --chooseroll 1.0 --trial 6
-output = ../log/hc-nohitgammon-chooseroll-1.0-trial-6.txt
-error = ../log/hc-nohitgammon-chooseroll-1.0-trial-6.txt
-queue
-arguments = app_hc.py --domain nohitgammon --chooseroll 1.0 --trial 7
-output = ../log/hc-nohitgammon-chooseroll-1.0-trial-7.txt
-error = ../log/hc-nohitgammon-chooseroll-1.0-trial-7.txt
-queue
-arguments = app_hc.py --domain nohitgammon --chooseroll 1.0 --trial 8
-output = ../log/hc-nohitgammon-chooseroll-1.0-trial-8.txt
-error = ../log/hc-nohitgammon-chooseroll-1.0-trial-8.txt
-queue
-arguments = app_hc.py --domain nohitgammon --chooseroll 1.0 --trial 9
-output = ../log/hc-nohitgammon-chooseroll-1.0-trial-9.txt
-error = ../log/hc-nohitgammon-chooseroll-1.0-trial-9.txt
+output = ../data/condorlog/minigammon-622-ntd-minigammon-chooseroll-1.0-trial-9.txt
+error = ../data/condorlog/minigammon-622-ntd-minigammon-chooseroll-1.0-trial-9.txt
 queue

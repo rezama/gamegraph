@@ -2,6 +2,6 @@
 
 rm -v avg/*
 rm -v condorlog/*
-rm -v q-table/vsrandom/*
-rm -v q-table/vsself/*
+rm -v q-table/*
 rm -v trials/*
+rm -v value-tracker/*

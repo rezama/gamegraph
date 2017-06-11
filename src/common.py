@@ -70,6 +70,7 @@ FOLDER_GRAPH = '../data/graph'
 SUFFIX_GRAPH_LOCK = '-lock'
 FOLDER_QTABLE = '../data/q-table'
 FOLDER_PLOTS = '../data/plots'
+FOLDER_VALUE_TRACKER = '../data/value-tracker'
 
 # Folders containing scripts.
 FOLDER_CONDOR = '../condor'  # Contains condor scripts.
@@ -85,7 +86,7 @@ FILE_PREFIX_HC_CHALLENGE = 'hc-challenge'
 
 def make_data_folders():
     for path in [FOLDER_TRIALS, FOLDER_AVG, FOLDER_DOMAINSTATS, FOLDER_GRAPH,
-                 FOLDER_QTABLE, FOLDER_PLOTS]:
+                 FOLDER_QTABLE, FOLDER_PLOTS, FOLDER_VALUE_TRACKER]:
         try:
             os.makedirs(path)
         except OSError:  # Already exists.
@@ -571,6 +572,11 @@ class ExpParams(object):
 
     def get_trial_filename(self, file_prefix):
         filename = '%s/%s-%s.txt' % (FOLDER_TRIALS, file_prefix,
+                                     self.get_filename_suffix_with_trial())
+        return filename
+
+    def get_value_tracker_filename(self, file_prefix):
+        filename = '%s/%s-%s.txt' % (FOLDER_VALUE_TRACKER, file_prefix,
                                      self.get_filename_suffix_with_trial())
         return filename
 

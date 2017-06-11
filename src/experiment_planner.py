@@ -57,9 +57,10 @@ if __name__ == '__main__':
     fp.write('set terminal postscript eps color\n')
     fp.write('')
 
-    for app in ['app_sarsa', 'app_ntd', 'app_hc']:
+    # for app in ['app_sarsa', 'app_ntd', 'app_hc']:
+    for app in ['app_ntd']:
         # for domain in ['minigammon', 'nannon', 'midgammon', 'nohitgammon', 'nim']:
-        for domain in ['nim']:
+        for domain in ['nim', 'minigammon']:
             state_class = domain_proxy.DomainProxy.load_domain_state_class_by_name(domain)
             domain_full = state_class.get_domain_signature()
 
